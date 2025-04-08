@@ -1,0 +1,112 @@
+.sidebar {
+    border-radius: 10px;
+    width: 70px;
+    transition: width 0.3s ease;
+    background-color: white;
+    height: calc(100vh - 40px); 
+    overflow: hidden;
+    border-right: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0 20px 20px; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .sidebar:hover {
+    width: 220px;
+  }
+  
+  .logo {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0;
+    background-color: #a678e2;
+    color: white;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+  
+  .logoImage {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 0.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .logoText {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    font-size: 0.9rem;
+  }
+  
+  .sidebar:hover .logoText {
+    opacity: 1;
+  }
+  
+  .sidebar:not(:hover) .logo {
+    justify-content: center;
+  }
+  
+  .sidebar:not(:hover) .logoImage {
+    margin-right: 0;
+  }
+  
+  .menuContainer {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+  
+  
+  .menuItem {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    margin: 0.5rem;
+    color: #6b21a8;
+    width: 80%;
+  }
+  
+  .menuItem:hover {
+    background-color: #a678e2;
+    color: white;
+  }
+  
+  .menuItem:hover .icon {
+    color: white;
+  }
+  
+  .menuItem:hover .label {
+    color: white;
+  }
+  
+  .icon {
+    font-size: 1.2rem;
+    color: #6b21a8;
+    min-width: 30px;
+    text-align: center;
+  }
+  
+  .label {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+    margin-left: 10px;
+    color: #333;
+  }
+  
+  .sidebar:hover .label {
+    opacity: 1;
+  }

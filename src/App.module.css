@@ -1,0 +1,24 @@
+.appContainer {
+    display: flex;
+    background: #f5f7fc;
+    min-height: 100vh;
+  }
+  
+  .mainContent {
+    flex: 1;
+    padding: 24px;
+  }
+  
+  .topBar {
+    height: 32px;
+    background: #a855f7;
+    border-radius: 16px 16px 0 0;
+    margin-bottom: 16px;
+  }
+  
+  .gridArea {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+  }
+  
