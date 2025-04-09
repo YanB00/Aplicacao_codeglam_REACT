@@ -1,0 +1,134 @@
+.page {
+  display: flex;
+  height: 100vh;
+  background: #f9f9f9; 
+}
+
+.content {
+  flex: 1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.topBar {
+  height: 30px;
+  background: #a678e2; 
+  border-radius: 16px 16px 0 0;
+  margin-bottom: 1.5rem;
+}
+
+.mainContent {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.profileCard {
+  background: #fff; 
+  border: 1px solid #ddd; 
+  border-radius: 16px;
+  padding: 1.5rem;
+  width: 320px;
+  height: fit-content; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatarWrapper img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+}
+
+.avatarWrapper h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.underline {
+  width: 100%;
+  height: 3px;
+  background-color: #a678e2;
+  margin: 0.5rem 0;
+  border-radius: 2px;
+}
+
+.since {
+  color: #888;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem; 
+  color: #444;
+  font-size: 0.9rem; 
+}
+
+.detailsCard {
+  flex: 1;
+  background: #fff; 
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+}
+
+.detailsCard h3 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.detailsCard p {
+  margin-bottom: 0.6rem;
+  color: #555;
+  font-size: 0.95rem; 
+}
+
+.actions {
+  margin-top: 10rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end; 
+}
+
+.updateBtn,
+.historyBtn {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem; 
+}
+
+.updateBtn {
+  background: #a678e2;
+  color: white;
+}
+
+.historyBtn {
+  background: #e2e2e2;
+  color: #333;
+}
+
+.updateBtn:hover {
+  background: #896baf;
+  color: white;
+}
+
+.historyBtn:hover {
+  background: #bdbcbc;
+  color: #333;
+}

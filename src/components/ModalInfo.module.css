@@ -1,0 +1,103 @@
+.overlay {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+    margin-top: 0.5rem;
+  }
+  
+  .modal {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e0e0e0;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  
+  .closeBtn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #333;
+  }
+  
+  .content {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .card {
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    color: #333;
+  }
+  
+  /* Cores personalizadas */
+  .pink {
+    background-color: #fdd3ec;
+  }
+  
+  .purple {
+    background-color: #e6d6fa;
+  }
+  
+  .blue {
+    background-color: #d4f6f9;
+  }
+  
+  .green {
+    background-color: #d2f5e3;
+  }
+  
+  .time {
+    font-weight: 600;
+    color: #444;
+  }
+  
+  .name {
+    font-weight: 800;
+    color: #6b21a8;
+    margin-top: 0.25rem;
+  }
+  
+  .service {
+    color: #555;
+    margin-top: 0.2rem;
+  }
+  
+  .note {
+    font-weight: 600;
+    color: #a20044;
+    margin-top: 0.2rem;
+  }
+  
+  .footer {
+    margin-top: 1rem;
+    text-align: center;
+  }
+  
+  .moreLink {
+    font-weight: 600;
+    color: #6b21a8;
+    text-decoration: none;
+  }
+  
+  .moreLink:hover {
+    text-decoration: underline;
+  }
+  
