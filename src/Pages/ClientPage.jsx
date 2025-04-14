@@ -1,7 +1,10 @@
 import React from 'react';
-import styles from './ClientPage.module.css';
-import Sidebar from '../components/Sidebar'; // se já tiver esse componente
+import { Link } from 'react-router-dom';
 import { FaKey, FaBirthdayCake, FaIdCard, FaPhone, FaEnvelope } from 'react-icons/fa';
+
+import Sidebar from '../components/Sidebar';
+import ClientHistory from '../components/ClientHistory';
+import styles from './ClientPage.module.css';
 
 export default function ClientPage() {
   const client = {
@@ -23,8 +26,11 @@ export default function ClientPage() {
     <div className={styles.page}>
       <Sidebar />
       <div className={styles.content}>
-       <div className={styles.topBar}></div>
+        {/* Barra roxa superior */}
+        <div className={styles.topBar}></div>
+
         <div className={styles.mainContent}>
+          {/* Card de perfil do cliente */}
           <div className={styles.profileCard}>
             <div className={styles.avatarWrapper}>
               <img src={client.img} alt={client.name} />
@@ -32,13 +38,15 @@ export default function ClientPage() {
               <div className={styles.underline} />
               <p className={styles.since}>Cliente desde {client.since}</p>
             </div>
-            <div className={styles.infoItem}><FaKey/> <span>ID: #123456</span></div>
+
+            <div className={styles.infoItem}><FaKey /> <span>ID: #123456</span></div>
             <div className={styles.infoItem}><FaBirthdayCake /> <span>Nascimento: {client.birthDate}</span></div>
             <div className={styles.infoItem}><FaIdCard /> <span>CPF: {client.cpf}</span></div>
             <div className={styles.infoItem}><FaPhone /> <span>Telefone: {client.phone}</span></div>
             <div className={styles.infoItem}><FaEnvelope /> <span>Email: {client.email}</span></div>
           </div>
 
+          {/* Card de detalhes */}
           <div className={styles.detailsCard}>
             <h3>Informações de Atendimento</h3>
             <p><strong>Procedimentos favoritos:</strong> {client.favorites.join(', ')}</p>
@@ -46,11 +54,18 @@ export default function ClientPage() {
             <p><strong>Benefícios:</strong> {client.beneficios}</p>
             <p><strong>Problemas médicos:</strong> {client.problemasMedicos}</p>
             <p><strong>Informações adicionais:</strong> {client.adicionais}</p>
+
             <div className={styles.actions}>
-              <button className={styles.updateBtn}>Atualizar</button>
-              <button className={styles.historyBtn}>Ver Histórico</button>
+              <Link to="/cliente/editar" className={styles.updateBtn}>
+                Atualizar
+              </Link>
             </div>
           </div>
+        </div>
+
+        {/* Seção de histórico próxima aos cards */}
+        <div className={styles.historySection}>
+          <ClientHistory />
         </div>
       </div>
     </div>

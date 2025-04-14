@@ -5,7 +5,9 @@ import Sidebar from './components/Sidebar';
 import TopCards from './components/TopCards';
 import ChartArea from './components/ChartArea';
 import BirthdayList from './components/BirthdayList';
-import ClientPage from './Pages/ClientPage'; // crie esse componente como falamos
+import ClientPage from './Pages/ClientPage'; 
+import EditClientPage from './pages/EditClientPage';
+
 
 function Dashboard() {
   return (
@@ -29,6 +31,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/cliente/:name" element={<ClientPage />} />
+        <Route path="/cliente/editar" element={<EditClientPage />} />
       </Routes>
     </BrowserRouter>
   );
