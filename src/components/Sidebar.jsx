@@ -1,5 +1,7 @@
 import React, { useState, useContext, createContext } from 'react';
+import { Link } from 'react-router-dom';
 import styles from './Sidebar.module.css';
+
 import {
   FaCalendarAlt,
   FaStar,
@@ -16,8 +18,8 @@ import {
 const SidebarContext = createContext();
 
 const menuItems = [
-  { icon: <FaHome />, label: 'Home' },
-  { icon: <FaCalendarAlt />, label: 'Agenda' },
+  { icon: <FaHome />, label: 'Home', to: '/' },
+  { icon: <FaCalendarAlt />, label: 'Agenda', to: '/schedule' },
   { icon: <FaStar />, label: 'Serviços' },
   { icon: <FaUsers />, label: 'Clientes' },
   { icon: <FaUserTie />, label: 'Funcionários' },
@@ -30,7 +32,6 @@ const menuItems = [
 
 export default function Sidebar() {
   const [expanded, setExpanded] = useState(true);
-
   const salonName = "Salao 1";
 
   const getInitials = (name) => {
@@ -55,24 +56,33 @@ export default function Sidebar() {
         <SidebarContext.Provider value={{ expanded }}>
           <ul className={styles.menu}>
             {menuItems.map((item, index) => (
-              <SidebarItem key={index} icon={item.icon} label={item.label} />
+              <SidebarItem key={index} icon={item.icon} label={item.label} to={item.to} />
             ))}
           </ul>
         </SidebarContext.Provider>
-
-        
       </nav>
     </aside>
   );
 }
 
-function SidebarItem({ icon, label }) {
+function SidebarItem({ icon, label, to }) {
   const { expanded } = useContext(SidebarContext);
+  const content = (
+    <>
+      <span className={styles.icon}>{icon}</span>
+      {expanded && <span className={styles.label}>{label}</span>}
+    </>
+  );
 
   return (
     <li className={styles.menuItem}>
-      <span className={styles.icon}>{icon}</span>
-      {expanded && <span className={styles.label}>{label}</span>}
+      {to ? (
+        <Link to={to} className={styles.link}>
+          {content}
+        </Link>
+      ) : (
+        content
+      )}
     </li>
   );
 }

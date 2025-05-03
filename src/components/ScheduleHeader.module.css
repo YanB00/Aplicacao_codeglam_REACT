@@ -1,0 +1,61 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 20px;
+    gap: 20px;
+  }
+  
+  .sidebar {
+    flex: 0 0 80px; /* largura fixa para o menu lateral */
+  }
+  
+  .header {
+    flex: 1;
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .filters {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  
+  .select {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f8f8f8;
+  }
+  
+  .todayButton {
+    padding: 8px 12px;
+    background-color: #9254c8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .datePicker {
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+  }
+  
+  .addButton {
+    padding: 10px 18px;
+    background-color: #7c3aed;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  

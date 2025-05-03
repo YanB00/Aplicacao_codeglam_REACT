@@ -46,6 +46,15 @@
     font-size: 0.9rem;
     font-weight: bold;
   }
+
+  .link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  
   
   .menu {
     flex-grow: 1;

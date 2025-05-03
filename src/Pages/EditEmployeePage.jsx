@@ -1,8 +1,9 @@
 import React from 'react';
-import styles from './EditClientPage.module.css';
+import styles from './EditEmployeePage.module.css';
 import Sidebar from '../components/Sidebar';
-import { FaCamera } from 'react-icons/fa';  
-export default function EditClientPage() {
+import { FaCamera } from 'react-icons/fa';
+
+export default function EditEmployeePage() {
   return (
     <div className={styles.page}>
       <Sidebar />
@@ -24,7 +25,7 @@ export default function EditClientPage() {
                 id="avatar-upload"
                 type="file"
                 hidden
-                accept="image/*"  
+                accept="image/*"
               />
             </label>
           </div>
@@ -45,54 +46,67 @@ export default function EditClientPage() {
               </div>
             </div>
 
-            <div className={styles.radioGroup}>
-              <label>Cliente frequente?</label>
+            <div className={styles.row}>
               <div>
-                <label>
-                  <input type="radio" name="frequente" value="Sim" /> Sim
-                </label>
-                <label>
-                  <input type="radio" name="frequente" value="Não" /> Não
-                </label>
+                <label htmlFor="employeeId">ID do Funcionário</label>
+                <input id="employeeId" type="text" placeholder="#EMP123" />
+              </div>
+              <div>
+                <label htmlFor="startDate">Data de admissão</label>
+                <input id="startDate" type="date" />
+              </div>
+              <div>
+                <label htmlFor="position">Cargo</label>
+                <input id="position" type="text" placeholder="Ex: Designer de Unhas" />
               </div>
             </div>
 
             <div className={styles.row}>
-              <div>
-                <label htmlFor="procedures">Procedimentos Favoritos</label>
-                <input
-                  id="procedures"
-                  type="text"
-                  placeholder="Ex: Corte, Escova"
-                />
-              </div>
               <div>
                 <label htmlFor="benefits">Benefícios</label>
                 <input
                   id="benefits"
                   type="text"
-                  placeholder="Ex: Desconto"
+                  placeholder="Ex: Vale-transporte, Desconto"
+                />
+              </div>
+              <div>
+                <label htmlFor="healthIssues">Problemas de saúde</label>
+                <input
+                  id="healthIssues"
+                  type="text"
+                  placeholder="Ex: Nenhum"
                 />
               </div>
             </div>
 
             <div className={styles.row}>
               <div>
-                <label htmlFor="medicalIssues">Problemas médicos</label>
-                <input
-                  id="medicalIssues"
-                  type="text"
-                  placeholder="Ex: Nenhum"
-                />
-              </div>
-              <div>
                 <label htmlFor="additionalInfo">Informações adicionais</label>
                 <input
                   id="additionalInfo"
                   type="text"
-                  placeholder="Ex: Prefere manhã"
+                  placeholder="Ex: Entrada 09:00 - Saída 18:00"
                 />
               </div>
+              <div> 
+                <label htmlFor="tel">Telefone</label>
+                <input
+                  id="tel"
+                  type="text"
+                  placeholder="(XX) XXXXX-XXXX" 
+                />
+              </div>
+
+              <div> 
+                <label htmlFor="Email">Email</label>
+                <input
+                  id="email"
+                  type="text"
+                  placeholder="juliana@gmail.com" 
+                />
+              </div>
+
             </div>
 
             <div className={styles.buttonGroup}>
