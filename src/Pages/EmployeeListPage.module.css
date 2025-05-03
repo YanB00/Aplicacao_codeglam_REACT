@@ -1,0 +1,32 @@
+.page {
+  display: flex;
+}
+
+.content {
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #fff;
+  min-height: 100vh;
+}
+
+.topBar {
+  height: 24px;
+  background-color: #9b5de5;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+
+.title {
+  text-align: center;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+}

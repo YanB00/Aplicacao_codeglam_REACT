@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import styles from './App.module.css';
+import { Navigate } from 'react-router-dom';
 
 import Sidebar from './components/Sidebar';
 import TopCards from './components/TopCards';
@@ -10,7 +11,7 @@ import EditClientPage from './pages/EditClientPage';
 import SchedulePage from './pages/SchedulePage';
 import EmployeePage from './pages/EmployeePage';
 import EditEmployeePage from './pages/EditEmployeePage'; // ✅ Importa a nova página
-
+import EmployeeListPage from './Pages/EmployeeListPage';
 
 function Dashboard() {
   return (
@@ -45,7 +46,10 @@ export default function App() {
           </div>
         } />
 
-        <Route path="/funcionario" element={<EmployeePage />} />
+        <Route path="/funcionario/:id" element={<EmployeePage />} />
+        <Route path="/funcionarios" element={<EmployeeListPage />} />
+        <Route path="/funcionario" element={<Navigate to="/funcionarios" replace />} />
+
         <Route path="/funcionario/editar" element={<EditEmployeePage />} /> {/* ✅ Nova rota adicionada */}
       </Routes>
     </BrowserRouter>
