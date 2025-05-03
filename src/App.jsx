@@ -50,7 +50,7 @@ export default function App() {
         <Route path="/funcionarios" element={<EmployeeListPage />} />
         <Route path="/funcionario" element={<Navigate to="/funcionarios" replace />} />
 
-        <Route path="/funcionario/editar" element={<EditEmployeePage />} /> {/* ✅ Nova rota adicionada */}
+        <Route path="/funcionario/Editar/:id" element={<EditEmployeePage />} />
       </Routes>
     </BrowserRouter>
   );

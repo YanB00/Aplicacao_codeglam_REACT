@@ -79,7 +79,8 @@
   margin-top: 20px;
 }
 
-.updateBtn {
+.button {
+  
   background-color: #c084fc;
   color: white;
   border: none;
@@ -90,7 +91,7 @@
   text-decoration: none;
 }
 
-.updateBtn:hover {
+.button:hover {
   background-color: #a855f7;
 }
 

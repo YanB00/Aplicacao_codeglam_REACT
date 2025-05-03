@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, Link } from 'react-router-dom'; // ✅ Corrigido: Link importado
+import { useParams, Link, useNavigate } from 'react-router-dom'; // ✅ Corrigido: imports ajustados
 import { FaKey, FaBirthdayCake, FaIdCard, FaPhone, FaEnvelope } from 'react-icons/fa';
 import Sidebar from '../components/Sidebar';
 import EmployeeHistory from '../components/EmployeeHistory';
@@ -8,6 +8,8 @@ import styles from './EmployeePage.module.css';
 export default function EmployeePage() {
   const { id } = useParams();
   console.log('ID da URL:', id); // ✅ Debug: verificar valor do ID
+
+  const navigate = useNavigate(); // Usando o hook navigate
 
   const employeeList = [
     {
@@ -43,6 +45,7 @@ export default function EmployeePage() {
   // ✅ Comparação case-insensitive
   const employee = employeeList.find(emp => emp.id.toLowerCase() === id.toLowerCase());
 
+  // Se o funcionário não for encontrado, renderiza uma tela de erro
   if (!employee) {
     return (
       <div className={styles.page}>
@@ -51,11 +54,16 @@ export default function EmployeePage() {
           <div className={styles.topBar}></div>
           <div className={styles.mainContent}>
             <h2>Funcionária não encontrada</h2>
+            <Link to="/funcionarios">Voltar para a lista de funcionários</Link>
           </div>
         </div>
       </div>
     );
   }
+
+  const handleClick = () => {
+    navigate(`/funcionario/Editar/${employee.id}`);
+  };
 
   return (
     <div className={styles.page}>
@@ -84,9 +92,10 @@ export default function EmployeePage() {
             <p><strong>Benefícios:</strong> {employee.benefits}</p>
             <p><strong>Problemas de saúde:</strong> {employee.healthIssues}</p>
             <p><strong>Informações adicionais:</strong> {employee.notes}</p>
-            <div className={styles.actions}>
-              <Link to="/funcionario/editar" className={styles.updateBtn}>Atualizar</Link>
-            </div>
+          
+            <button className={styles.button} onClick={handleClick}>
+              Atualizar
+            </button>
           </div>
         </div>
 
