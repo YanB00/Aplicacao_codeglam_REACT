@@ -1,7 +1,9 @@
-import React from 'react';
+// EmployeeListPage.js
+import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import EmployeeCard from '../components/EmployeeCard';
 import styles from './EmployeeListPage.module.css';
+import { FaSearch } from 'react-icons/fa';
 
 export default function EmployeeListPage() {
   const employees = [
@@ -47,14 +49,38 @@ export default function EmployeeListPage() {
     },
   ];
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredEmployees, setFilteredEmployees] = useState(employees);
+
+  const handleSearch = (event) => {
+    const term = event.target.value.toLowerCase();
+    setSearchTerm(term);
+    const filtered = employees.filter(
+      (emp) =>
+        emp.name.toLowerCase().includes(term) || emp.id.toLowerCase().includes(term)
+    );
+    setFilteredEmployees(filtered);
+  };
+
   return (
     <div className={styles.page}>
       <Sidebar />
       <div className={styles.content}>
-        <div className={styles.topBar}></div>
-        <h2 className={styles.title}>Funcionárias</h2>
+        <div className={styles.topBar}>
+          <h2 className={styles.topBarTitle}>Funcionários</h2> {/* Move o título para dentro da topBar */}
+          <div className={styles.searchContainer}>
+            <input
+              type="text"
+              placeholder="Buscar por nome ou ID..."
+              value={searchTerm}
+              onChange={handleSearch}
+              className={styles.searchInput}
+            />
+            <FaSearch className={styles.searchIcon} />
+          </div>
+        </div>
         <div className={styles.grid}>
-          {employees.map((employee) => (
+          {filteredEmployees.map((employee) => (
             <EmployeeCard key={employee.id} employee={employee} />
           ))}
         </div>

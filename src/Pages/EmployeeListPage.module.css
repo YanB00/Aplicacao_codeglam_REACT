@@ -1,3 +1,4 @@
+/* EmployeeListPage.module.css */
 .page {
   display: flex;
 }
@@ -10,17 +11,21 @@
 }
 
 .topBar {
-  height: 24px;
+  height: 60px;
   background-color: #9b5de5;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
+  display: flex;
+  justify-content: space-between; /* Espaço entre o título e a busca */
+  align-items: center;
+  padding: 0 20px;
+  margin-bottom: 20px; /* Opcional: margem abaixo da topBar */
 }
 
-
-.title {
-  text-align: center;
-  color: #333;
-  margin-bottom: 16px;
+.topBarTitle {
+  color: #fff;
+  font-size: 24px;
+  margin-right: 20px; /* Espaço entre o título e a busca */
 }
 
 .grid {
@@ -29,4 +34,28 @@
   justify-content: center;
   gap: 16px;
   padding: 24px;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.searchInput {
+  border: none;
+  padding: 8px;
+  outline: none;
+  font-size: 16px;
+  width: 200px;
+}
+
+.searchIcon {
+  color: #9b5de5;
+  margin-left: 8px;
+  font-size: 1.2em;
+  cursor: pointer;
 }
