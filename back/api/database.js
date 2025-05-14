@@ -1,10 +1,5 @@
 const mongoose = require('mongoose');
-const URI = '';
-
-mongoose.set('useNewUrlParser', true);
-mongoose.set('useFindAndModify', true);
-mongoose.set('useCreateIndex',true);
-mongoose.set('useUnifiedTopology', true);
+const URI = 'mongodb+srv://ybarbosa648:jTIXaS5acgrd70id@codeglam.dahu6fa.mongodb.net/?retryWrites=true&w=majority&appName=Codeglam';
 
 mongoose.connect(URI).then(()=>console.log('DB conectado'))
 .catch(()=>console.log(err));
