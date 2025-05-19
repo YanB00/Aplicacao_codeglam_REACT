@@ -7,27 +7,27 @@ const clienteSchema = new Schema({
     required: true,
   },
   dataNascimento: {
-    type: Date, 
+    type: Date,
     required: true,
   },
   cpf: {
     type: String,
     required: true,
-    unique: true, 
+    unique: true,
   },
-  clienteFrequente: {
-    type: Boolean,
-    default: false, 
+  idCliente: {
+    type: String,
+    unique: true,
   },
-  procedimentosFavoritos: {
-    type: [String], 
+  dataCadastro: { 
+    type: Date,
+    default: Date.now,
+  },
+  favoritos: { 
+    type: [String],
     default: [],
   },
-  beneficios: {
-    type: [String], 
-    default: [],
-  },
-  problemasMedicos: {
+  problemasSaude: { 
     type: String,
     default: null,
   },
@@ -35,10 +35,12 @@ const clienteSchema = new Schema({
     type: String,
     default: null,
   },
-  dataCadastro: {
-    type: Date,
-    default: Date.now,
+  telefone: {
+    type: String,
   },
+  email: {
+    type: String,
+  }
 });
 
 module.exports = mongoose.model('Cliente', clienteSchema);

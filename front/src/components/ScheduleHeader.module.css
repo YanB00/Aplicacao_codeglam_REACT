@@ -42,6 +42,11 @@
     border-radius: 8px;
     cursor: pointer;
   }
+
+  .todayButton:hover {
+  background-color: #7a3db8;
+  transform: scale(1.05);
+}
   
   .datePicker {
     padding: 8px;

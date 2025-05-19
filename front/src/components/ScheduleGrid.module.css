@@ -1,14 +1,68 @@
-.grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-auto-rows: 60px;
-    gap: 12px;
-    padding: 20px;
-    background-color: #f9f9fb;
-    border-radius: 16px;
-    margin: 0 20px 20px 0;
-  }
-  .cell {
-    position: relative;
-  }
-  
+.container {
+  display: grid;
+  grid-template-columns: 70px repeat(auto-fit, minmax(150px, 1fr)); /* Coluna de horários e colunas de funcionários */
+  border: 1px solid #ccc;
+}
+
+.timeColumn {
+  grid-column: 1 / 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.timeSlot {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  text-align: right;
+  font-size: 0.8em;
+  height: 40px; /* Altura para representar 30 minutos */
+  line-height: 40px;
+}
+
+.employeeColumns {
+  grid-column: 2 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.employeeHeader {
+  padding: 8px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.eventArea {
+  grid-column: 2 / -1;
+  grid-row: 2 / -1;
+  position: relative;
+  padding-top: 40px; /* Espaço para alinhar os eventos com os horários */
+}
+
+.eventCell {
+  position: absolute;
+  box-sizing: border-box; /* Garante que padding e border não afetem o tamanho */
+  border-radius: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  z-index: 1;
+  padding: 8px;
+  font-size: 0.8em;
+  color: white;
+
+  /* Posicionamento dinâmico pelas variáveis CSS */
+  top: calc(var(--event-start-half-hour) * 20px); /* 20px por intervalo de 30 minutos */
+  left: calc(100% / var(--employee-count) * var(--employee-index));
+  width: calc(100% / var(--employee-count) - 2px); /* Ajuste para espaçamento */
+  height: calc(var(--event-duration-half-hours) * 20px - 2px); /* Ajuste para espaçamento */
+}
+
+
+.eventCell {
+
+  color: black; 
+}

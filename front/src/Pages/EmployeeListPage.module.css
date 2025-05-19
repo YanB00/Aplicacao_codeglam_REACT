@@ -59,3 +59,84 @@
   font-size: 1.2em;
   cursor: pointer;
 }
+
+.addButton {
+  background-color: #a855f7;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+
+.addButton:hover {
+  background-color: #9333ea;
+}
+
+/* ... seus outros estilos ... */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+  padding-bottom: 40px; /* Aumentei um pouco o padding inferior */
+  gap: 10px; /* Aumentei um pouco o espaço entre os botões */
+ }
+ 
+ .paginationButton {
+  background-color: transparent;
+  color: #999; /* Cor do texto mais clara */
+  border: none;
+  padding: 5px 8px; /* Reduzi um pouco o padding */
+  border-radius: 5px; /* Arredondamento ainda menor */
+  cursor: pointer;
+  transition: color 0.3s ease;
+  font-size: 14px;
+  min-width: 25px; /* Reduzi a largura mínima */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+ }
+ 
+ .paginationButton:hover:not(:disabled) {
+  color: #555; /* Escurece um pouco ao passar o mouse */
+ }
+ 
+ .paginationButton.active {
+  color: #9b5de5; /* Mantém a cor primária para a página ativa */
+  font-weight: bold; /* Adiciona um peso maior à fonte para destacar */
+  border-radius: 8px; /* Aumenta um pouco o border-radius do ativo */
+  /* Removi o background-color do ativo para um visual mais clean */
+ }
+ 
+ .paginationButton:disabled {
+  opacity: 0.3; /* Deixa mais transparente quando desabilitado */
+  cursor: not-allowed;
+ }
+ 
+ /* Estilos específicos para os botões de seta */
+ .pagination button:first-child,
+ .pagination button:last-child {
+  font-size: 1em; /* Reduzi o tamanho das setas */
+  padding: 4px 6px; /* Ajustei o padding das setas */
+  border-radius: 50%;
+  background-color: transparent;
+  color: #999;
+  border: 1px solid #ccc; /* Mantém a borda sutil */
+  line-height: 1; /* Ajusta a altura da linha para centralizar o ícone */
+ }
+ 
+ .pagination button:first-child:hover:not(:disabled),
+ .pagination button:last-child:hover:not(:disabled) {
+  color: #555;
+  border-color: #bbb;
+  background-color: #f9f9f9; /* Adiciona um leve background no hover da seta */
+ }

@@ -1,7 +1,11 @@
+//os cards q mostram na home
+
+
 import React, { useState } from 'react';
 import ModalInfo from './ModalInfo';
 import styles from './TopCards.module.css';
 import { FaPlus } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 export default function TopCards() {
   const [openModals, setOpenModals] = useState({});

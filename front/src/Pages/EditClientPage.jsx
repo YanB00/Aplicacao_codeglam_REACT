@@ -1,7 +1,8 @@
 import React from 'react';
-import styles from './EditClientPage.module.css';
+import styles from './EditEmployeePage.module.css';
 import Sidebar from '../components/Sidebar';
-import { FaCamera } from 'react-icons/fa';  
+import { FaCamera } from 'react-icons/fa';
+
 export default function EditClientPage() {
   return (
     <div className={styles.page}>
@@ -13,7 +14,7 @@ export default function EditClientPage() {
         <div className={styles.formContainer}>
           <div className={styles.avatarSection}>
             <img
-              src="https://randomuser.me/api/portraits/women/89.jpg"
+              src="https://randomuser.me/api/portraits/women/45.jpg"
               alt="Avatar"
               className={styles.avatar}
             />
@@ -24,7 +25,7 @@ export default function EditClientPage() {
                 id="avatar-upload"
                 type="file"
                 hidden
-                accept="image/*"  
+                accept="image/*"
               />
             </label>
           </div>
@@ -45,54 +46,60 @@ export default function EditClientPage() {
               </div>
             </div>
 
-            <div className={styles.radioGroup}>
-              <label>Cliente frequente?</label>
+            <div className={styles.row}>
               <div>
-                <label>
-                  <input type="radio" name="frequente" value="Sim" /> Sim
-                </label>
-                <label>
-                  <input type="radio" name="frequente" value="Não" /> Não
-                </label>
+                <label htmlFor="employeeId">ID do Cliente</label>
+                <input id="employeeId" type="text" placeholder="12345" />
+              </div>
+              <div>
+                <label htmlFor="startDate">cliente desde  </label>
+                <input id="startDate" type="date" />
+              </div>
+              <div>
+                <label htmlFor="favorites">Fovoritos</label>
+                <input id="position" type="text" placeholder="Ex: Designer de Unhas" />
               </div>
             </div>
 
             <div className={styles.row}>
+        
               <div>
-                <label htmlFor="procedures">Procedimentos Favoritos</label>
+                <label htmlFor="healthIssues">Problemas de saúde</label>
                 <input
-                  id="procedures"
-                  type="text"
-                  placeholder="Ex: Corte, Escova"
-                />
-              </div>
-              <div>
-                <label htmlFor="benefits">Benefícios</label>
-                <input
-                  id="benefits"
-                  type="text"
-                  placeholder="Ex: Desconto"
-                />
-              </div>
-            </div>
-
-            <div className={styles.row}>
-              <div>
-                <label htmlFor="medicalIssues">Problemas médicos</label>
-                <input
-                  id="medicalIssues"
+                  id="healthIssues"
                   type="text"
                   placeholder="Ex: Nenhum"
                 />
               </div>
+            </div>
+
+            <div className={styles.row}>
               <div>
                 <label htmlFor="additionalInfo">Informações adicionais</label>
                 <input
                   id="additionalInfo"
                   type="text"
-                  placeholder="Ex: Prefere manhã"
+                  placeholder="Prefere vir de manhã"
                 />
               </div>
+              <div> 
+                <label htmlFor="tel">Telefone</label>
+                <input
+                  id="tel"
+                  type="text"
+                  placeholder="(XX) XXXXX-XXXX" 
+                />
+              </div>
+
+              <div> 
+                <label htmlFor="Email">Email</label>
+                <input
+                  id="email"
+                  type="text"
+                  placeholder="juliana@gmail.com" 
+                />
+              </div>
+
             </div>
 
             <div className={styles.buttonGroup}>

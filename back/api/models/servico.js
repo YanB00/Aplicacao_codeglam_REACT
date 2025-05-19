@@ -4,7 +4,8 @@ const Schema = mongoose.Schema;
 const servicoSchema = new Schema({
   salaoId: {
     type: mongoose.Types.ObjectId,
-    ref: 'Salao',
+    ref: 'Registro',
+    required: true,
   },
   titulo: {
     type: String,
@@ -22,25 +23,20 @@ const servicoSchema = new Schema({
     type: String,
     required: true,
   },
-  recorrencia: {
-    type: Number,
-    required: true,
-    default: 30,
-  },
   descricao: {
     type: String,
     required: true,
   },
   status: {
     type: String,
-    enum: ['A', 'B', 'C'],
+    enum: ['Ativo', 'Bloqueado', 'Cancelado'], 
     required: true,
-    default: 'A',
+    default: 'Ativo', 
   },
   dataCadastro: {
     type: Date,
     default: Date.now,
-  },
+  }
 });
 
 module.exports = mongoose.model('Servico', servicoSchema);

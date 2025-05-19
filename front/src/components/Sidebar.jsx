@@ -19,15 +19,11 @@ const SidebarContext = createContext();
 
 const menuItems = [
   { icon: <FaHome />, label: 'Home', to: '/' },
-  { icon: <FaCalendarAlt />, label: 'Agenda', to: '/schedule' },
-  { icon: <FaStar />, label: 'Serviços' },
-  { icon: <FaUsers />, label: 'Clientes' },
-  { icon: <FaUserTie />, label: 'Funcionários' },
-  { icon: <FaDollarSign />, label: 'Relatórios' },
-  { icon: <FaCommentDots />, label: 'Feedback' },
-  { icon: <FaTags />, label: 'Produtos' },
-  { icon: <FaComments />, label: 'Chat' },
-  { icon: <FaCog />, label: 'Configurações' },
+  { icon: <FaCalendarAlt />, label: 'Agenda', to: '/calendario' },
+  { icon: <FaStar />, label: 'Serviços', to: '/servicos' },
+  { icon: <FaUsers />, label: 'Clientes', to: '/clientes' },
+  { icon: <FaUserTie />, label: 'Funcionários', to: '/funcionarios'},
+  { icon: <FaCog />, label: 'Configurações', to: '/configuracoes' },
 ];
 
 export default function Sidebar() {

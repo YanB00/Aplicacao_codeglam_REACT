@@ -1,11 +1,13 @@
+
+//lista de aniversariantes
 import React, { useState } from 'react';
 import styles from './BirthdayList.module.css';
-import { FaUserCircle } from 'react-icons/fa'; // adicione isso no topo
-
+import { FaUserCircle } from 'react-icons/fa'; 
 import BirthdayModal from './BirthdayModal';
 
 const people = [
   {
+    id: '12345',
     name: 'Amanda Souza',
     img: 'https://randomuser.me/api/portraits/women/44.jpg',
     birthdate: '1990-04-10', 

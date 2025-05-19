@@ -1,6 +1,9 @@
+//popup que surge na home aapos clicar nas cards de cima
+
 import React from 'react';
 import styles from './ModalInfo.module.css';
 import { IoClose } from 'react-icons/io5';
+import { Link } from 'react-router-dom';
 
 export default function ModalInfo({ title, data, onClose }) {
   return (
@@ -25,9 +28,11 @@ export default function ModalInfo({ title, data, onClose }) {
         </div>
 
         <div className={styles.footer}>
-          <a href="#" className={styles.moreLink}>
+
+        <Link className={styles.moreLink} to={'/calendario'}>
             Ver mais
-          </a>
+        </Link>
+        
         </div>
       </div>
     </div>

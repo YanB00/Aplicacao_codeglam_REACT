@@ -1,3 +1,5 @@
+
+//o grafico
 import styles from './ChartArea.module.css';
 
 export default function ChartArea() {

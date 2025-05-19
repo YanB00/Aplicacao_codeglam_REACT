@@ -25,7 +25,7 @@ export default function BirthdayModal({ person, onClose }) {
         <img src={person.img} alt={person.name} />
       </div>
 
-      <Link to={`/cliente/${person.name}`} className={styles.name}>
+      <Link to={`/cliente/${person.id}`} className={styles.name}>
   {person.name}, {person.age}
 </Link>
 

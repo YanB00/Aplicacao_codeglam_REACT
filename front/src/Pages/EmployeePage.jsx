@@ -1,19 +1,19 @@
 import React from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom'; // ✅ Corrigido: imports ajustados
-import { FaKey, FaBirthdayCake, FaIdCard, FaPhone, FaEnvelope } from 'react-icons/fa';
+import { useParams, useNavigate } from 'react-router-dom';
+import { FaKey, FaBirthdayCake, FaIdCard, FaPhone, FaEnvelope, FaArrowLeft } from 'react-icons/fa';
 import Sidebar from '../components/Sidebar';
 import EmployeeHistory from '../components/EmployeeHistory';
 import styles from './EmployeePage.module.css';
 
 export default function EmployeePage() {
   const { id } = useParams();
-  console.log('ID da URL:', id); // ✅ Debug: verificar valor do ID
+  console.log('ID da URL:', id);
 
-  const navigate = useNavigate(); // Usando o hook navigate
+  const navigate = useNavigate();
 
   const employeeList = [
     {
-      id: 'EMP123',
+      id: '12345',
       name: 'Juliana',
       img: 'https://randomuser.me/api/portraits/women/44.jpg',
       since: '2018-06-12',
@@ -42,28 +42,32 @@ export default function EmployeePage() {
     },
   ];
 
-  // ✅ Comparação case-insensitive
   const employee = employeeList.find(emp => emp.id.toLowerCase() === id.toLowerCase());
 
-  // Se o funcionário não for encontrado, renderiza uma tela de erro
+  const handleGoBack = () => {
+    navigate(-1); // Navega para a página anterior
+  };
+
+  const handleClick = () => {
+    navigate(`/funcionario/Editar/${employee.id}`);
+  };
+
   if (!employee) {
     return (
       <div className={styles.page}>
         <Sidebar />
         <div className={styles.content}>
           <div className={styles.topBar}></div>
-          <div className={styles.mainContent}>
-            <h2>Funcionária não encontrada</h2>
-            <Link to="/funcionarios">Voltar para a lista de funcionários</Link>
+          <div className={styles.mainContent} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <h2>Funcionário não encontrado</h2>
+            <button className={styles.backButton} onClick={handleGoBack} style={{ marginTop: '20px' }}>
+              <FaArrowLeft /> 
+            </button>
           </div>
         </div>
       </div>
     );
   }
-
-  const handleClick = () => {
-    navigate(`/funcionario/Editar/${employee.id}`);
-  };
 
   return (
     <div className={styles.page}>
@@ -92,7 +96,7 @@ export default function EmployeePage() {
             <p><strong>Benefícios:</strong> {employee.benefits}</p>
             <p><strong>Problemas de saúde:</strong> {employee.healthIssues}</p>
             <p><strong>Informações adicionais:</strong> {employee.notes}</p>
-          
+
             <button className={styles.button} onClick={handleClick}>
               Atualizar
             </button>
@@ -100,7 +104,7 @@ export default function EmployeePage() {
         </div>
 
         <div className={styles.historySection}>
-          <EmployeeHistory />
+          <EmployeeHistory employeeId={employee.id} /> {/* Passando o ID para o EmployeeHistory */}
         </div>
       </div>
     </div>

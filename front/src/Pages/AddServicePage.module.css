@@ -1,0 +1,100 @@
+.page {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.content {
+  flex-grow: 1;
+  padding: 20px;
+}
+
+.topBar {
+  background-color: #9b5de5;
+  color: white;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.topBarTitle {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.formContainer {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup {
+  margin-bottom: 15px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #343a40;
+}
+
+.formGroup input[type="text"],
+.formGroup input[type="number"],
+.formGroup input[type="date"],
+.formGroup select,
+.formGroup textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 1em;
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+  .buttonGroup {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+  }
+
+  .cancelBtn,
+  .saveBtn {
+    background-color: #c084fc;
+    color: white;
+    border: none;
+    padding: 10px 20px; /* Aumentando um pouco o padding para melhor visualização */
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    font-size: 16px; /* Aumentando um pouco a fonte */
+  }
+
+    
+  .cancelBtn {
+    background-color: #ddd;
+    color: #333;
+  }
+  
+  .saveBtn:hover {
+    background-color: #a855f7; /* Um tom um pouco mais escuro para o hover */
+  }
+  
+  .cancelBtn:hover {
+    background-color: #ccc;
+  }

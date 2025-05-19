@@ -1,0 +1,142 @@
+/* src/components/AppointmentDetails.module.css */
+
+.detailsContainer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  min-width: 300px;
+  max-width: 80%;
+  border: 1px solid #e0e0e0;
+}
+
+.topBar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px;
+  background-color: #f8c6dc;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.closeIcon {
+  font-size: 1.2em;
+  cursor: pointer;
+  color: white;
+  margin-left: 10px;
+}
+
+.closeIcon:hover {
+  color: #eee;
+}
+
+.detailsContainer h3 {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 1.1em;
+  text-align: center;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 10px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.detailsContainer p {
+  margin-bottom: 8px;
+  color: #555;
+  font-size: 0.9em;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.detailsContainer strong {
+  font-weight: bold;
+  color: #333;
+  margin-right: 5px;
+}
+
+.concluido {
+  display: flex;
+  flex-direction: row;
+  gap: 40px;
+  margin: 20px;
+  font-size: 0.9em;
+  color: #777;
+}
+
+.concluido div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.concluido label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.concluido input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid #aaa;
+  background-color: #fff;
+  cursor: pointer;
+  vertical-align: middle;
+  transition: background-color 0.2s ease;
+  display: inline-block;
+  position: relative;
+}
+
+.concluido input[type="checkbox"]:checked {
+  background-color: #6c5ce7;
+  border-color: #c4c3ca;
+  border: 2px
+}
+
+.actions {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+}
+
+.actions button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9em;
+  color: black;
+  transition: background-color 0.3s ease;
+  text-align: center;
+}
+
+.actions button:first-child {
+  background-color: #f8c6dc;
+}
+
+.actions button:first-child:hover {
+  filter: brightness(0.9);
+}
+
+.actions button:nth-child(2) {
+  background-color: #f8c6dc;
+}
+
+.actions button:nth-child(2):hover {
+  filter: brightness(0.9);
+}

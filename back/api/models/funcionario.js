@@ -8,28 +8,21 @@ const funcionarioSchema = new Schema({
   },
   dataNascimento: {
     type: Date,
-    required: Date.now,
+    required: true, 
   },
   cpf: {
     type: String,
     required: true,
     unique: true,
   },
-  idFuncionario: {
-    type: String,
-    unique: true,
-  },
   dataAdmissao: {
     type: Date,
-    required: Date.now,
+    required: true, 
   },
-  cargo: {
+  servicosRealizados: {
     type: String,
   },
   beneficios: {
-    type: String,
-  },
-  problemasSaude: {
     type: String,
   },
   informacoesAdicionais: {
@@ -48,7 +41,7 @@ const funcionarioSchema = new Schema({
   dataCadastro: {
     type: Date,
     default: Date.now,
-  },
+  }
 });
 
 module.exports = mongoose.model('Funcionario', funcionarioSchema);

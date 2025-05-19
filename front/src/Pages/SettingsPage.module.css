@@ -1,0 +1,83 @@
+.container {
+  display: flex;
+  height: 100vh;
+  background-color: var(--background);
+}
+
+.main {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: var(--primary);
+}
+
+.section {
+  margin-bottom: 1.5rem;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background-color: var(--card);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  color: var(--text);
+}
+
+.content {
+  padding: 1rem;
+  border-top: 1px solid #eee;
+  color: var(--text-light);
+}
+
+.page {
+  display: flex;
+}
+
+.content {
+  flex-grow: 1;
+  padding: 20px;
+}
+
+.title {
+  /* Estilos para o título principal "Configurações" */
+  margin-bottom: 20px;
+  color: #555;
+}
+
+/* Estilos para a nova top bar */
+.topBar {
+  background-color: #9b5de5; /* Cor roxa similar à imagem */
+  color: white;
+  padding: 15px 20px;
+  border-radius: 8px 8px 0 0; /* Bordas arredondadas apenas na parte superior */
+  margin-bottom: 20px; /* Espaçamento abaixo da top bar */
+  display: flex;
+  align-items: center; /* Alinha os itens verticalmente */
+}
+
+.topBarTitle {
+  font-size: 1.5em;
+  margin: 0; /* Remove margens padrão do h2 */
+}
+.content {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 30px;
+}

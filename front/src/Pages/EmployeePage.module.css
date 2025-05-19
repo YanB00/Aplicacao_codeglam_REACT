@@ -98,3 +98,27 @@
 .historySection {
   padding: 20px 30px 40px;
 }
+
+
+
+
+.backButton {
+  background-color: #8e44ad; /* Roxo */
+  color: white;
+  border: none;
+  padding: 10px; /* Aumentei o padding para criar mais espaço interno */
+  border-radius: 50%; /* Define a borda como um círculo */
+  width: 40px; /* Largura para tornar o botão redondo */
+  height: 40px; /* Altura para tornar o botão redondo */
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centraliza o ícone horizontalmente */
+  transition: background-color 0.3s ease;
+  margin-top: 20px; /* Adiciona espaço entre o texto e o botão */
+}
+
+.backButton:hover {
+  background-color: #9b59b6; /* Roxo mais claro no hover */
+}

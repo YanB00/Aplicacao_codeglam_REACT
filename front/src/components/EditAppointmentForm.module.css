@@ -1,0 +1,100 @@
+/* src/components/EditAppointmentForm.module.css */
+.editFormContainer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 11;
+  min-width: 400px;
+  max-width: 90%;
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #9b5de5; /* Cor roxa da top */
+  color: white;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.topBar h3 {
+  margin: 0;
+  font-size: 1.2em;
+}
+
+.topBar .closeIcon {
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.formContent {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputGroup label {
+  font-size: 0.9em;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.inputGroup input[type="text"],
+.inputGroup input[type="time"],
+.inputGroup textarea,
+.inputGroup select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.inputGroup textarea {
+  min-height: 80px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.actions button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.actions button:first-child {
+  background-color: #9b5de5;
+  color: white;
+}
+
+.actions button:first-child:hover {
+  background-color: #7a3fcf;
+}
+
+.actions button:last-child {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.actions button:last-child:hover {
+  background-color: #e0e0e0;
+}

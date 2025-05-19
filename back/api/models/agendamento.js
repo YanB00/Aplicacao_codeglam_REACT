@@ -1,15 +1,18 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const agendamentoSchema = new Schema({
-  clienteId: {
-    type: mongoose.Types.ObjectId,
-    ref: 'Cliente',
-    required: true,
-  },
+const agendamentoSchema = new Schema({ 
   salaoId: {
     type: mongoose.Types.ObjectId,
     ref: 'Salao',
+    required: true,
+  },
+  horaInicio: {
+    type: String, 
+    required: true,
+  },
+  horaFim: {
+    type: String, 
     required: true,
   },
   servicoId: {
@@ -17,28 +20,26 @@ const agendamentoSchema = new Schema({
     ref: 'Servico',
     required: true,
   },
-  colaboradorId: {
+  clienteId: { 
     type: mongoose.Types.ObjectId,
-    ref: 'Colaborador',
+    ref: 'Cliente',
     required: true,
   },
-  data: {
-    type: Date,
+  funcionarioId: { 
+    type: mongoose.Types.ObjectId,
+    ref: 'Funcionario', 
     required: true,
   },
   valor: {
     type: Number,
     required: true,
   },
-  comissao: {
-    type: Number,
-    required: true,
-  },
-  status: {
+  observacoes: {
     type: String,
-    enum: ['A', 'B'],
+  },
+  dataAgendamento: { 
+    type: Date,
     required: true,
-    default: 'A',
   },
   dataCadastro: {
     type: Date,
@@ -46,4 +47,4 @@ const agendamentoSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model('Agendamento', agendamentoSchema);
+module.exports = mongoose.model('Agendamento', agendamentoSchema); 
