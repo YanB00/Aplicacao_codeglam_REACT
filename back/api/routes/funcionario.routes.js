@@ -1,11 +1,28 @@
 const express = require('express');
+const multer = require('multer');
+const path = require('path');
 const router = express.Router();
 const Funcionario = require('../models/funcionario');
+const RegistroFuncionario = require('../models/relationship/funcionarioRegistro');
+const FuncionarioServico = require('../models/relationship/funcionarioServico');
 
+// Configuração do multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage });
 
 // Rota para criar um novo funcionário (POST)
-router.post('/', async (req, res) => {
-  const { nomeCompleto, dataNascimento, cpf, dataAdmissao, servicosRealizados, beneficios, informacoesAdicionais, telefone, email, foto } = req.body;
+router.post('/add-funcionario', upload.single('foto'), async (req, res) => {
+  const { nomeCompleto, dataNascimento, cpf, dataAdmissao, servicosRealizados, beneficios, informacoesAdicionais, telefone, email } = req.body;
+
+  const foto = req.file ? req.file.filename : null;
 
   try {
     const novoFuncionario = new Funcionario({
@@ -26,7 +43,7 @@ router.post('/', async (req, res) => {
     return res.status(201).json({
       errorStatus: false,
       mensageStatus: 'FUNCIONÁRIO CADASTRADO COM SUCESSO',
-  data: { ...funcionarioSalvo.toObject(), idFuncionario: funcionarioSalvo._id.toString() },
+      data: { ...funcionarioSalvo.toObject(), idFuncionario: funcionarioSalvo._id.toString() },
     });
   } catch (error) {
     console.error('Erro ao cadastrar funcionário:', error);
@@ -38,14 +55,18 @@ router.post('/', async (req, res) => {
   }
 });
 
+
 // Rota para obter todos os funcionários (GET)
-router.get('/', async (req, res) => {
+router.get('/funcionarios', async (req, res) => {
+  console.log('GET /funcionarios - Acessando rota');
   try {
     const funcionarios = await Funcionario.find();
+    console.log('GET /funcionarios - Funcionários encontrados:', funcionarios);
     const funcionariosComIdString = funcionarios.map(funcionario => ({
       ...funcionario.toObject(),
       idFuncionario: funcionario._id.toString(),
     }));
+    console.log('GET /funcionarios - Funcionários com id string:', funcionariosComIdString);
 
     return res.status(200).json({
       errorStatus: false,
@@ -61,7 +82,6 @@ router.get('/', async (req, res) => {
     });
   }
 });
-
 // Rota para obter um funcionário específico pelo ID (GET)
 router.get('/:idFuncionario', async (req, res) => {
   const { idFuncionario } = req.params;
@@ -156,7 +176,6 @@ router.delete('/:idFuncionario', async (req, res) => {
 
 // Rotas para lidar com o relacionamento Funcionário-Registro (RegistroFuncionario)
 
-// Rota para adicionar um funcionário a um registro (POST)
 // Rota para adicionar um funcionário a um registro (POST)
 router.post('/registro', async (req, res) => {
   const { registroId, funcionarioId, status, observacoes } = req.body;

@@ -20,10 +20,12 @@ const funcionarioSchema = new Schema({
     required: true, 
   },
   servicosRealizados: {
-    type: String,
+    type: [String],
+    default: [],
   },
   beneficios: {
-    type: String,
+     type: [String],
+      default: [],
   },
   informacoesAdicionais: {
     type: String,

@@ -1,9 +1,71 @@
 const express = require('express');
 const router = express.Router();
 const Cliente = require('../models/cliente');
+const ClienteRegistro = require('../models/relationship/clienteRegistro'); // Importe o model ClienteRegistro
+
+// Middleware para logar todas as requisições a esta rota
+router.use((req, res, next) => {
+  console.log('CLIENTES ROUTES - Requisição recebida:', req.method, req.originalUrl);
+  next();
+});
+
+// Rota para obter um cliente específico pelo ID (GET)
+router.get('/:idCliente', async (req, res) => {
+  const { idCliente } = req.params;
+  console.log('CLIENTES ROUTES - GET /:idCliente - ID:', idCliente);
+
+  try {
+    const cliente = await Cliente.findById(idCliente);
+
+    if (!cliente) {
+      console.log('CLIENTES ROUTES - GET /:idCliente - Cliente não encontrado:', idCliente);
+      return res.status(404).json({
+        errorStatus: true,
+        mensageStatus: 'CLIENTE NÃO ENCONTRADO',
+      });
+    }
+
+    console.log('CLIENTES ROUTES - GET /:idCliente - Cliente encontrado:', cliente);
+    return res.status(200).json({
+      errorStatus: false,
+      mensageStatus: 'CLIENTE ENCONTRADO',
+      data: { ...cliente.toObject(), idCliente: cliente._id.toString() },
+    });
+  } catch (error) {
+    console.error('CLIENTES ROUTES - GET /:idCliente - Erro ao buscar cliente por ID:', error);
+    return res.status(500).json({
+      errorStatus: true,
+      mensageStatus: 'HOUVE UM ERRO AO BUSCAR O CLIENTE',
+      errorObject: error,
+    });
+  }
+});
+
+// Rota para obter todos os clientes (GET)
+router.get('/', async (req, res) => {
+  console.log('CLIENTES ROUTES - GET / - Listando todos os clientes');
+  try {
+    const clientes = await Cliente.find();
+    console.log('CLIENTES ROUTES - GET / - Clientes encontrados:', clientes);
+
+    return res.status(200).json({
+      errorStatus: false,
+      mensageStatus: 'CLIENTES ENCONTRADOS',
+      data: clientes,
+    });
+  } catch (error) {
+    console.error('CLIENTES ROUTES - GET / - Erro ao buscar clientes:', error);
+    return res.status(500).json({
+      errorStatus: true,
+      mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS CLIENTES',
+      errorObject: error,
+    });
+  }
+});
 
 // Rota para criar um novo cliente (POST)
 router.post('/', async (req, res) => {
+  console.log('CLIENTES ROUTES - POST / - Body:', req.body);
   const { nomeCompleto, dataNascimento, cpf, telefone, email, favoritos, problemasSaude, informacoesAdicionais } = req.body;
 
   try {
@@ -19,6 +81,7 @@ router.post('/', async (req, res) => {
     });
 
     const clienteSalvo = await novoCliente.save();
+    console.log('CLIENTES ROUTES - POST / - Cliente cadastrado com sucesso:', clienteSalvo);
 
     return res.status(201).json({
       errorStatus: false,
@@ -26,7 +89,7 @@ router.post('/', async (req, res) => {
       data: { ...clienteSalvo.toObject(), idCliente: clienteSalvo._id.toString() },
     });
   } catch (error) {
-    console.error('Erro ao cadastrar cliente:', error);
+    console.error('CLIENTES ROUTES - POST / - Erro ao cadastrar cliente:', error);
     return res.status(400).json({
       errorStatus: true,
       mensageStatus: 'HOUVE UM ERRO AO CADASTRAR O CLIENTE',
@@ -35,81 +98,35 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Rota para obter todos os clientes (GET)
-router.get('/', async (req, res) => {
-  try {
-    const clientes = await Cliente.find();
-
-    return res.status(200).json({
-      errorStatus: false,
-      mensageStatus: 'CLIENTES ENCONTRADOS',
-      data: clientes,
-    });
-  } catch (error) {
-    console.error('Erro ao buscar clientes:', error);
-    return res.status(500).json({
-      errorStatus: true,
-      mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS CLIENTES',
-      errorObject: error,
-    });
-  }
-});
-
-// Rota para obter um cliente específico pelo ID (GET)
-router.get('/:idCliente', async (req, res) => {
-  const { idCliente } = req.params;
-
-  try {
-    const cliente = await Cliente.findById(idCliente); // Use findById para buscar pelo _id
-
-    if (!cliente) {
-      return res.status(404).json({
-        errorStatus: true,
-        mensageStatus: 'CLIENTE NÃO ENCONTRADO',
-      });
-    }
-
-    return res.status(200).json({
-      errorStatus: false,
-      mensageStatus: 'CLIENTE ENCONTRADO',
-      data: { ...cliente.toObject(), idCliente: cliente._id.toString() }, // Retornamos o _id como idCliente
-    });
-  } catch (error) {
-    console.error('Erro ao buscar cliente por ID:', error);
-    return res.status(500).json({
-      errorStatus: true,
-      mensageStatus: 'HOUVE UM ERRO AO BUSCAR O CLIENTE',
-      errorObject: error,
-    });
-  }
-});
-
 // Rota para atualizar um cliente existente (PUT)
 router.put('/:idCliente', async (req, res) => {
   const { idCliente } = req.params;
+  console.log('CLIENTES ROUTES - PUT /:idCliente - ID:', idCliente, 'Body:', req.body);
   const { nomeCompleto, dataNascimento, telefone, email, favoritos, problemasSaude, informacoesAdicionais } = req.body;
 
   try {
-    const clienteAtualizado = await Cliente.findByIdAndUpdate( // Use findByIdAndUpdate
+    const clienteAtualizado = await Cliente.findByIdAndUpdate( 
       idCliente,
       { nomeCompleto, dataNascimento, telefone, email, favoritos, problemasSaude, informacoesAdicionais },
       { new: true }
     );
 
     if (!clienteAtualizado) {
+      console.log('CLIENTES ROUTES - PUT /:idCliente - Cliente não encontrado para atualização:', idCliente);
       return res.status(404).json({
         errorStatus: true,
         mensageStatus: 'CLIENTE NÃO ENCONTRADO PARA ATUALIZAÇÃO',
       });
     }
 
+    console.log('CLIENTES ROUTES - PUT /:idCliente - Cliente atualizado com sucesso:', clienteAtualizado);
     return res.status(200).json({
       errorStatus: false,
       mensageStatus: 'CLIENTE ATUALIZADO COM SUCESSO',
       data: { ...clienteAtualizado.toObject(), idCliente: clienteAtualizado._id.toString() }, // Retornamos o _id como idCliente
     });
   } catch (error) {
-    console.error('Erro ao atualizar cliente:', error);
+    console.error('CLIENTES ROUTES - PUT /:idCliente - Erro ao atualizar cliente:', error);
     return res.status(500).json({
       errorStatus: true,
       mensageStatus: 'HOUVE UM ERRO AO ATUALIZAR O CLIENTE',
@@ -121,24 +138,27 @@ router.put('/:idCliente', async (req, res) => {
 // Rota para deletar um cliente (DELETE)
 router.delete('/:idCliente', async (req, res) => {
   const { idCliente } = req.params;
+  console.log('CLIENTES ROUTES - DELETE /:idCliente - ID:', idCliente);
 
   try {
-    const clienteDeletado = await Cliente.findByIdAndDelete(idCliente); // Use findByIdAndDelete
+    const clienteDeletado = await Cliente.findByIdAndDelete(idCliente); 
 
     if (!clienteDeletado) {
+      console.log('CLIENTES ROUTES - DELETE /:idCliente - Cliente não encontrado para deleção:', idCliente);
       return res.status(404).json({
         errorStatus: true,
         mensageStatus: 'CLIENTE NÃO ENCONTRADO PARA DELEÇÃO',
       });
     }
 
+    console.log('CLIENTES ROUTES - DELETE /:idCliente - Cliente deletado com sucesso:', clienteDeletado);
     return res.status(200).json({
       errorStatus: false,
       mensageStatus: 'CLIENTE DELETADO COM SUCESSO',
       data: { ...clienteDeletado.toObject(), idCliente: clienteDeletado._id.toString() }, // Retornamos o _id como idCliente
     });
   } catch (error) {
-    console.error('Erro ao deletar cliente:', error);
+    console.error('CLIENTES ROUTES - DELETE /:idCliente - Erro ao deletar cliente:', error);
     return res.status(500).json({
       errorStatus: true,
       mensageStatus: 'HOUVE UM ERRO AO DELETAR O CLIENTE',
@@ -146,8 +166,10 @@ router.delete('/:idCliente', async (req, res) => {
     });
   }
 });
+
 // Rota para vincular um cliente a um registro (POST)
 router.post('/registro', async (req, res) => {
+  console.log('CLIENTES ROUTES - POST /registro - Body:', req.body);
   const { clienteId, registroId, status, informacoesAdicionais } = req.body;
 
   try {
@@ -157,8 +179,10 @@ router.post('/registro', async (req, res) => {
       status,
       informacoesAdicionais,
     });
+    console.log('CLIENTES ROUTES - POST /registro - Novo ClienteRegistro:', novoClienteRegistro);
 
     const clienteRegistroSalvo = await novoClienteRegistro.save();
+    console.log('CLIENTES ROUTES - POST /registro - ClienteRegistro salvo com sucesso:', clienteRegistroSalvo);
 
     return res.status(201).json({
       errorStatus: false,
@@ -166,7 +190,7 @@ router.post('/registro', async (req, res) => {
       data: clienteRegistroSalvo,
     });
   } catch (error) {
-    console.error('Erro ao criar vínculo cliente-registro:', error);
+    console.error('CLIENTES ROUTES - POST /registro - Erro ao criar vínculo cliente-registro:', error);
     return res.status(400).json({
       errorStatus: true,
       mensageStatus: 'HOUVE UM ERRO AO CRIAR O VÍNCULO CLIENTE-REGISTRO',
@@ -177,8 +201,10 @@ router.post('/registro', async (req, res) => {
 
 // Rota para obter todos os vínculos cliente-registro (GET)
 router.get('/registro', async (req, res) => {
+  console.log('CLIENTES ROUTES - GET /registro - Listando todos os vínculos cliente-registro');
   try {
     const clientesRegistros = await ClienteRegistro.find().populate('clienteId').populate('registroId');
+    console.log('CLIENTES ROUTES - GET /registro - Vínculos cliente-registro encontrados:', clientesRegistros);
 
     return res.status(200).json({
       errorStatus: false,
@@ -186,7 +212,7 @@ router.get('/registro', async (req, res) => {
       data: clientesRegistros,
     });
   } catch (error) {
-    console.error('Erro ao buscar vínculos cliente-registro:', error);
+    console.error('CLIENTES ROUTES - GET /registro - Erro ao buscar vínculos cliente-registro:', error);
     return res.status(500).json({
       errorStatus: true,
       mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS VÍNCULOS CLIENTE-REGISTRO',
@@ -198,9 +224,10 @@ router.get('/registro', async (req, res) => {
 // Rota para obter registros de um cliente específico (GET)
 router.get('/registro/cliente/:clienteId', async (req, res) => {
   const { clienteId } = req.params;
-
+  console.log('CLIENTES ROUTES - GET /registro/cliente/:clienteId - clienteId:', clienteId);
   try {
     const registrosDoCliente = await ClienteRegistro.find({ clienteId }).populate('clienteId').populate('registroId');
+    console.log('CLIENTES ROUTES - GET /registro/cliente/:clienteId - Registros do cliente encontrados:', registrosDoCliente);
 
     return res.status(200).json({
       errorStatus: false,
@@ -208,7 +235,7 @@ router.get('/registro/cliente/:clienteId', async (req, res) => {
       data: registrosDoCliente,
     });
   } catch (error) {
-    console.error('Erro ao buscar registros do cliente:', error);
+    console.error('CLIENTES ROUTES - GET /registro/cliente/:clienteId - Erro ao buscar registros do cliente:', error);
     return res.status(500).json({
       errorStatus: true,
       mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS REGISTROS DO CLIENTE',
@@ -220,9 +247,10 @@ router.get('/registro/cliente/:clienteId', async (req, res) => {
 // Rota para obter clientes de um registro específico (GET)
 router.get('/registro/registro/:registroId', async (req, res) => {
   const { registroId } = req.params;
-
+  console.log('CLIENTES ROUTES - GET /registro/registro/:registroId - registroId:', registroId);
   try {
     const clientesDoRegistro = await ClienteRegistro.find({ registroId }).populate('clienteId').populate('registroId');
+    console.log('CLIENTES ROUTES - GET /registro/registro/:registroId - Clientes do registro encontrados:', clientesDoRegistro);
 
     return res.status(200).json({
       errorStatus: false,
@@ -230,7 +258,7 @@ router.get('/registro/registro/:registroId', async (req, res) => {
       data: clientesDoRegistro,
     });
   } catch (error) {
-    console.error('Erro ao buscar clientes do registro:', error);
+    console.error('CLIENTES ROUTES - GET /registro/registro/:registroId - Erro ao buscar clientes do registro:', error);
     return res.status(500).json({
       errorStatus: true,
       mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS CLIENTES DO REGISTRO',
@@ -243,6 +271,7 @@ router.get('/registro/registro/:registroId', async (req, res) => {
 router.put('/registro/:clienteRegistroId', async (req, res) => {
   const { clienteRegistroId } = req.params;
   const { status, informacoesAdicionais } = req.body;
+  console.log('CLIENTES ROUTES - PUT /registro/:clienteRegistroId - ID:', clienteRegistroId, 'Body:', req.body);
 
   try {
     const clienteRegistroAtualizado = await ClienteRegistro.findByIdAndUpdate(
@@ -252,19 +281,21 @@ router.put('/registro/:clienteRegistroId', async (req, res) => {
     ).populate('clienteId').populate('registroId');
 
     if (!clienteRegistroAtualizado) {
+      console.log('CLIENTES ROUTES - PUT /registro/:clienteRegistroId - Vínculo cliente-registro não encontrado:', clienteRegistroId);
       return res.status(404).json({
         errorStatus: true,
         mensageStatus: 'VÍNCULO CLIENTE-REGISTRO NÃO ENCONTRADO PARA ATUALIZAÇÃO',
       });
     }
 
+    console.log('CLIENTES ROUTES - PUT /registro/:clienteRegistroId - Vínculo cliente-registro atualizado:', clienteRegistroAtualizado);
     return res.status(200).json({
       errorStatus: false,
       mensageStatus: 'VÍNCULO CLIENTE-REGISTRO ATUALIZADO COM SUCESSO',
       data: clienteRegistroAtualizado,
     });
   } catch (error) {
-    console.error('Erro ao atualizar vínculo cliente-registro:', error);
+    console.error('CLIENTES ROUTES - PUT /registro/:clienteRegistroId - Erro ao atualizar vínculo cliente-registro:', error);
     return res.status(500).json({
       errorStatus: true,
       mensageStatus: 'HOUVE UM ERRO AO ATUALIZAR O VÍNCULO CLIENTE-REGISTRO',
@@ -276,24 +307,27 @@ router.put('/registro/:clienteRegistroId', async (req, res) => {
 // Rota para remover um vínculo cliente-registro (DELETE)
 router.delete('/registro/:clienteRegistroId', async (req, res) => {
   const { clienteRegistroId } = req.params;
+  console.log('CLIENTES ROUTES - DELETE /registro/:clienteRegistroId - ID:', clienteRegistroId);
 
   try {
     const clienteRegistroDeletado = await ClienteRegistro.findByIdAndDelete(clienteRegistroId).populate('clienteId').populate('registroId');
 
     if (!clienteRegistroDeletado) {
+      console.log('CLIENTES ROUTES - DELETE /registro/:clienteRegistroId - Vínculo cliente-registro não encontrado para deleção:', clienteRegistroId);
       return res.status(404).json({
         errorStatus: true,
         mensageStatus: 'VÍNCULO CLIENTE-REGISTRO NÃO ENCONTRADO PARA DELEÇÃO',
       });
     }
 
+    console.log('CLIENTES ROUTES - DELETE /registro/:clienteRegistroId - Vínculo cliente-registro removido:', clienteRegistroDeletado);
     return res.status(200).json({
       errorStatus: false,
       mensageStatus: 'VÍNCULO CLIENTE-REGISTRO REMOVIDO COM SUCESSO',
       data: clienteRegistroDeletado,
     });
   } catch (error) {
-    console.error('Erro ao remover vínculo cliente-registro:', error);
+    console.error('CLIENTES ROUTES - DELETE /registro/:clienteRegistroId - Erro ao remover vínculo cliente-registro:', error);
     return res.status(500).json({
       errorStatus: true,
       mensageStatus: 'HOUVE UM ERRO AO REMOVER O VÍNCULO CLIENTE-REGISTRO',
