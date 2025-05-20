@@ -4,6 +4,7 @@ import ScheduleGrid from '../components/ScheduleGrid';
 import AddAppointmentForm from '../components/AddAppointmentForm'; 
 import styles from './SchedulePage.module.css';
 
+
 const SchedulePage = () => {
   const [isAddFormVisible, setIsAddFormVisible] = useState(false);
   const [appointments, setAppointments] = useState([]); // Para armazenar os agendamentos (exemplo)

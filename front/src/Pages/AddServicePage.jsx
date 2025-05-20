@@ -1,8 +1,8 @@
 // pages/AddServicePage.jsx
 import React, { useState } from 'react';
-import Sidebar from '../components/Sidebar';
 import styles from './AddServicePage.module.css';
 import { useNavigate } from 'react-router-dom';
+
 
 export default function AddServicePage() {
   const navigate = useNavigate();
@@ -61,7 +61,6 @@ export default function AddServicePage() {
 
   return (
     <div className={styles.page}>
-      <Sidebar />
       <div className={styles.content}>
         <div className={styles.topBar}>
           <h2 className={styles.topBarTitle}>Adicionar Novo Serviço</h2>

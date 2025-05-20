@@ -1,14 +1,11 @@
 import React from 'react';
 import styles from './EditEmployeePage.module.css';
-import Sidebar from '../components/Sidebar';
 import { FaCamera } from 'react-icons/fa';
 
 export default function EditEmployeePage() {
   return (
     <div className={styles.page}>
-      <Sidebar />
       <div className={styles.content}>
-        {/* Barra roxa superior */}
         <div className={styles.topBar}></div>
 
         <div className={styles.formContainer}>

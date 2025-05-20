@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import Sidebar from '../components/Sidebar';
 import ClientCard from '../components/ClientCard';
 import styles from './EmployeeListPage.module.css';
 import { FaSearch, FaUserPlus, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+
 
 export default function ClientListPage() {
   const navigate = useNavigate();
@@ -89,7 +89,6 @@ export default function ClientListPage() {
 
   return (
     <div className={styles.page}>
-      <Sidebar />
       <div className={styles.content}>
         <div className={styles.topBar}>
           <h2 className={styles.topBarTitle}>Clientes</h2>

@@ -1,8 +1,8 @@
 // pages/ServiceDetailsPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
 import styles from './ServiceDetailsPage.module.css';
+
 
 // Simula uma requisição de API para obter os detalhes do serviço
 const fetchServiceDetails = (id) => {
@@ -64,7 +64,6 @@ export default function ServiceDetailsPage() {
 
   return (
     <div className={styles.page}>
-      <Sidebar />
       <div className={styles.topBar}></div>
       <div className={styles.content}>
         {loading ? (

@@ -1,28 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Sidebar from '../components/Sidebar';
 import EmployeeCard from '../components/EmployeeCard';
-import styles from './EmployeeListPage.module.css'; // Mantenha este nome de arquivo se já estiver usando
+import styles from './EmployeeListPage.module.css';
 import { FaSearch, FaUserPlus, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-
-const initialEmployeesData = [
-  { id: '12346', name: 'Ana', img: 'https://randomuser.me/api/portraits/women/45.jpg', birthDate: '1990-04-10', since: 'junho 2018', service: ['Alongamento em fibra', 'Design de sobrancelhas'] },
-  { id: 'EMP124', name: 'Bruno', img: 'https://randomuser.me/api/portraits/men/32.jpg', birthDate: '1988-11-22', since: 'agosto 2020', service: ['Manicure', 'Pedicure'] },
-  { id: 'EMP125', name: 'Carla', img: 'https://randomuser.me/api/portraits/women/29.jpg', birthDate: '1995-07-05', since: 'janeiro 2022', service: ['Massagem relaxante', 'Drenagem linfática'] },
-  { id: 'EMP126', name: 'Daniel', img: 'https://randomuser.me/api/portraits/men/51.jpg', birthDate: '1985-03-15', since: 'setembro 2019', service: ['Corte de cabelo', 'Barba'] },
-  { id: 'EMP126', name: 'Daniel', img: 'https://randomuser.me/api/portraits/men/51.jpg', birthDate: '1985-03-15', since: 'setembro 2019', service: ['Corte de cabelo', 'Barba'] },
-  { id: 'EMP126', name: 'Daniel', img: 'https://randomuser.me/api/portraits/men/51.jpg', birthDate: '1985-03-15', since: 'setembro 2019', service: ['Corte de cabelo', 'Barba'] },
-  { id: 'EMP126', name: 'Daniel', img: 'https://randomuser.me/api/portraits/men/51.jpg', birthDate: '1985-03-15', since: 'setembro 2019', service: ['Corte de cabelo', 'Barba'] },
-  { id: 'EMP126', name: 'Daniel', img: 'https://randomuser.me/api/portraits/men/51.jpg', birthDate: '1985-03-15', since: 'setembro 2019', service: ['Corte de cabelo', 'Barba'] },
-  { id: 'EMP126', name: 'Daniel', img: 'https://randomuser.me/api/portraits/men/51.jpg', birthDate: '1985-03-15', since: 'setembro 2019', service: ['Corte de cabelo', 'Barba'] },
-  { id: 'EMP126', name: 'Daniel', img: 'https://randomuser.me/api/portraits/men/51.jpg', birthDate: '1985-03-15', since: 'setembro 2019', service: ['Corte de cabelo', 'Barba'] },
-  { id: 'EMP126', name: 'Daniel', img: 'https://randomuser.me/api/portraits/men/51.jpg', birthDate: '1985-03-15', since: 'setembro 2019', service: ['Corte de cabelo', 'Barba'] },
-  { id: 'EMP126', name: 'Daniel', img: 'https://randomuser.me/api/portraits/men/51.jpg', birthDate: '1985-03-15', since: 'setembro 2019', service: ['Corte de cabelo', 'Barba'] },
-  { id: 'EMP126', name: 'Daniel', img: 'https://randomuser.me/api/portraits/men/51.jpg', birthDate: '1985-03-15', since: 'setembro 2019', service: ['Corte de cabelo', 'Barba'] },
-  
-
-  
-];
 
 export default function EmployeeListPage() {
   const navigate = useNavigate();
@@ -30,12 +10,31 @@ export default function EmployeeListPage() {
   const [employees, setEmployees] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const employeesPerPage = 10;
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const sortedEmployees = [...initialEmployeesData].sort((a, b) =>
-      a.name.localeCompare(b.name)
-    );
-    setEmployees(sortedEmployees);
+   useEffect(() => {
+    const fetchEmployees = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch('http://localhost:3000/funcionarios'); // Use a URL do seu backend
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        const sortedEmployees = data.data.sort((a, b) =>
+          a.nomeCompleto.localeCompare(b.nomeCompleto)
+        );
+        setEmployees(sortedEmployees);
+      } catch (e) {
+        setError(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmployees();
   }, []);
 
   const handleSearch = (event) => {
@@ -50,8 +49,8 @@ export default function EmployeeListPage() {
 
   const filteredEmployees = employees.filter(
     (employee) =>
-      employee.name.toLowerCase().includes(searchTerm) ||
-      employee.id.toLowerCase().includes(searchTerm)
+      employee.nomeCompleto.toLowerCase().includes(searchTerm) ||
+      employee.idFuncionario.toLowerCase().includes(searchTerm)
   );
 
   const indexOfLastEmployee = currentPage * employeesPerPage;
@@ -79,9 +78,16 @@ export default function EmployeeListPage() {
     pageNumbers.push(i);
   }
 
+   if (loading) {
+    return <div>Carregando funcionários...</div>;
+  }
+
+  if (error) {
+    return <div>Erro ao carregar funcionários: {error.message}</div>;
+  }
+
   return (
     <div className={styles.page}>
-      <Sidebar />
       <div className={styles.content}>
         <div className={styles.topBar}>
           <h2 className={styles.topBarTitle}>Funcionários</h2>
@@ -98,7 +104,7 @@ export default function EmployeeListPage() {
         </div>
         <div className={styles.grid}>
           {currentEmployees.map((employee) => (
-            <EmployeeCard key={employee.id} employee={employee} />
+            <EmployeeCard key={employee.idFuncionario} employee={employee} />
           ))}
         </div>
         <div className={styles.pagination}>

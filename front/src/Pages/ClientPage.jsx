@@ -1,9 +1,9 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaKey, FaBirthdayCake, FaIdCard, FaPhone, FaEnvelope, FaArrowLeft } from 'react-icons/fa';
-import Sidebar from '../components/Sidebar';
 import ClientHistory from '../components/ClientHistory';
 import styles from './EmployeePage.module.css';
+
 
 export default function ClientPage() {
   const { id } = useParams();
@@ -42,7 +42,6 @@ export default function ClientPage() {
   if (!client) {
     return (
       <div className={styles.page}>
-        <Sidebar />
         <div className={styles.content}>
           <div className={styles.topBar}></div>
           <div className={styles.mainContent} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -60,7 +59,6 @@ export default function ClientPage() {
 
   return (
     <div className={styles.page}>
-      <Sidebar />
       <div className={styles.content}>
         <div className={styles.topBar}></div>
         <div className={styles.mainContent}>

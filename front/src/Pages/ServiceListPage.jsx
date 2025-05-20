@@ -1,10 +1,10 @@
 // pages/ServiceListPage.jsx
 import React, { useState, useEffect } from 'react';
-import Sidebar from '../components/Sidebar';
 import ServiceCard from '../components/ServiceCard';
 import styles from './ServiceListPage.module.css';
 import { FaSearch, FaPlus, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+
 
 // Substituir pela API
 const initialServicesData = [
@@ -86,7 +86,6 @@ export default function ServiceListPage() {
 
   return (
     <div className={styles.page}>
-      <Sidebar />
       <div className={styles.content}>
         <div className={styles.topBar}>
           <h2 className={styles.topBarTitle}>Serviços</h2>

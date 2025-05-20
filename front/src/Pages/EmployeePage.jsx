@@ -1,7 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaKey, FaBirthdayCake, FaIdCard, FaPhone, FaEnvelope, FaArrowLeft } from 'react-icons/fa';
-import Sidebar from '../components/Sidebar';
 import EmployeeHistory from '../components/EmployeeHistory';
 import styles from './EmployeePage.module.css';
 
@@ -55,7 +54,6 @@ export default function EmployeePage() {
   if (!employee) {
     return (
       <div className={styles.page}>
-        <Sidebar />
         <div className={styles.content}>
           <div className={styles.topBar}></div>
           <div className={styles.mainContent} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -71,7 +69,6 @@ export default function EmployeePage() {
 
   return (
     <div className={styles.page}>
-      <Sidebar />
       <div className={styles.content}>
         <div className={styles.topBar}></div>
         <div className={styles.mainContent}>

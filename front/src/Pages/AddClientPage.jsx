@@ -1,7 +1,6 @@
 // AddClientPage.js
 import React from 'react';
 import styles from './AddClientPage.module.css';
-import Sidebar from '../components/Sidebar';
 import { FaCamera } from 'react-icons/fa';
 
 export default function AddClientPage() {
@@ -14,7 +13,6 @@ export default function AddClientPage() {
 
   return (
     <div className={styles.page}>
-      <Sidebar />
       <div className={styles.content}>
         {/* Barra roxa superior */}
         <div className={styles.topBar}></div>

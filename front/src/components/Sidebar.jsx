@@ -1,7 +1,6 @@
 import React, { useState, useContext, createContext } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './Sidebar.module.css';
-
 import {
   FaCalendarAlt,
   FaStar,
@@ -26,7 +25,7 @@ const menuItems = [
   { icon: <FaCog />, label: 'Configurações', to: '/configuracoes' },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ userId }) { 
   const [expanded, setExpanded] = useState(true);
   const salonName = "Salao 1";
 
@@ -52,7 +51,7 @@ export default function Sidebar() {
         <SidebarContext.Provider value={{ expanded }}>
           <ul className={styles.menu}>
             {menuItems.map((item, index) => (
-              <SidebarItem key={index} icon={item.icon} label={item.label} to={item.to} />
+              <SidebarItem key={index} icon={item.icon} label={item.label} to={item.to} userId={userId} /> 
             ))}
           </ul>
         </SidebarContext.Provider>
@@ -61,7 +60,7 @@ export default function Sidebar() {
   );
 }
 
-function SidebarItem({ icon, label, to }) {
+function SidebarItem({ icon, label, to, userId }) { // Recebendo o userId como prop
   const { expanded } = useContext(SidebarContext);
   const content = (
     <>
@@ -73,7 +72,7 @@ function SidebarItem({ icon, label, to }) {
   return (
     <li className={styles.menuItem}>
       {to ? (
-        <Link to={to} className={styles.link}>
+        <Link to={`${to}?userId=${userId}`} className={styles.link}> {/* Adicionando o userId à URL */}
           {content}
         </Link>
       ) : (
