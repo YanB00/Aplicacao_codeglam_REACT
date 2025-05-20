@@ -11,10 +11,13 @@
 }
 
 .topBar {
-  height: 24px;
+  height: 60px; /* Aumenta a altura da topBar para acomodar o botão */
   background-color: #9b5de5;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
+  display: flex; /* Para alinhar o botão */
+  align-items: center; /* Alinha verticalmente o conteúdo */
+  padding-left: 20px; /* Adiciona espaço à esquerda do botão */
 }
 
 .mainContent {
@@ -80,7 +83,7 @@
 }
 
 .button {
-  
+
   background-color: #c084fc;
   color: white;
   border: none;
@@ -99,24 +102,23 @@
   padding: 20px 30px 40px;
 }
 
-
-
-
 .backButton {
   background-color: #8e44ad; /* Roxo */
   color: white;
   border: none;
-  padding: 10px; /* Aumentei o padding para criar mais espaço interno */
-  border-radius: 50%; /* Define a borda como um círculo */
-  width: 40px; /* Largura para tornar o botão redondo */
-  height: 40px; /* Altura para tornar o botão redondo */
+  padding: 8px 16px; /* Padding para criar o formato retangular */
+  border-radius: 8px; /* Borda ligeiramente arredondada para o retângulo */
   cursor: pointer;
   font-size: 1rem;
   display: flex;
   align-items: center;
-  justify-content: center; /* Centraliza o ícone horizontalmente */
+  gap: 8px; /* Espaço entre o ícone e o texto */
   transition: background-color 0.3s ease;
-  margin-top: 20px; /* Adiciona espaço entre o texto e o botão */
+  margin-top: 0; /* Remove a margem superior para alinhar com a topBar */
+  height: auto; /* Altura automática para se ajustar ao padding */
+  width: auto; /* Largura automática para se ajustar ao padding e conteúdo */
+  padding-left: 12px; /* Mais padding à esquerda para o ícone */
+  padding-right: 12px; /* Mais padding à direita para o texto */
 }
 
 .backButton:hover {

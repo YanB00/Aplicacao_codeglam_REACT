@@ -57,7 +57,7 @@ router.post('/add-funcionario', upload.single('foto'), async (req, res) => {
 
 
 // Rota para obter todos os funcionários (GET)
-router.get('/funcionarios', async (req, res) => {
+router.get('/', async (req, res) => {
   console.log('GET /funcionarios - Acessando rota');
   try {
     const funcionarios = await Funcionario.find();
@@ -112,36 +112,30 @@ router.get('/:idFuncionario', async (req, res) => {
 });
 
 // Rota para atualizar um funcionário existente (PUT)
-router.put('/:idFuncionario', async (req, res) => {
+router.put('/:idFuncionario', upload.single('foto'), async (req, res) => {
   const { idFuncionario } = req.params;
-  const { nomeCompleto, dataNascimento, cpf, dataAdmissao, servicosRealizados, beneficios, informacoesAdicionais, telefone, email, foto } = req.body;
+  const { nomeCompleto, dataNascimento, cpf, dataAdmissao, cargo, beneficios, informacoesAdicionais, telefone, email } = req.body; // Acesse os campos de texto via req.body
+  const foto = req.file ? req.file.filename : (req.body.fotoExistente || null); // Pega o nome do arquivo se um novo foi enviado, ou mantém o existente
 
   try {
-    const funcionarioAtualizado = await Funcionario.findByIdAndUpdate( // Busca e atualiza pelo _id
+    const funcionarioAtualizado = await Funcionario.findByIdAndUpdate(
       idFuncionario,
-      { nomeCompleto, dataNascimento, cpf, dataAdmissao, servicosRealizados, beneficios, informacoesAdicionais, telefone, email, foto },
-      { new: true } // Retorna o documento atualizado
+      { nomeCompleto, dataNascimento, cpf, dataAdmissao, cargo, beneficios, informacoesAdicionais, telefone, email, foto },
+      { new: true }
     );
 
     if (!funcionarioAtualizado) {
-      return res.status(404).json({
-        errorStatus: true,
-        mensageStatus: 'FUNCIONÁRIO NÃO ENCONTRADO PARA ATUALIZAÇÃO',
-      });
+      return res.status(404).json({ errorStatus: true, mensageStatus: 'FUNCIONÁRIO NÃO ENCONTRADO PARA ATUALIZAÇÃO' });
     }
 
     return res.status(200).json({
       errorStatus: false,
       mensageStatus: 'FUNCIONÁRIO ATUALIZADO COM SUCESSO',
-      data: { ...funcionarioAtualizado.toObject(), idFuncionario: funcionarioAtualizado._id.toString() }, // Retorna _id como idFuncionario
+      data: { ...funcionarioAtualizado.toObject(), idFuncionario: funcionarioAtualizado._id.toString() },
     });
   } catch (error) {
     console.error('Erro ao atualizar funcionário:', error);
-    return res.status(500).json({
-      errorStatus: true,
-      mensageStatus: 'HOUVE UM ERRO AO ATUALIZAR O FUNCIONÁRIO',
-      errorObject: error,
-    });
+    return res.status(500).json({ errorStatus: true, mensageStatus: 'HOUVE UM ERRO AO ATUALIZAR O FUNCIONÁRIO', errorObject: error });
   }
 });
 

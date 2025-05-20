@@ -1,3 +1,4 @@
+// pages/EmployeeListPage.jsx
 import React, { useState, useEffect } from 'react';
 import EmployeeCard from '../components/EmployeeCard';
 import styles from './EmployeeListPage.module.css';
@@ -9,11 +10,11 @@ export default function EmployeeListPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [employees, setEmployees] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const employeesPerPage = 10;
+  const employeesPerPage = 6; // Ajustei para combinar com a imagem
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-   useEffect(() => {
+  useEffect(() => {
     const fetchEmployees = async () => {
       setLoading(true);
       setError(null);
@@ -78,7 +79,7 @@ export default function EmployeeListPage() {
     pageNumbers.push(i);
   }
 
-   if (loading) {
+  if (loading) {
     return <div>Carregando funcionários...</div>;
   }
 
@@ -99,7 +100,7 @@ export default function EmployeeListPage() {
               onChange={handleSearch}
               className={styles.searchInput}
             />
-           
+
           </div>
         </div>
         <div className={styles.grid}>
