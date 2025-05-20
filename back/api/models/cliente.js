@@ -14,10 +14,7 @@ const clienteSchema = new Schema({
     type: String,
     required: true,
     unique: true,
-  },
-  idCliente: {
-    type: String,
-    unique: true,
+     trim: true
   },
   dataCadastro: { 
     type: Date,
@@ -40,7 +37,8 @@ const clienteSchema = new Schema({
   },
   email: {
     type: String,
-  }
+  },
+    foto: { type: String }
 });
 
 module.exports = mongoose.model('Cliente', clienteSchema);

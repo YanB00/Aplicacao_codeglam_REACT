@@ -21,17 +21,22 @@
 }
 
 .mainContent {
-  display: flex;
-  padding: 30px;
-  gap: 24px;
+    display: flex; /* Para colocar profileCard e detailsCard lado a lado */
+    gap: 20px; /* Espaço entre os cartões */
+    flex-wrap: wrap; /* Para quebrar linha em telas menores */
+    justify-content: center; /* Centralizar os cartões */
+    align-items: flex-start; /* Alinhar o topo dos cartões */
+    padding: 20px; /* Adicione um padding geral */
 }
 
-.profileCard {
-  width: 300px;
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+.profileCard, .detailsCard {
+    flex: 1; /* Permite que os cartões cresçam e ocupem o espaço disponível */
+    min-width: 300px; /* Largura mínima para evitar que fiquem muito pequenos */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px; /* Para espaço abaixo dos cards */
 }
 
 .avatarWrapper {

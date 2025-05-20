@@ -5,6 +5,7 @@ const morgan = require('morgan');
 require('./database');
 
 const funcionarioRoutes = require('./routes/funcionario.routes')
+const clienteRoutes = require('./routes/cliente.routes');
 
 app.use(cors())
 app.use(express.json()); 
@@ -16,13 +17,14 @@ app.use(morgan('dev'));
 
 app.set ('port', 3000);
 app.use('/funcionarios', funcionarioRoutes);
+
 app.use(require('./routes/registro.routes'));
 app.use(require('./routes/login.routes'));
 
+app.use('/clientes', clienteRoutes);
 
 // app.use(require('./routes/servicos.routes'));
 // app.use(require('./routes/agendamento.routes'));
-// app.use(require('./routes/cliente.routes'));
 
 
 app.listen(app.get('port'), ()=>{

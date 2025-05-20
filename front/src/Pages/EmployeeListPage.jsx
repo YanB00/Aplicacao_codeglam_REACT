@@ -3,23 +3,32 @@ import React, { useState, useEffect } from 'react';
 import EmployeeCard from '../components/EmployeeCard';
 import styles from './EmployeeListPage.module.css';
 import { FaSearch, FaUserPlus, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import Sidebar from '../components/Sidebar';
 
 export default function EmployeeListPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
   const [employees, setEmployees] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const employeesPerPage = 6; // Ajustei para combinar com a imagem
+  const employeesPerPage = 6;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const getUserIdFromUrl = () => {
+    const params = new URLSearchParams(location.search);
+    return params.get('userId');
+  };
+
+  const userId = getUserIdFromUrl(); // Retrieve userId here
 
   useEffect(() => {
     const fetchEmployees = async () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch('http://localhost:3000/funcionarios'); // Use a URL do seu backend
+        const response = await fetch('http://localhost:3000/funcionarios');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -45,7 +54,7 @@ export default function EmployeeListPage() {
   };
 
   const handleAddEmployeeClick = () => {
-    navigate('/add-funcionario');
+    navigate(`/add-funcionario?userId=${userId}`);
   };
 
   const filteredEmployees = employees.filter(
@@ -88,7 +97,8 @@ export default function EmployeeListPage() {
   }
 
   return (
-    <div className={styles.page}>
+    <div className={styles.pageContainer}>
+      <Sidebar userId={userId} />
       <div className={styles.content}>
         <div className={styles.topBar}>
           <h2 className={styles.topBarTitle}>Funcionários</h2>
@@ -100,12 +110,11 @@ export default function EmployeeListPage() {
               onChange={handleSearch}
               className={styles.searchInput}
             />
-
           </div>
         </div>
         <div className={styles.grid}>
           {currentEmployees.map((employee) => (
-            <EmployeeCard key={employee.idFuncionario} employee={employee} />
+            <EmployeeCard key={employee.idFuncionario} employee={employee} userId={userId} /> 
           ))}
         </div>
         <div className={styles.pagination}>

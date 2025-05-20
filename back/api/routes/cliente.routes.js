@@ -1,15 +1,50 @@
 const express = require('express');
 const router = express.Router();
 const Cliente = require('../models/cliente');
-const ClienteRegistro = require('../models/relationship/clienteRegistro'); // Importe o model ClienteRegistro
+const ClienteRegistro = require('../models/relationship/clienteRegistro');
+const multer = require('multer'); 
+const path = require('path'); 
 
-// Middleware para logar todas as requisições a esta rota
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+
+    cb(null, 'uploads/client_photos/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage: storage });
+
 router.use((req, res, next) => {
   console.log('CLIENTES ROUTES - Requisição recebida:', req.method, req.originalUrl);
   next();
 });
 
-// Rota para obter um cliente específico pelo ID (GET)
+// Rota para obter todos os clientes (GET)
+router.get('/listClientes', async (req, res) => {
+  console.log('CLIENTES ROUTES - GET / - Listando todos os clientes');
+  try {
+    const clientes = await Cliente.find();
+    console.log('CLIENTES ROUTES - GET / - Clientes encontrados:', clientes);
+
+    return res.status(200).json({
+      errorStatus: false,
+      mensageStatus: 'CLIENTES ENCONTRADOS',
+      data: clientes,
+    });
+  } catch (error) {
+    console.error('CLIENTES ROUTES - GET / - Erro ao buscar clientes:', error);
+    return res.status(500).json({
+      errorStatus: true,
+      mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS CLIENTES',
+      errorObject: error,
+    });
+  }
+});
+
 router.get('/:idCliente', async (req, res) => {
   const { idCliente } = req.params;
   console.log('CLIENTES ROUTES - GET /:idCliente - ID:', idCliente);
@@ -41,63 +76,57 @@ router.get('/:idCliente', async (req, res) => {
   }
 });
 
-// Rota para obter todos os clientes (GET)
-router.get('/', async (req, res) => {
-  console.log('CLIENTES ROUTES - GET / - Listando todos os clientes');
-  try {
-    const clientes = await Cliente.find();
-    console.log('CLIENTES ROUTES - GET / - Clientes encontrados:', clientes);
-
-    return res.status(200).json({
-      errorStatus: false,
-      mensageStatus: 'CLIENTES ENCONTRADOS',
-      data: clientes,
-    });
-  } catch (error) {
-    console.error('CLIENTES ROUTES - GET / - Erro ao buscar clientes:', error);
-    return res.status(500).json({
-      errorStatus: true,
-      mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS CLIENTES',
-      errorObject: error,
-    });
-  }
-});
-
 // Rota para criar um novo cliente (POST)
-router.post('/', async (req, res) => {
-  console.log('CLIENTES ROUTES - POST / - Body:', req.body);
+router.post('/', upload.single('foto'), async (req, res) => {
+
   const { nomeCompleto, dataNascimento, cpf, telefone, email, favoritos, problemasSaude, informacoesAdicionais } = req.body;
+  const fotoPath = req.file ? req.file.path : null;
+
+  const cleanedCpf = cpf ? cpf.replace(/\D/g, '') : null;
 
   try {
     const novoCliente = new Cliente({
       nomeCompleto,
       dataNascimento,
-      cpf,
+      cpf: cleanedCpf, 
       telefone,
       email,
-      favoritos,
+      favoritos: favoritos ? favoritos.split(',').map(s => s.trim()).filter(s => s !== '') : [],
       problemasSaude,
       informacoesAdicionais,
+      foto: fotoPath
     });
 
     const clienteSalvo = await novoCliente.save();
-    console.log('CLIENTES ROUTES - POST / - Cliente cadastrado com sucesso:', clienteSalvo);
-
     return res.status(201).json({
       errorStatus: false,
       mensageStatus: 'CLIENTE CADASTRADO COM SUCESSO',
-      data: { ...clienteSalvo.toObject(), idCliente: clienteSalvo._id.toString() },
+      data: { ...clienteSalvo.toObject(), idCliente: clienteSalvo._id.toString() }, 
     });
+
   } catch (error) {
-    console.error('CLIENTES ROUTES - POST / - Erro ao cadastrar cliente:', error);
-    return res.status(400).json({
-      errorStatus: true,
-      mensageStatus: 'HOUVE UM ERRO AO CADASTRAR O CLIENTE',
-      errorObject: error,
-    });
+    if (error.code === 11000) {
+        return res.status(409).json({
+            errorStatus: true,
+            mensageStatus: 'CPF JÁ CADASTRADO. Por favor, verifique os dados.',
+            errorObject: error,
+        });
+    } else if (error.name === 'ValidationError') { 
+        const errors = Object.keys(error.errors).map(key => error.errors[key].message);
+        return res.status(400).json({
+            errorStatus: true,
+            mensageStatus: 'ERRO DE VALIDAÇÃO: ' + errors.join(', '),
+            errorObject: error,
+        });
+    } else {
+        return res.status(400).json({ 
+            errorStatus: true,
+            mensageStatus: 'HOUVE UM ERRO AO CADASTRAR O CLIENTE',
+            errorObject: error,
+        });
+    }
   }
 });
-
 // Rota para atualizar um cliente existente (PUT)
 router.put('/:idCliente', async (req, res) => {
   const { idCliente } = req.params;

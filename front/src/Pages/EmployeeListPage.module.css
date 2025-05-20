@@ -1,13 +1,22 @@
 /* EmployeeListPage.module.css */
-.page {
+.pageContainer {
   display: flex;
+  height: 100vh;
+  align-items: flex-start; 
+}
+
+.page {
+  flex: 1;
+  padding: 20px;
 }
 
 .content {
-  flex-grow: 1;
+  flex-grow: 1; /* Allows content to take up remaining space */
   padding: 20px;
   background-color: #fff;
-  min-height: 100vh;
+  min-height: 100vh; /* This might not be needed if pageContainer has height: 100vh */
+  overflow-y: auto; /* Add scroll if content exceeds height */
+  position: relative; /* Needed for positioning the add button */
 }
 
 .topBar {
