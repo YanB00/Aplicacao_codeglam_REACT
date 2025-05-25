@@ -98,3 +98,27 @@
   .cancelBtn:hover {
     background-color: #ccc;
   }
+
+  .durationInputGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Espaçamento entre os inputs e o texto "H", "M" */
+}
+
+.durationInputGroup input[type="number"] {
+  width: 70px; /* Largura menor para os inputs de horas/minutos */
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.durationInputGroup span {
+  font-weight: bold;
+  color: #555;
+}
+
+/* Opcional: estilo para inputs menores se usar .smallInput */
+.smallInput {
+    width: 60px; /* Ajuste conforme necessário */
+    text-align: center;
+}

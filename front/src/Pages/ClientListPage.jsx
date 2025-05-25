@@ -18,7 +18,7 @@ export default function ClientListPage() {
   const [error, setError] = useState(null);
   const clientsPerPage = 10;
 
-  useEffect(() => {
+ useEffect(() => {
     const params = new URLSearchParams(location.search);
     setUserId(params.get('userId'));
   }, [location.search]);

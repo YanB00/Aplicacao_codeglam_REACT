@@ -1,17 +1,37 @@
 // pages/AddServicePage.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './AddServicePage.module.css';
-import { useNavigate } from 'react-router-dom';
-
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function AddServicePage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [userId, setUserId] = useState(null);
+
   const [titulo, setTitulo] = useState('');
   const [preco, setPreco] = useState('');
   const [comissao, setComissao] = useState('');
-  const [duracao, setDuracao] = useState('');
+  const [duracaoHoras, setDuracaoHoras] = useState(''); // Novo estado para horas
+  const [duracaoMinutos, setDuracaoMinutos] = useState(''); // Novo estado para minutos
   const [descricao, setDescricao] = useState('');
-  const [status, setStatus] = useState('A'); // Valor padrão 'Ativo'
+  const [status, setStatus] = useState('Ativo');
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+  const API_BASE_URL = 'http://localhost:3000';
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const id = params.get('userId');
+    if (id) {
+      setUserId(id);
+    } else {
+      console.error('userId not found in URL parameters.');
+      setError('ID do salão não encontrado. Não é possível adicionar o serviço.');
+    }
+  }, [location.search]);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -25,8 +45,11 @@ export default function AddServicePage() {
       case 'comissao':
         setComissao(value);
         break;
-      case 'duracao':
-        setDuracao(value);
+      case 'duracaoHoras': // Novo case
+        setDuracaoHoras(value);
+        break;
+      case 'duracaoMinutos': // Novo case
+        setDuracaoMinutos(value);
         break;
       case 'descricao':
         setDescricao(value);
@@ -39,24 +62,72 @@ export default function AddServicePage() {
     }
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    //  chamada API para salvar o novo serviço
-    const newService = {
-      titulo,
-      preco: parseFloat(preco),
-      comissao: parseInt(comissao),
-      duracao,
-      descricao,
-      status,
-    };
-    console.log('Novo serviço a ser salvo:', newService);
-    // Após salvar,  o usuário  vai para a lista de serviços
-    navigate('/servicos');
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    if (!userId) {
+      setError('Não foi possível determinar o salão para adicionar o serviço. Por favor, tente novamente.');
+      setLoading(false);
+      return;
+    }
+
+    // Validação básica da duração
+    const horas = parseInt(duracaoHoras || 0);
+    const minutos = parseInt(duracaoMinutos || 0);
+
+    if (isNaN(horas) || isNaN(minutos) || horas < 0 || minutos < 0 || minutos >= 60) {
+      setError('Por favor, insira uma duração válida em horas e minutos (minutos entre 0 e 59).');
+      setLoading(false);
+      return;
+    }
+
+    // Formatar a duração para 'HH:MM'
+    const duracaoFormatada = `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`;
+    // Ou, se preferir salvar como minutos totais (como estava antes, mas com cálculo):
+    // const duracaoTotalEmMinutos = (horas * 60) + minutos;
+
+    try {
+      const newService = {
+        salaoId: userId,
+        titulo,
+        preco: parseFloat(preco),
+        comissao: parseInt(comissao),
+        duracao: duracaoFormatada, // Enviar a duração formatada como 'HH:MM'
+        // Se preferir minutos totais: duracao: duracaoTotalEmMinutos,
+        descricao,
+        status,
+      };
+
+      const response = await fetch(`${API_BASE_URL}/servicos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newService),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || result.errorStatus) {
+        throw new Error(result.mensageStatus || 'Erro ao cadastrar serviço');
+      }
+
+      setSuccess(true);
+      console.log('Serviço cadastrado com sucesso:', result.data);
+      navigate(`/servicos?userId=${userId}`);
+    } catch (err) {
+      console.error('Erro ao cadastrar serviço:', err);
+      setError(err.message || 'Houve um erro ao cadastrar o serviço. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
-    navigate('/servicos');
+    navigate(`/servicos?userId=${userId}`);
   };
 
   return (
@@ -79,10 +150,38 @@ export default function AddServicePage() {
               <label htmlFor="comissao">Comissão (%):</label>
               <input type="number" id="comissao" name="comissao" value={comissao} onChange={handleInputChange} required />
             </div>
+
+            {/* Campos para Horas e Minutos */}
             <div className={styles.formGroup}>
-              <label htmlFor="duracao">Duração:</label>
-              <input type="text" id="duracao" name="duracao" value={duracao} onChange={handleInputChange} required />
+              <label>Duração:</label>
+              <div className={styles.durationInputGroup}> {/* Adicione um estilo para agrupar */}
+                <input
+                  type="number"
+                  id="duracaoHoras"
+                  name="duracaoHoras"
+                  value={duracaoHoras}
+                  onChange={handleInputChange}
+                  min="0"
+                  max="23" // Limite razoável para horas
+                  placeholder="Horas"
+                  className={styles.smallInput} // Adicione um estilo para input pequeno
+                />
+                <span>H</span>
+                <input
+                  type="number"
+                  id="duracaoMinutos"
+                  name="duracaoMinutos"
+                  value={duracaoMinutos}
+                  onChange={handleInputChange}
+                  min="0"
+                  max="59" // Limite correto para minutos
+                  placeholder="Minutos"
+                  className={styles.smallInput}
+                />
+                <span>M</span>
+              </div>
             </div>
+
             <div className={styles.formGroup}>
               <label htmlFor="descricao">Descrição:</label>
               <textarea id="descricao" name="descricao" value={descricao} onChange={handleInputChange} required />
@@ -90,15 +189,21 @@ export default function AddServicePage() {
             <div className={styles.formGroup}>
               <label htmlFor="status">Status:</label>
               <select id="status" name="status" value={status} onChange={handleInputChange} required>
-                <option value="A">Ativo</option>
-                <option value="B">Bloqueado</option>
-                <option value="C">Cancelado</option>
+                <option value="Ativo">Ativo</option>
+                <option value="Bloqueado">Bloqueado</option>
+                <option value="Cancelado">Cancelado</option>
               </select>
             </div>
             <div className={styles.buttonGroup}>
-              <button type="button" className={styles.cancelBtn} onClick={handleCancel}>Cancelar</button>
-              <button type="submit" className={styles.saveBtn}>Salvar</button>
+              <button type="button" className={styles.cancelBtn} onClick={handleCancel} disabled={loading}>
+                Cancelar
+              </button>
+              <button type="submit" className={styles.saveBtn} disabled={loading}>
+                {loading ? 'Salvando...' : 'Salvar'}
+              </button>
             </div>
+            {error && <p className={styles.errorMessage}>{error}</p>}
+            {success && <p className={styles.successMessage}>Serviço cadastrado com sucesso!</p>}
           </form>
         </div>
       </div>

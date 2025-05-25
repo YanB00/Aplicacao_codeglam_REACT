@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Servico = require('../models/servico');
-const Salao = require('../models/registro');
+const Salao = require('../models/registro'); // Assuming this is your Salon model
 
 // Rota para criar um novo serviço (POST)
 router.post('/', async (req, res) => {
-  const { salaoId, titulo, preco, comissao, duracao, descricao } = req.body;
+  const { salaoId, titulo, preco, comissao, duracao, descricao, status } = req.body; // Include status in destructuring
 
   try {
     const novoServico = new Servico({
@@ -15,6 +15,7 @@ router.post('/', async (req, res) => {
       comissao,
       duracao,
       descricao,
+      status: status || 'Ativo' 
     });
 
     const servicoSalvo = await novoServico.save();
@@ -34,8 +35,9 @@ router.post('/', async (req, res) => {
   }
 });
 
+
 // Rota para obter todos os serviços de um salão específico (GET)
-router.get('/servicos/:salaoId', async (req, res) => {
+router.get('/:salaoId', async (req, res) => {
   const { salaoId } = req.params;
 
   try {
@@ -51,6 +53,80 @@ router.get('/servicos/:salaoId', async (req, res) => {
     return res.status(500).json({
       errorStatus: true,
       mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS SERVIÇOS DO SALÃO',
+      errorObject: error,
+    });
+  }
+});
+
+
+// Rota para atualizar o status de um serviço (PUT)
+router.put('/status/:servicoId', async (req, res) => {
+  const { servicoId } = req.params;
+  const { status } = req.body;
+
+  // Validate the provided status
+  const allowedStatuses = ['Ativo', 'Cancelado', 'Bloqueado'];
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({
+      errorStatus: true,
+      mensageStatus: 'Status inválido fornecido. Os status permitidos são: Ativo, Cancelado, Bloqueado.',
+    });
+  }
+
+  try {
+    const servicoAtualizado = await Servico.findByIdAndUpdate(
+      servicoId,
+      { status: status },
+      { new: true } // Returns the updated document
+    );
+
+    if (!servicoAtualizado) {
+      return res.status(404).json({
+        errorStatus: true,
+        mensageStatus: 'Serviço não encontrado.',
+      });
+    }
+
+    return res.status(200).json({
+      errorStatus: false,
+      mensageStatus: 'STATUS DO SERVIÇO ATUALIZADO COM SUCESSO',
+      data: servicoAtualizado,
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar status do serviço:', error);
+    return res.status(500).json({
+      errorStatus: true,
+      mensageStatus: 'HOUVE UM ERRO AO ATUALIZAR O STATUS DO SERVIÇO',
+      errorObject: error,
+    });
+  }
+});
+
+
+// Rota para obter um serviço por ID (GET)
+router.get('/:servicoId', async (req, res) => {
+  const { servicoId } = req.params;
+
+  try {
+    const servico = await Servico.findById(servicoId);
+
+    if (!servico) {
+      return res.status(404).json({
+        errorStatus: true,
+        mensageStatus: 'Serviço não encontrado.',
+      });
+    }
+
+    return res.status(200).json({
+      errorStatus: false,
+      mensageStatus: 'SERVIÇO ENCONTRADO',
+      data: servico,
+    });
+  } catch (error) {
+    console.error('Erro ao buscar serviço por ID:', error);
+    return res.status(500).json({
+      errorStatus: true,
+      mensageStatus: 'HOUVE UM ERRO AO BUSCAR O SERVIÇO POR ID',
       errorObject: error,
     });
   }

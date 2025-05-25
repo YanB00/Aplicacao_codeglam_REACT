@@ -1,54 +1,59 @@
 // pages/ServiceListPage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; // Adicionado useCallback
 import ServiceCard from '../components/ServiceCard';
 import styles from './ServiceListPage.module.css';
 import { FaSearch, FaPlus, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
-
-
-// Substituir pela API
-const initialServicesData = [
-  { _id: '1', titulo: 'Corte de Cabelo Simples', preco: 50.00, comissao: 10, duracao: '30 min', descricao: 'Corte reto ou repicado.', status: 'A' },
-  { _id: '2', titulo: 'Manicure', preco: 35.00, comissao: 15, duracao: '45 min', descricao: 'Cuidado e esmaltação das unhas.', status: 'B' },
-  { _id: '3', titulo: 'Pedicure', preco: 40.00, comissao: 15, duracao: '60 min', descricao: 'Cuidado e esmaltação dos pés.', status: 'C' },
-  { _id: '4', titulo: 'Unhas em Gel', preco: 120.00, comissao: 20, duracao: '2 horas', descricao: 'Aplicação de unhas de gel.', status: 'A' },
-  { _id: '5', titulo: 'Sobrancelha', preco: 25.00, comissao: 10, duracao: '20 min', descricao: 'Design de sobrancelha.', status: 'A' },
-  { _id: '6', titulo: 'Depilação', preco: 60.00, comissao: 15, duracao: '1 hora', descricao: 'Depilação com cera.', status: 'A' },
-  { _id: '7', titulo: 'Penteado', preco: 80.00, comissao: 20, duracao: '1h30', descricao: 'Penteados para eventos.', status: 'A' },
-  { _id: '8', titulo: 'Maquiagem', preco: 90.00, comissao: 20, duracao: '1h', descricao: 'Maquiagem profissional.', status: 'A' },
-  { _id: '9', titulo: 'Luzes', preco: 200.00, comissao: 30, duracao: '3h', descricao: 'Luzes no cabelo.', status: 'A' },
-  { _id: '10', titulo: 'Progressiva', preco: 250.00, comissao: 30, duracao: '3h', descricao: 'Alisamento capilar.', status: 'A' },
-  { _id: '11', titulo: 'Hidratação', preco: 70.00, comissao: 15, duracao: '1h', descricao: 'Hidratação profunda.', status: 'A' },
-  { _id: '12', titulo: 'Botox Capilar', preco: 150.00, comissao: 25, duracao: '2h', descricao: 'Tratamento capilar.', status: 'A' },
-  { _id: '13', titulo: 'Escova Simples', preco: 45.00, comissao: 10, duracao: '40 min', descricao: 'Escova modeladora simples.', status: 'A' },
-  { _id: '14', titulo: 'Coloração', preco: 180.00, comissao: 25, duracao: '2h30', descricao: 'Coloração capilar completa.', status: 'A' },
-  { _id: '15', titulo: 'Reflexo', preco: 190.00, comissao: 30, duracao: '2h30', descricao: 'Técnica de mechas mais sutis.', status: 'A' },
-  { _id: '16', titulo: 'Peeling Facial', preco: 150.00, comissao: 20, duracao: '1h', descricao: 'Tratamento para renovação da pele.', status: 'A' },
-  { _id: '17', titulo: 'Limpeza de Pele', preco: 130.00, comissao: 20, duracao: '1h30', descricao: 'Limpeza profunda com extração.', status: 'A' },
-  { _id: '18', titulo: 'Design de Barba', preco: 30.00, comissao: 10, duracao: '30 min', descricao: 'Barbearia com acabamento detalhado.', status: 'A' },
-  { _id: '19', titulo: 'Massagem Relaxante', preco: 100.00, comissao: 25, duracao: '1h', descricao: 'Massagem terapêutica relaxante.', status: 'A' },
-  { _id: '20', titulo: 'Banho de Lua', preco: 85.00, comissao: 15, duracao: '1h', descricao: 'Clareamento dos pelos do corpo.', status: 'C' },
-];
-
-
+import { useNavigate, useLocation } from 'react-router-dom';
+import Sidebar from "../components/Sidebar";
 
 export default function ServiceListPage() {
   const navigate = useNavigate();
+  const location = useLocation(); 
+  const [userId, setUserId] = useState(null); 
   const [searchTerm, setSearchTerm] = useState('');
   const [services, setServices] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true); // Adicionado estado de loading
+  const [error, setError] = useState(null);   // Adicionado estado de erro
   const servicesPerPage = 10;
 
   useEffect(() => {
-    // Simulação de busca na API e ordenação inicial
-    const filteredAndSortedServices = initialServicesData
-      .filter(service =>
-        service.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        service.descricao.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-      .sort((a, b) => a.titulo.localeCompare(b.titulo));
-    setServices(filteredAndSortedServices);
-  }, [searchTerm]); // Refazer a filtragem e ordenação ao mudar o termo de busca
+    const params = new URLSearchParams(location.search);
+    const id = params.get('userId');
+    setUserId(id);
+  }, [location.search]);
+
+  // Função para buscar os serviços do backend
+  const fetchServices = useCallback(async () => {
+    if (!userId) {
+      setLoading(false);
+      return; // Não busca se não houver userId
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      // Usando a rota correta para buscar serviços de um salão específico
+      const response = await fetch(`http://localhost:3000/servicos/${userId}`); 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.mensageStatus || 'Failed to fetch services');
+      }
+      const result = await response.json();
+      // Ordena os serviços por título após a busca
+      const sortedServices = result.data.sort((a, b) => a.titulo.localeCompare(b.titulo));
+      setServices(sortedServices);
+    } catch (err) {
+      console.error('Erro ao buscar serviços:', err);
+      setError(err.message || 'Erro ao carregar serviços.');
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]); // Dependência do userId para re-executar a busca quando ele muda
+
+  useEffect(() => {
+    fetchServices();
+  }, [fetchServices]); // Chama a função de busca quando ela for criada/alterada
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -56,14 +61,25 @@ export default function ServiceListPage() {
   };
 
   const handleAddServiceClick = () => {
-    navigate('/add-servico');
+    // Passa o userId para a AddServicePage
+    if (userId) {
+      navigate(`/add-servico?userId=${userId}`);
+    } else {
+      navigate('/add-servico'); // Fallback caso userId não esteja disponível
+    }
   };
+
+  // Filtra os serviços com base no termo de busca
+  const filteredServices = services.filter(service =>
+    service.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.descricao.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const indexOfLastService = currentPage * servicesPerPage;
   const indexOfFirstService = indexOfLastService - servicesPerPage;
-  const currentServices = services.slice(indexOfFirstService, indexOfLastService);
+  const currentServices = filteredServices.slice(indexOfFirstService, indexOfLastService);
 
-  const totalPages = Math.ceil(services.length / servicesPerPage);
+  const totalPages = Math.ceil(filteredServices.length / servicesPerPage); // totalPages baseado em filteredServices
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -86,6 +102,7 @@ export default function ServiceListPage() {
 
   return (
     <div className={styles.page}>
+      <Sidebar userId={userId}/> {/* Passa o userId para a Sidebar */}
       <div className={styles.content}>
         <div className={styles.topBar}>
           <h2 className={styles.topBarTitle}>Serviços</h2>
@@ -97,31 +114,43 @@ export default function ServiceListPage() {
               onChange={handleSearch}
               className={styles.searchInput}
             />
-           
           </div>
         </div>
-        <div className={styles.grid}>
-          {currentServices.map((service) => (
-            <ServiceCard key={service._id} service={service} />
-          ))}
-        </div>
-        <div className={styles.pagination}>
-          <button onClick={prevPage} disabled={currentPage === 1} className={styles.paginationButton}>
-            <FaChevronLeft />
-          </button>
-          {pageNumbers.map((number) => (
-            <button
-              key={number}
-              onClick={() => paginate(number)}
-              className={`${styles.paginationButton} ${currentPage === number ? styles.active : ''}`}
-            >
-              {number}
-            </button>
-          ))}
-          <button onClick={nextPage} disabled={currentPage === totalPages} className={styles.paginationButton}>
-            <FaChevronRight />
-          </button>
-        </div>
+
+        {loading && <p>Carregando serviços...</p>}
+        {error && <p className={styles.errorMessage}>Erro: {error}</p>}
+
+        {!loading && !error && filteredServices.length === 0 && (
+          <p>Nenhum serviço encontrado.</p>
+        )}
+
+        {!loading && !error && filteredServices.length > 0 && (
+          <>
+            <div className={styles.grid}>
+              {currentServices.map((service) => (
+                <ServiceCard key={service._id} service={service} />
+              ))}
+            </div>
+            <div className={styles.pagination}>
+              <button onClick={prevPage} disabled={currentPage === 1} className={styles.paginationButton}>
+                <FaChevronLeft />
+              </button>
+              {pageNumbers.map((number) => (
+                <button
+                  key={number}
+                  onClick={() => paginate(number)}
+                  className={`${styles.paginationButton} ${currentPage === number ? styles.active : ''}`}
+                >
+                  {number}
+                </button>
+              ))}
+              <button onClick={nextPage} disabled={currentPage === totalPages} className={styles.paginationButton}>
+                <FaChevronRight />
+              </button>
+            </div>
+          </>
+        )}
+
         <button className={styles.addButton} onClick={handleAddServiceClick}>
           <FaPlus /> Adicionar Serviço
         </button>

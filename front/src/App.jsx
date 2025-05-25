@@ -9,18 +9,18 @@ import ChartArea from './components/ChartArea';
 import BirthdayList from './components/BirthdayList';
 
 // Importe páginas
-import ClientPage from './pages/ClientPage';
-import ClientListPage from './pages/ClientListPage';
-import EditClientPage from './pages/EditClientPage';
-import AddClientPage from './pages/AddClientPage';
-import SchedulePage from './pages/SchedulePage';
+import ClientPage from './Pages/ClientPage';
+import ClientListPage from './Pages/ClientListPage';
+import EditClientPage from './Pages/EditClientPage';
+import AddClientPage from './Pages/AddClientPage';
+import SchedulePage from './Pages/SchedulePage';
 import EmployeePage from './Pages/EmployeePage';
 import EmployeeListPage from './Pages/EmployeeListPage';
-import EditEmployeePage from './pages/EditEmployeePage';
-import AddEmployeePage from './pages/AddEmployeePage';
-import ServiceListPage from './pages/ServiceListPage';
-import AddServicePage from './pages/AddServicePage';
-import ServiceDetailsPage from './pages/ServiceDetailsPage';
+import EditEmployeePage from './Pages/EditEmployeePage';
+import AddEmployeePage from './Pages/AddEmployeePage';
+import ServiceListPage from './Pages/ServiceListPage';
+import AddServicePage from './Pages/AddServicePage';
+import ServiceDetailsPage from './Pages/ServiceDetailsPage';
 import SettingsPage from './Pages/SettingsPage';
 
 function Dashboard() {

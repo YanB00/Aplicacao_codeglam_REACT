@@ -4,8 +4,9 @@ const app = express();
 const morgan = require('morgan');
 require('./database');
 
-const funcionarioRoutes = require('./routes/funcionario.routes')
+const funcionarioRoutes = require('./routes/funcionario.routes');
 const clienteRoutes = require('./routes/cliente.routes');
+const servicosRoutes = require('./routes/servicos.routes');
 
 app.use(cors())
 app.use(express.json()); 
@@ -22,8 +23,8 @@ app.use(require('./routes/registro.routes'));
 app.use(require('./routes/login.routes'));
 
 app.use('/clientes', clienteRoutes);
+app.use ('/servicos', servicosRoutes);
 
-// app.use(require('./routes/servicos.routes'));
 // app.use(require('./routes/agendamento.routes'));
 
 
