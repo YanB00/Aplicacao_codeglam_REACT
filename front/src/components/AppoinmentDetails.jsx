@@ -1,5 +1,3 @@
-//detalhes do agendamento quando clica nos cards do grid 
-
 import React from 'react';
 import styles from './AppointmentDetails.module.css';
 import { AiOutlineClose } from 'react-icons/ai';

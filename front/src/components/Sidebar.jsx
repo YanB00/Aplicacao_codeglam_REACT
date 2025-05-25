@@ -58,7 +58,7 @@ export default function Sidebar({ userId }) {
 
     useEffect(() => {
         if (userId) {
-            fetchUserData(); // <--------------------- CHAMADA DA FUNÇÃO AQUI
+            fetchUserData(); 
         } else {
             setCompanyName('Nome Genérico');
         }

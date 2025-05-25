@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Link, useSearchParams } from 'react-router-dom';
 import styles from './App.module.css';
 
-// Importe seus componentes de Sidebar
+// Importe componentes Sidebar
 import Sidebar from './components/Sidebar';
 import TopCards from './components/TopCards';
 import ChartArea from './components/ChartArea';
@@ -21,6 +21,7 @@ import AddEmployeePage from './Pages/AddEmployeePage';
 import ServiceListPage from './Pages/ServiceListPage';
 import AddServicePage from './Pages/AddServicePage';
 import ServiceDetailsPage from './Pages/ServiceDetailsPage';
+import EditServicePage from './Pages/EditServicePage';
 import SettingsPage from './Pages/SettingsPage';
 
 function Dashboard() {
@@ -75,6 +76,8 @@ function App() {
                 <Route path="/servicos" element={<ServiceListPage />} />
                 <Route path="/add-servico" element={<AddServicePage />} />
                 <Route path="/servico/:id" element={<ServiceDetailsPage />} />
+                <Route path="/servicos/editar/:id" element={<EditServicePage />} />
+
             </Routes>
         </BrowserRouter>
     );

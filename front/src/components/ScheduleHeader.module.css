@@ -7,7 +7,7 @@
   }
   
   .sidebar {
-    flex: 0 0 80px; /* largura fixa para o menu lateral */
+    flex: 0 0 80px; 
   }
   
   .header {

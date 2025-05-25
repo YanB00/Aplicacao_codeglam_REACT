@@ -1,4 +1,3 @@
-// src/components/AddAppointmentForm.jsx
 import React, { useState } from 'react';
 import styles from './AddAppointmentForm.module.css';
 import { AiOutlineClose } from 'react-icons/ai';
@@ -12,7 +11,7 @@ const AddAppointmentForm = ({ onClose, onSave }) => {
     employee: '',
     valor: '',
     observacoes: '',
-    color: '#f0f0f0', // Cor padrão para o novo agendamento
+    color: '#f0f0f0', 
   });
 
   const handleChange = (e) => {

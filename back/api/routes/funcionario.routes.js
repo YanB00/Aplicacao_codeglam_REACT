@@ -114,7 +114,7 @@ router.get('/:idFuncionario', async (req, res) => {
 // Rota para atualizar um funcionário existente (PUT)
 router.put('/:idFuncionario', upload.single('foto'), async (req, res) => {
   const { idFuncionario } = req.params;
-  const { nomeCompleto, dataNascimento, cpf, dataAdmissao, cargo, beneficios, informacoesAdicionais, telefone, email } = req.body; // Acesse os campos de texto via req.body
+  const { nomeCompleto, dataNascimento, cpf, dataAdmissao, cargo, beneficios, informacoesAdicionais, telefone, email } = req.body; 
   const foto = req.file ? req.file.filename : (req.body.fotoExistente || null); // Pega o nome do arquivo se um novo foi enviado, ou mantém o existente
 
   try {

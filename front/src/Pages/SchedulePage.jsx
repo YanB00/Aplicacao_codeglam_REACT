@@ -7,7 +7,7 @@ import styles from './SchedulePage.module.css';
 
 const SchedulePage = () => {
   const [isAddFormVisible, setIsAddFormVisible] = useState(false);
-  const [appointments, setAppointments] = useState([]); // Para armazenar os agendamentos (exemplo)
+  const [appointments, setAppointments] = useState([]); 
 
   const handleAddClick = () => {
     setIsAddFormVisible(true);
@@ -21,13 +21,12 @@ const SchedulePage = () => {
     console.log('Novo agendamento:', newAppointment);
     setAppointments([...appointments, newAppointment]);
     setIsAddFormVisible(false);
-    // Aqui você chamaria sua lógica para salvar o agendamento (API, etc.)
   };
 
   return (
     <div className={styles.page}>
-      <ScheduleHeader onAddClick={handleAddClick} /> {/* Passa a função para o ScheduleHeader */}
-      <ScheduleGrid appointments={appointments} /> {/* Exemplo de como passar os agendamentos para a grid */}
+      <ScheduleHeader onAddClick={handleAddClick} /> 
+      <ScheduleGrid appointments={appointments} /> 
       {isAddFormVisible && (
         <AddAppointmentForm onClose={handleCloseForm} onSave={handleSaveAppointment} />
       )}

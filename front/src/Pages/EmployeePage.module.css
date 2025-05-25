@@ -11,32 +11,32 @@
 }
 
 .topBar {
-  height: 60px; /* Aumenta a altura da topBar para acomodar o botão */
+  height: 60px; 
   background-color: #9b5de5;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
-  display: flex; /* Para alinhar o botão */
-  align-items: center; /* Alinha verticalmente o conteúdo */
-  padding-left: 20px; /* Adiciona espaço à esquerda do botão */
+  display: flex; 
+  align-items: center; 
+  padding-left: 20px; 
 }
 
 .mainContent {
-    display: flex; /* Para colocar profileCard e detailsCard lado a lado */
-    gap: 20px; /* Espaço entre os cartões */
-    flex-wrap: wrap; /* Para quebrar linha em telas menores */
-    justify-content: center; /* Centralizar os cartões */
-    align-items: flex-start; /* Alinhar o topo dos cartões */
-    padding: 20px; /* Adicione um padding geral */
+    display: flex; 
+    gap: 20px; 
+    flex-wrap: wrap; 
+    justify-content: center; 
+    align-items: flex-start;
+    padding: 20px; 
 }
 
 .profileCard, .detailsCard {
-    flex: 1; /* Permite que os cartões cresçam e ocupem o espaço disponível */
-    min-width: 300px; /* Largura mínima para evitar que fiquem muito pequenos */
+    flex: 1; 
+    min-width: 300px; 
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    margin-bottom: 20px; /* Para espaço abaixo dos cards */
+    margin-bottom: 20px; 
 }
 
 .avatarWrapper {
@@ -108,24 +108,24 @@
 }
 
 .backButton {
-  background-color: #8e44ad; /* Roxo */
+  background-color: #8e44ad; 
   color: white;
   border: none;
-  padding: 8px 16px; /* Padding para criar o formato retangular */
-  border-radius: 8px; /* Borda ligeiramente arredondada para o retângulo */
+  padding: 8px 16px; 
+  border-radius: 8px; 
   cursor: pointer;
   font-size: 1rem;
   display: flex;
   align-items: center;
-  gap: 8px; /* Espaço entre o ícone e o texto */
+  gap: 8px; 
   transition: background-color 0.3s ease;
-  margin-top: 0; /* Remove a margem superior para alinhar com a topBar */
-  height: auto; /* Altura automática para se ajustar ao padding */
-  width: auto; /* Largura automática para se ajustar ao padding e conteúdo */
-  padding-left: 12px; /* Mais padding à esquerda para o ícone */
-  padding-right: 12px; /* Mais padding à direita para o texto */
+  margin-top: 0; 
+  height: auto; 
+  width: auto; 
+  padding-left: 12px; 
+  padding-right: 12px; 
 }
 
 .backButton:hover {
-  background-color: #9b59b6; /* Roxo mais claro no hover */
+  background-color: #9b59b6; 
 }

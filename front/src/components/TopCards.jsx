@@ -1,6 +1,3 @@
-//os cards q mostram na home
-
-
 import React, { useState } from 'react';
 import ModalInfo from './ModalInfo';
 import styles from './TopCards.module.css';

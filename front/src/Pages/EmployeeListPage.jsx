@@ -21,7 +21,7 @@ export default function EmployeeListPage() {
     return params.get('userId');
   };
 
-  const userId = getUserIdFromUrl(); // Retrieve userId here
+  const userId = getUserIdFromUrl(); 
 
   useEffect(() => {
     const fetchEmployees = async () => {

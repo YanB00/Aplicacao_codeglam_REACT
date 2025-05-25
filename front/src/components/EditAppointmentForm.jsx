@@ -1,5 +1,3 @@
-//editar agendamento na pagina do calendario
-
 import React, { useState, useEffect } from 'react';
 import styles from './EditAppointmentForm.module.css';
 import { AiOutlineClose } from 'react-icons/ai';

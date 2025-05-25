@@ -1,5 +1,3 @@
-//popup que surge na home aapos clicar nas cards de cima
-
 import React from 'react';
 import styles from './ModalInfo.module.css';
 import { IoClose } from 'react-icons/io5';

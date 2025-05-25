@@ -81,7 +81,7 @@
     font-weight: 600;
     margin-bottom: 6px;
     color: #333;
-    display: block; /* Garante que a label ocupe a largura total do seu container */
+    display: block; 
   }
   
   input[type="text"],
@@ -92,8 +92,8 @@
     font-size: 14px;
     background-color: #fafafa;
     transition: border-color 0.3s ease;
-    width: 100%; /* Garante que o input ocupe a largura total do seu container */
-    box-sizing: border-box; /* Impede que o padding aumente a largura total */
+    width: 100%; 
+    box-sizing: border-box; 
   }
   
   input:focus {

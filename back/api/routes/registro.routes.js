@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt'); // Para hashear a senha
 const Register = require('../models/registro');
 
 router.post('/register', async (req, res) => {
-    const { nome, empresa, telefone, email, senha } = req.body; // Destructuring direto
+    const { nome, empresa, telefone, email, senha } = req.body; 
     console.log('[BACKEND - POST /register] Recebendo dados:', { nome, empresa, telefone, email, senha });
 
     try {

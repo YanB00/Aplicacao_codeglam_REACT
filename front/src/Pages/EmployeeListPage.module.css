@@ -1,4 +1,3 @@
-/* EmployeeListPage.module.css */
 .pageContainer {
   display: flex;
   height: 100vh;
@@ -11,12 +10,12 @@
 }
 
 .content {
-  flex-grow: 1; /* Allows content to take up remaining space */
+  flex-grow: 1; 
   padding: 20px;
   background-color: #fff;
-  min-height: 100vh; /* This might not be needed if pageContainer has height: 100vh */
-  overflow-y: auto; /* Add scroll if content exceeds height */
-  position: relative; /* Needed for positioning the add button */
+  min-height: 100vh; 
+  overflow-y: auto; 
+  position: relative; 
 }
 
 .topBar {
@@ -25,16 +24,16 @@
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
   display: flex;
-  justify-content: space-between; /* Espaço entre o título e a busca */
+  justify-content: space-between; 
   align-items: center;
   padding: 0 20px;
-  margin-bottom: 20px; /* Opcional: margem abaixo da topBar */
+  margin-bottom: 20px; 
 }
 
 .topBarTitle {
   color: #fff;
   font-size: 24px;
-  margin-right: 20px; /* Espaço entre o título e a busca */
+  margin-right: 20px; 
 }
 
 .grid {
@@ -96,56 +95,54 @@
   justify-content: center;
   align-items: center;
   margin-top: 30px;
-  padding-bottom: 40px; /* Aumentei um pouco o padding inferior */
-  gap: 10px; /* Aumentei um pouco o espaço entre os botões */
+  padding-bottom: 40px; 
+  gap: 10px; 
  }
  
  .paginationButton {
   background-color: transparent;
-  color: #999; /* Cor do texto mais clara */
+  color: #999; 
   border: none;
-  padding: 5px 8px; /* Reduzi um pouco o padding */
-  border-radius: 5px; /* Arredondamento ainda menor */
+  padding: 5px 8px; 
+  border-radius: 5px; 
   cursor: pointer;
   transition: color 0.3s ease;
   font-size: 14px;
-  min-width: 25px; /* Reduzi a largura mínima */
+  min-width: 25px; 
   display: flex;
   justify-content: center;
   align-items: center;
  }
  
  .paginationButton:hover:not(:disabled) {
-  color: #555; /* Escurece um pouco ao passar o mouse */
+  color: #555; 
  }
  
  .paginationButton.active {
-  color: #9b5de5; /* Mantém a cor primária para a página ativa */
-  font-weight: bold; /* Adiciona um peso maior à fonte para destacar */
-  border-radius: 8px; /* Aumenta um pouco o border-radius do ativo */
-  /* Removi o background-color do ativo para um visual mais clean */
+  color: #9b5de5;
+  font-weight: bold; 
+  border-radius: 8px; 
  }
  
  .paginationButton:disabled {
-  opacity: 0.3; /* Deixa mais transparente quando desabilitado */
+  opacity: 0.3; 
   cursor: not-allowed;
  }
  
- /* Estilos específicos para os botões de seta */
  .pagination button:first-child,
  .pagination button:last-child {
-  font-size: 1em; /* Reduzi o tamanho das setas */
-  padding: 4px 6px; /* Ajustei o padding das setas */
+  font-size: 1em;
+  padding: 4px 6px; 
   border-radius: 50%;
   background-color: transparent;
   color: #999;
-  border: 1px solid #ccc; /* Mantém a borda sutil */
-  line-height: 1; /* Ajusta a altura da linha para centralizar o ícone */
+  border: 1px solid #ccc; 
+  line-height: 1; 
  }
  
  .pagination button:first-child:hover:not(:disabled),
  .pagination button:last-child:hover:not(:disabled) {
   color: #555;
   border-color: #bbb;
-  background-color: #f9f9f9; /* Adiciona um leve background no hover da seta */
+  background-color: #f9f9f9;
  }

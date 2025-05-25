@@ -1,13 +1,12 @@
 .mainLayout {
   display: flex;
-  height: 100vh; /* Make the layout take the full viewport height */
+  height: 100vh; 
 }
 
 .contentArea {
-  flex: 1; /* Allows the content area to take up the remaining space */
+  flex: 1; 
   display: flex;
   flex-direction: column;
-  overflow-y: auto; /* Allows scrolling within the content area if it overflows */
-  padding-top: 20px; /* <--- ADD THIS LINE */
-  /* You can adjust the value (e.g., 30px, 40px) to your preference */
+  overflow-y: auto;
+  padding-top: 20px; 
 }

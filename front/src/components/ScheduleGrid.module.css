@@ -1,6 +1,6 @@
 .container {
   display: grid;
-  grid-template-columns: 70px repeat(auto-fit, minmax(150px, 1fr)); /* Coluna de horários e colunas de funcionários */
+  grid-template-columns: 70px repeat(auto-fit, minmax(150px, 1fr));
   border: 1px solid #ccc;
 }
 
@@ -15,7 +15,7 @@
   border-bottom: 1px solid #eee;
   text-align: right;
   font-size: 0.8em;
-  height: 40px; /* Altura para representar 30 minutos */
+  height: 40px; 
   line-height: 40px;
 }
 
@@ -37,12 +37,12 @@
   grid-column: 2 / -1;
   grid-row: 2 / -1;
   position: relative;
-  padding-top: 40px; /* Espaço para alinhar os eventos com os horários */
+  padding-top: 40px; 
 }
 
 .eventCell {
   position: absolute;
-  box-sizing: border-box; /* Garante que padding e border não afetem o tamanho */
+  box-sizing: border-box; 
   border-radius: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -54,11 +54,10 @@
   font-size: 0.8em;
   color: white;
 
-  /* Posicionamento dinâmico pelas variáveis CSS */
-  top: calc(var(--event-start-half-hour) * 20px); /* 20px por intervalo de 30 minutos */
+  top: calc(var(--event-start-half-hour) * 20px); 
   left: calc(100% / var(--employee-count) * var(--employee-index));
-  width: calc(100% / var(--employee-count) - 2px); /* Ajuste para espaçamento */
-  height: calc(var(--event-duration-half-hours) * 20px - 2px); /* Ajuste para espaçamento */
+  width: calc(100% / var(--employee-count) - 2px); 
+  height: calc(var(--event-duration-half-hours) * 20px - 2px); 
 }
 
 

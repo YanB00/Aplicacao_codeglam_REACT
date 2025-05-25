@@ -14,13 +14,13 @@
 }
 
 .topBar {
-  height: 60px; /* Aumenta a altura para acomodar o botão */
+  height: 60px; 
   background-color: #9b5de5;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
-  display: flex; /* Para alinhar o botão */
-  align-items: center; /* Alinha verticalmente */
-  padding-left: 20px; /* Espaço à esquerda */
+  display: flex; 
+  align-items: center; 
+  padding-left: 20px; 
 }
 
 .formContainer {

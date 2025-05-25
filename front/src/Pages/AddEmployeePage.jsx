@@ -61,7 +61,7 @@ export default function AddEmployeePage() {
         setEmail(value);
         break;
       case 'avatar-upload':
-        setFoto(event.target.files[0]); // Guarda o arquivo selecionado
+        setFoto(event.target.files[0]); 
         break;
       default:
         break;

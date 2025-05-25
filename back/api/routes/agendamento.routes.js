@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Agendamento = require('../models/agendamento'); // Ajuste o caminho se necessário
+const Agendamento = require('../models/agendamento'); 
 
 // Rota para criar um novo agendamento (POST)
 router.post('/', async (req, res) => {
@@ -240,7 +240,6 @@ router.get('/data/:dataAgendamento', async (req, res) => {
   const { dataAgendamento } = req.params;
 
   try {
-    // Converte a string de data para um objeto Date e define o final do dia
     const startOfDay = new Date(dataAgendamento);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(dataAgendamento);

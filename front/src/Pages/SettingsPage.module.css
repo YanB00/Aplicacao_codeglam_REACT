@@ -50,25 +50,23 @@
 }
 
 .title {
-  /* Estilos para o título principal "Configurações" */
   margin-bottom: 20px;
   color: #555;
 }
 
-/* Estilos para a nova top bar */
 .topBar {
-  background-color: #9b5de5; /* Cor roxa similar à imagem */
+  background-color: #9b5de5; 
   color: white;
   padding: 15px 20px;
-  border-radius: 8px 8px 0 0; /* Bordas arredondadas apenas na parte superior */
-  margin-bottom: 20px; /* Espaçamento abaixo da top bar */
+  border-radius: 8px 8px 0 0; 
+  margin-bottom: 20px; 
   display: flex;
-  align-items: center; /* Alinha os itens verticalmente */
+  align-items: center; 
 }
 
 .topBarTitle {
   font-size: 1.5em;
-  margin: 0; /* Remove margens padrão do h2 */
+  margin: 0; 
 }
 .content {
   flex: 1;

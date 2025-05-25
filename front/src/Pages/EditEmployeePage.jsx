@@ -19,7 +19,7 @@ export default function EditEmployeePage() {
     informacoesAdicionais: '',
     telefone: '',
     email: '',
-    foto: null, // Para a nova foto, se o usuário escolher
+    foto: null, 
   });
 
   useEffect(() => {

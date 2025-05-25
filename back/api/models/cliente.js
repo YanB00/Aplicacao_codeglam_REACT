@@ -14,7 +14,7 @@ const clienteSchema = new Schema({
     type: String,
     required: true,
     unique: true,
-     trim: true
+    trim: true
   },
   dataCadastro: { 
     type: Date,

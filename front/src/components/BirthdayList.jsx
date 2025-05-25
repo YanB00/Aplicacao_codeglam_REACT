@@ -1,5 +1,3 @@
-
-//lista de aniversariantes
 import React, { useState } from 'react';
 import styles from './BirthdayList.module.css';
 import { FaUserCircle } from 'react-icons/fa'; 

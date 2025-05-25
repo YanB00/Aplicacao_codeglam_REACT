@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Servico = require('../models/servico');
-const Salao = require('../models/registro'); // Assuming this is your Salon model
+const Salao = require('../models/registro'); 
 
 // Rota para criar um novo serviço (POST)
 router.post('/', async (req, res) => {
-  const { salaoId, titulo, preco, comissao, duracao, descricao, status } = req.body; // Include status in destructuring
+  const { salaoId, titulo, preco, comissao, duracao, descricao, status } = req.body;
 
   try {
     const novoServico = new Servico({
@@ -15,7 +15,7 @@ router.post('/', async (req, res) => {
       comissao,
       duracao,
       descricao,
-      status: status || 'Ativo' 
+      status: status || 'Ativo'
     });
 
     const servicoSalvo = await novoServico.save();
@@ -46,7 +46,7 @@ router.get('/:salaoId', async (req, res) => {
     return res.status(200).json({
       errorStatus: false,
       mensageStatus: 'SERVIÇOS DO SALÃO ENCONTRADOS',
-      data: servicos,
+      data: servicos, 
     });
   } catch (error) {
     console.error('Erro ao buscar serviços do salão:', error);
@@ -64,7 +64,6 @@ router.put('/status/:servicoId', async (req, res) => {
   const { servicoId } = req.params;
   const { status } = req.body;
 
-  // Validate the provided status
   const allowedStatuses = ['Ativo', 'Cancelado', 'Bloqueado'];
   if (!allowedStatuses.includes(status)) {
     return res.status(400).json({
@@ -77,7 +76,7 @@ router.put('/status/:servicoId', async (req, res) => {
     const servicoAtualizado = await Servico.findByIdAndUpdate(
       servicoId,
       { status: status },
-      { new: true } // Returns the updated document
+      { new: true }
     );
 
     if (!servicoAtualizado) {
@@ -103,12 +102,12 @@ router.put('/status/:servicoId', async (req, res) => {
 });
 
 
-// Rota para obter um serviço por ID (GET)
-router.get('/:servicoId', async (req, res) => {
+// Rota para obter um serviço por ID (GET) - CAMINHO MODIFICADO
+router.get('/item/:servicoId', async (req, res) => { 
   const { servicoId } = req.params;
 
   try {
-    const servico = await Servico.findById(servicoId);
+    const servico = await Servico.findById(servicoId); 
 
     if (!servico) {
       return res.status(404).json({
@@ -120,13 +119,74 @@ router.get('/:servicoId', async (req, res) => {
     return res.status(200).json({
       errorStatus: false,
       mensageStatus: 'SERVIÇO ENCONTRADO',
-      data: servico,
+      data: servico, 
     });
   } catch (error) {
     console.error('Erro ao buscar serviço por ID:', error);
+    if (error.name === 'CastError') {
+        return res.status(400).json({
+            errorStatus: true,
+            mensageStatus: 'ID do serviço inválido.',
+            errorObject: error,
+        });
+    }
     return res.status(500).json({
       errorStatus: true,
       mensageStatus: 'HOUVE UM ERRO AO BUSCAR O SERVIÇO POR ID',
+      errorObject: error,
+    });
+  }
+});
+router.put('/item/:servicoId', async (req, res) => {
+  const { servicoId } = req.params;
+  const { titulo, preco, comissao, duracao, descricao, status, recorrencia } = req.body;
+
+  if (!titulo || preco === undefined || comissao === undefined || !duracao || !descricao || !status) {
+    return res.status(400).json({
+      errorStatus: true,
+      mensageStatus: 'Campos obrigatórios ausentes.',
+    });
+  }
+
+  try {
+    const servicoAtualizado = await Servico.findByIdAndUpdate(
+      servicoId,
+      {
+        titulo,
+        preco,
+        comissao,
+        duracao,
+        descricao,
+        status,
+        recorrencia, 
+      },
+      { new: true, runValidators: true } 
+    );
+
+    if (!servicoAtualizado) {
+      return res.status(404).json({
+        errorStatus: true,
+        mensageStatus: 'Serviço não encontrado para atualização.',
+      });
+    }
+
+    return res.status(200).json({
+      errorStatus: false,
+      mensageStatus: 'SERVIÇO ATUALIZADO COM SUCESSO',
+      data: servicoAtualizado,
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar serviço:', error);
+    if (error.name === 'CastError') {
+        return res.status(400).json({
+            errorStatus: true,
+            mensageStatus: 'ID do serviço inválido para atualização.',
+            errorObject: error,
+        });
+    }
+    return res.status(500).json({
+      errorStatus: true,
+      mensageStatus: 'HOUVE UM ERRO AO ATUALIZAR O SERVIÇO',
       errorObject: error,
     });
   }

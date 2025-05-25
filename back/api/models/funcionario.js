@@ -24,8 +24,8 @@ const funcionarioSchema = new Schema({
     default: [],
   },
   beneficios: {
-     type: [String],
-      default: [],
+    type: [String],
+    default: [],
   },
   informacoesAdicionais: {
     type: String,

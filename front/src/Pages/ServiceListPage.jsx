@@ -1,5 +1,5 @@
 // pages/ServiceListPage.jsx
-import React, { useState, useEffect, useCallback } from 'react'; // Adicionado useCallback
+import React, { useState, useEffect, useCallback } from 'react'; 
 import ServiceCard from '../components/ServiceCard';
 import styles from './ServiceListPage.module.css';
 import { FaSearch, FaPlus, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
@@ -13,8 +13,8 @@ export default function ServiceListPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [services, setServices] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState(true); // Adicionado estado de loading
-  const [error, setError] = useState(null);   // Adicionado estado de erro
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(null);   
   const servicesPerPage = 10;
 
   useEffect(() => {
@@ -23,17 +23,15 @@ export default function ServiceListPage() {
     setUserId(id);
   }, [location.search]);
 
-  // Função para buscar os serviços do backend
   const fetchServices = useCallback(async () => {
     if (!userId) {
       setLoading(false);
-      return; // Não busca se não houver userId
+      return; 
     }
 
     setLoading(true);
     setError(null);
     try {
-      // Usando a rota correta para buscar serviços de um salão específico
       const response = await fetch(`http://localhost:3000/servicos/${userId}`); 
       if (!response.ok) {
         const errorData = await response.json();
@@ -49,27 +47,25 @@ export default function ServiceListPage() {
     } finally {
       setLoading(false);
     }
-  }, [userId]); // Dependência do userId para re-executar a busca quando ele muda
+  }, [userId]); 
 
   useEffect(() => {
     fetchServices();
-  }, [fetchServices]); // Chama a função de busca quando ela for criada/alterada
+  }, [fetchServices]); 
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
-    setCurrentPage(1); // Resetar a página ao pesquisar
+    setCurrentPage(1); 
   };
 
   const handleAddServiceClick = () => {
-    // Passa o userId para a AddServicePage
     if (userId) {
       navigate(`/add-servico?userId=${userId}`);
     } else {
-      navigate('/add-servico'); // Fallback caso userId não esteja disponível
+      navigate('/add-servico'); 
     }
   };
 
-  // Filtra os serviços com base no termo de busca
   const filteredServices = services.filter(service =>
     service.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
     service.descricao.toLowerCase().includes(searchTerm.toLowerCase())
@@ -79,7 +75,7 @@ export default function ServiceListPage() {
   const indexOfFirstService = indexOfLastService - servicesPerPage;
   const currentServices = filteredServices.slice(indexOfFirstService, indexOfLastService);
 
-  const totalPages = Math.ceil(filteredServices.length / servicesPerPage); // totalPages baseado em filteredServices
+  const totalPages = Math.ceil(filteredServices.length / servicesPerPage); 
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 

@@ -1,6 +1,6 @@
 // employeePage jsx:
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom'; // Import useLocation
+import { useParams, useNavigate, useLocation } from 'react-router-dom'; 
 import { FaKey, FaBirthdayCake, FaIdCard, FaPhone, FaEnvelope, FaArrowLeft } from 'react-icons/fa';
 import EmployeeHistory from '../components/EmployeeHistory';
 import styles from './EmployeePage.module.css';
@@ -8,18 +8,17 @@ import styles from './EmployeePage.module.css';
 export default function EmployeePage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation(); // Initialize useLocation
+  const location = useLocation(); 
   const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Function to get userId from URL query parameters
   const getUserIdFromUrl = () => {
     const params = new URLSearchParams(location.search);
     return params.get('userId');
   };
 
-  const userId = getUserIdFromUrl(); // Get the userId
+  const userId = getUserIdFromUrl(); 
 
   useEffect(() => {
     const fetchEmployeeDetails = async () => {
@@ -43,13 +42,11 @@ export default function EmployeePage() {
   }, [id]);
 
   const handleGoBack = () => {
-    // When going back, preserve the userId in the URL
     navigate(`/funcionarios?userId=${userId}`);
   };
 
   const handleEditClick = () => {
     if (employee) {
-      // When navigating to edit, preserve the userId in the URL
       navigate(`/funcionario/Editar/${employee.idFuncionario}?userId=${userId}`);
     }
   };

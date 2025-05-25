@@ -11,8 +11,8 @@ export default function AddServicePage() {
   const [titulo, setTitulo] = useState('');
   const [preco, setPreco] = useState('');
   const [comissao, setComissao] = useState('');
-  const [duracaoHoras, setDuracaoHoras] = useState(''); // Novo estado para horas
-  const [duracaoMinutos, setDuracaoMinutos] = useState(''); // Novo estado para minutos
+  const [duracaoHoras, setDuracaoHoras] = useState(''); 
+  const [duracaoMinutos, setDuracaoMinutos] = useState(''); 
   const [descricao, setDescricao] = useState('');
   const [status, setStatus] = useState('Ativo');
 
@@ -74,7 +74,6 @@ export default function AddServicePage() {
       return;
     }
 
-    // Validação básica da duração
     const horas = parseInt(duracaoHoras || 0);
     const minutos = parseInt(duracaoMinutos || 0);
 
@@ -84,10 +83,8 @@ export default function AddServicePage() {
       return;
     }
 
-    // Formatar a duração para 'HH:MM'
     const duracaoFormatada = `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`;
-    // Ou, se preferir salvar como minutos totais (como estava antes, mas com cálculo):
-    // const duracaoTotalEmMinutos = (horas * 60) + minutos;
+
 
     try {
       const newService = {
@@ -95,8 +92,7 @@ export default function AddServicePage() {
         titulo,
         preco: parseFloat(preco),
         comissao: parseInt(comissao),
-        duracao: duracaoFormatada, // Enviar a duração formatada como 'HH:MM'
-        // Se preferir minutos totais: duracao: duracaoTotalEmMinutos,
+        duracao: duracaoFormatada, 
         descricao,
         status,
       };
@@ -154,7 +150,7 @@ export default function AddServicePage() {
             {/* Campos para Horas e Minutos */}
             <div className={styles.formGroup}>
               <label>Duração:</label>
-              <div className={styles.durationInputGroup}> {/* Adicione um estilo para agrupar */}
+              <div className={styles.durationInputGroup}>
                 <input
                   type="number"
                   id="duracaoHoras"
@@ -162,9 +158,9 @@ export default function AddServicePage() {
                   value={duracaoHoras}
                   onChange={handleInputChange}
                   min="0"
-                  max="23" // Limite razoável para horas
+                  max="23" 
                   placeholder="Horas"
-                  className={styles.smallInput} // Adicione um estilo para input pequeno
+                  className={styles.smallInput} 
                 />
                 <span>H</span>
                 <input
@@ -174,7 +170,7 @@ export default function AddServicePage() {
                   value={duracaoMinutos}
                   onChange={handleInputChange}
                   min="0"
-                  max="59" // Limite correto para minutos
+                  max="59" 
                   placeholder="Minutos"
                   className={styles.smallInput}
                 />

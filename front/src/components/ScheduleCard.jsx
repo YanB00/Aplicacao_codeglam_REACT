@@ -1,5 +1,3 @@
-//card dentro do calendario
-
 import React from 'react';
 import styles from './ScheduleCard.module.css';
 

@@ -1,102 +1,198 @@
 .page {
   display: flex;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: #f8f9fa; 
 }
 
-.content {
+.mainArea {
   flex-grow: 1;
-  padding: 20px;
-}
-
-.detailsContainer {
-  background-color: white;
-  padding: 20px;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
 }
 
 .topBar {
-  height: 24px;
+  height: 60px;
   background-color: #9b5de5;
-  border-top-left-radius: 12px;
+  border-top-left-radius: 12px; 
   border-top-right-radius: 12px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  margin-bottom: 20px; 
+  color: white;
+  flex-shrink: 0;
 }
 
-.title {
+.pageTitle { 
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.contentWrapper { /* Área abaixo da topBar, envolve o detailsContainer */
+  flex-grow: 1;
+  padding: 20px; /* Espaçamento ao redor do detailsContainer */
+  overflow-y: auto;
+}
+
+/* Card de detalhes, erro e não encontrado */
+.detailsContainer,
+.errorContainer,
+.notFoundContainer {
+  background-color: #ffffff; /* Card branco */
+  /* SINCRONIZADO: Com o estilo do card do 'front-puro' */
+  padding: 20px;
+  border-radius: 5px; /* Do .detailsContainer do 'front-puro' */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Do .detailsContainer do 'front-puro' */
+  /* Sem max-width, para ocupar a largura disponível no .contentWrapper */
+  margin-bottom: 20px; /* Adicionado do 'front-puro' para espaçamento se houver conteúdo abaixo */
+}
+
+.errorContainer,
+.notFoundContainer {
+  text-align: center;
+}
+.errorContainer .backButton, /* Assegura que os botões de voltar tenham margem */
+.notFoundContainer .backButton {
+    margin-top: 20px;
+}
+
+.errorText {
+  color: #dc3545; /* Do .error do 'front-puro' */
+  margin-bottom: 15px;
+  font-size: 1.1em;
+}
+.notFoundContainer p {
+    font-size: 1.1em;
+    color: #6c757d; /* Do .notFound do 'front-puro' */
+}
+
+/* Título DENTRO do card de detalhes (ex: "Corte") */
+.serviceTitleCard {
+  /* SINCRONIZADO: Com .title do 'front-puro' */
   color: #343a40;
   font-size: 2em;
+  font-weight: bold; /* Implícito pelo font-size: 2em no 'front-puro', mas pode ser explícito */
   margin-bottom: 10px;
 }
 
 .id {
+  /* SINCRONIZADO: Com .id do 'front-puro' */
   color: #6c757d;
   font-size: 0.9em;
   margin-bottom: 15px;
 }
 
 .infoSection {
+  /* SINCRONIZADO: Com .infoSection do 'front-puro' */
   margin-bottom: 20px;
   line-height: 1.6;
 }
 
 .infoSection p {
+  /* SINCRONIZADO: Com .infoSection p do 'front-puro' */
   color: #495057;
+  margin-bottom: 8px;
+  font-size: 1em; /* 'front-puro' não especificava, 1em é um bom padrão */
+}
+
+/* Classes específicas para preço, comissão, etc., podem herdar de .infoSection p ou ter leves ajustes */
+.priceInfo {
+  color: #38a169; /* Cor do Price da ListPage, mas pode ser #495057 como outros p */
+  font-size: 1em;
+  font-weight: 700; /* Para destaque */
   margin-bottom: 8px;
 }
 
-.infoSection p strong {
-  font-weight: bold;
+.commissionInfo {
+  color: #495057;
+  font-size: 1em;
+  margin-bottom: 8px;
 }
 
+.durationInfo {
+  color: #495057;
+  font-size: 1em;
+  margin-bottom: 8px;
+}
+
+.statusInfo {
+  font-size: 1em;
+  font-weight: 600; /* Para destaque */
+  margin-bottom: 8px;
+}
+.statusAtivo { color: green !important; }
+.statusBloqueado { color: orange !important; }
+.statusCancelado { color: red !important; }
+
 .descriptionSection {
+  /* SINCRONIZADO: Com .descriptionSection do 'front-puro' */
   margin-bottom: 20px;
 }
 
-.descriptionSection h3 {
+.descriptionHeader { /* "Descrição:" */
+  /* SINCRONIZADO: Com .descriptionSection h3 do 'front-puro' */
   color: #343a40;
+  font-size: 1.2em; /* Ajuste conforme necessário, h3 costuma ser maior */
+  font-weight: bold;
   margin-top: 0;
   margin-bottom: 10px;
 }
 
 .descriptionText {
+  /* SINCRONIZADO: Com .descriptionText do 'front-puro' */
   color: #495057;
   line-height: 1.7;
+  font-size: 1em;
 }
 
 .actionButtons {
+  /* SINCRONIZADO: Com .actionButtons do 'front-puro' */
   display: flex;
   gap: 10px;
   margin-top: 20px;
+  /* Removida borda e padding-top para se alinhar mais com a simplicidade do 'front-puro' */
+}
+
+.button { /* Estilo base para botões, buscando consistência com 'front-puro' */
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px; /* Do 'front-puro' */
+  font-size: 1em;    /* Do 'front-puro' */
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Do 'front-puro' */
+  font-weight: 500;
+  text-align: center;
 }
 
 .backButton {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  font-size: 1em;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  background-color: #9c5df0;
+  /* SINCRONIZADO: Com .backButton do 'front-puro' */
+  background-color: #9c5df0; /* Cor roxa do 'front-puro' */
   color: white;
 }
+.backButton:hover {
+  background-color: #7749b3; /* Hover do 'front-puro' */
+}
 
-.loading,
-.error,
-.notFound {
+.editButton {
+  /* SINCRONIZADO: Com .editButton do 'front-puro' */
+  background-color: #ddd;
+  color: #333;
+}
+.editButton:hover {
+  background-color: #c8c8ca;
+}
+
+.loading { /* Para a mensagem "Carregando..." */
+  /* SINCRONIZADO: Com .loading do 'front-puro' */
   padding: 20px;
   background-color: white;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
+  font-size: 1.1em;
+  color: #6c757d; /* Cor do 'front-puro .notFound', geralmente texto de status é cinza */
   margin-bottom: 20px;
-}
-
-.error {
-  color: #dc3545;
-}
-
-.notFound {
-  color: #6c757d;
 }

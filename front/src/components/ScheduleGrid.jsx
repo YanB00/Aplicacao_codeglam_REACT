@@ -1,6 +1,3 @@
-// src/components/ScheduleGrid.jsx
-
-//grid do calendario
 import React, { useState } from 'react';
 import styles from './ScheduleGrid.module.css';
 import AppointmentDetails from '../components/AppoinmentDetails';

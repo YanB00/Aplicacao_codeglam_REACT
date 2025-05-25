@@ -77,7 +77,6 @@ export default function ClientPage() {
     const handleEditClick = () => {
         if (client && client.idCliente) {
             if (currentUserId) {
-                // CORRIGIDO: interpolação de string para URL
                 navigate(`/cliente/editar/${client.idCliente}?userId=${currentUserId}`);
             } else {
                 navigate(`/cliente/editar/${client.idCliente}`);
@@ -151,7 +150,6 @@ export default function ClientPage() {
                         <FaArrowLeft /> Voltar
                     </button>
                 </div>
-                {/* mainContent agora contém duas colunas para perfil e detalhes */}
                 <div className={styles.mainContent}>
                     <div className={styles.profileCard}>
                         <div className={styles.avatarWrapper}>

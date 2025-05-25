@@ -77,12 +77,12 @@
     background-color: #c084fc;
     color: white;
     border: none;
-    padding: 10px 20px; /* Aumentando um pouco o padding para melhor visualização */
+    padding: 10px 20px; 
     border-radius: 12px;
     cursor: pointer;
     transition: background-color 0.3s ease;
     text-decoration: none;
-    font-size: 16px; /* Aumentando um pouco a fonte */
+    font-size: 16px; 
   }
 
     
@@ -92,7 +92,7 @@
   }
   
   .saveBtn:hover {
-    background-color: #a855f7; /* Um tom um pouco mais escuro para o hover */
+    background-color: #a855f7; 
   }
   
   .cancelBtn:hover {
@@ -102,11 +102,11 @@
   .durationInputGroup {
   display: flex;
   align-items: center;
-  gap: 8px; /* Espaçamento entre os inputs e o texto "H", "M" */
+  gap: 8px; 
 }
 
 .durationInputGroup input[type="number"] {
-  width: 70px; /* Largura menor para os inputs de horas/minutos */
+  width: 70px; 
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -117,8 +117,7 @@
   color: #555;
 }
 
-/* Opcional: estilo para inputs menores se usar .smallInput */
 .smallInput {
-    width: 60px; /* Ajuste conforme necessário */
+    width: 60px; 
     text-align: center;
 }

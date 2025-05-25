@@ -1,4 +1,3 @@
-/* src/components/EditAppointmentForm.module.css */
 .editFormContainer {
   position: absolute;
   top: 50%;
@@ -18,7 +17,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 15px;
-  background-color: #9b5de5; /* Cor roxa da top */
+  background-color: #9b5de5; 
   color: white;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;

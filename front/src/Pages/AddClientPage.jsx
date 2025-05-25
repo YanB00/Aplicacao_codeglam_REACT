@@ -1,4 +1,3 @@
-// AddClientPage.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './AddClientPage.module.css';
@@ -26,7 +25,6 @@ export default function AddClientPage() {
     console.log('UserID na AddClientPage:', params.get('userId'));
   }, [location.search]);
 
-  // Certifique-se que handleInputChange está definida aqui
   const handleInputChange = (e) => {
     const { id, value, type, files } = e.target;
 
@@ -147,7 +145,7 @@ export default function AddClientPage() {
                 type="file"
                 hidden
                 accept="image/*"
-                onChange={handleInputChange} // <<--- AQUI O ERRO OCORRIA
+                onChange={handleInputChange}
               />
             </label>
           </div>
@@ -161,7 +159,7 @@ export default function AddClientPage() {
                   type="text"
                   placeholder="Nome completo"
                   value={nomeCompleto}
-                  onChange={handleInputChange} // <<--- E AQUI
+                  onChange={handleInputChange} 
                 />
               </div>
               <div>
@@ -170,7 +168,7 @@ export default function AddClientPage() {
                   id="birthdate"
                   type="date"
                   value={dataNascimento}
-                  onChange={handleInputChange} // <<--- E AQUI
+                  onChange={handleInputChange} 
                 />
               </div>
               <div>
@@ -180,7 +178,7 @@ export default function AddClientPage() {
                   type="text"
                   placeholder="000.000.000-00"
                   value={cpf}
-                  onChange={handleInputChange} // <<--- E AQUI
+                  onChange={handleInputChange} 
                 />
               </div>
             </div>
@@ -192,7 +190,7 @@ export default function AddClientPage() {
                   id="startDate"
                   type="date"
                   value={clienteDesde}
-                  onChange={handleInputChange} // <<--- E AQUI
+                  onChange={handleInputChange} 
                 />
               </div>
               <div>
@@ -202,7 +200,7 @@ export default function AddClientPage() {
                   type="text"
                   placeholder="Ex: Design de Unhas"
                   value={favoritos}
-                  onChange={handleInputChange} // <<--- E AQUI
+                  onChange={handleInputChange}
                 />
               </div>
             </div>
@@ -215,7 +213,7 @@ export default function AddClientPage() {
                   type="text"
                   placeholder="Ex: Nenhum"
                   value={problemasSaude}
-                  onChange={handleInputChange} // <<--- E AQUI
+                  onChange={handleInputChange} 
                 />
               </div>
             </div>
@@ -228,7 +226,7 @@ export default function AddClientPage() {
                   type="text"
                   placeholder="Prefere vir de manhã"
                   value={informacoesAdicionais}
-                  onChange={handleInputChange} // <<--- E AQUI
+                  onChange={handleInputChange} 
                 />
               </div>
               <div>
@@ -238,7 +236,7 @@ export default function AddClientPage() {
                   type="text"
                   placeholder="(XX) XXXXX-XXXX"
                   value={telefone}
-                  onChange={handleInputChange} // <<--- E AQUI
+                  onChange={handleInputChange} 
                 />
               </div>
               <div>
@@ -248,7 +246,7 @@ export default function AddClientPage() {
                   type="text"
                   placeholder="juliana@gmail.com"
                   value={email}
-                  onChange={handleInputChange} // <<--- E AQUI
+                  onChange={handleInputChange} 
                 />
               </div>
             </div>

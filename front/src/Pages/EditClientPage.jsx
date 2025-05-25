@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Importe useNavigate para o botão Cancelar e redirecionamento pós-salvar
-import styles from './EditEmployeePage.module.css'; // Mantenha o nome do CSS, mas lembre-se que é para cliente
+import { useParams, useNavigate } from 'react-router-dom'; 
+import styles from './EditEmployeePage.module.css'; 
 import { FaCamera } from 'react-icons/fa';
 
 export default function EditClientPage() {
   const { id } = useParams();
-  const navigate = useNavigate(); // Inicialize useNavigate
+  const navigate = useNavigate(); 
 
   const [clientData, setClientData] = useState({
-    nomeCompleto: '', // Corrigido
-    dataNascimento: '', // Corrigido
+    nomeCompleto: '', 
+    dataNascimento: '', 
     cpf: '',
-    idCliente: '', // Corrigido (se seu backend retorna idCliente)
-    clienteDesde: '', // Corrigido (se seu backend retorna createdAt ou clienteDesde)
+    idCliente: '', 
+    clienteDesde: '', 
     favoritos: '',
     problemasSaude: '',
     informacoesAdicionais: '',
-    telefone: '', // Corrigido
+    telefone: '', 
     email: '',
-    foto: 'https://via.placeholder.com/150', // Corrigido para 'foto' e valor padrão
+    foto: 'https://via.placeholder.com/150', 
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,16 +33,14 @@ export default function EditClientPage() {
           }
           throw new Error(`Erro ao buscar cliente: ${response.statusText}`);
         }
-        const result = await response.json(); // Use 'result' para ser consistente com ClientPage
+        const result = await response.json(); 
 
         if (result.errorStatus) {
             throw new Error(result.mensageStatus || 'Erro desconhecido ao buscar cliente.');
         }
 
-        const data = result.data; // Acessa os dados dentro da propriedade 'data'
+        const data = result.data; 
 
-        // Formata a data de nascimento e data de início para o formato 'YYYY-MM-DD'
-        // esperado pelo input type="date"
         setClientData({
           nomeCompleto: data.nomeCompleto || '',
           dataNascimento: data.dataNascimento ? new Date(data.dataNascimento).toISOString().split('T')[0] : '',
@@ -54,7 +52,7 @@ export default function EditClientPage() {
           informacoesAdicionais: data.informacoesAdicionais || '',
           telefone: data.telefone || '',
           email: data.email || '',
-          foto: data.foto ? `http://localhost:3000/${data.foto.replace(/\\/g, '/')}` : 'https://via.placeholder.com/150', // Corrigido caminho da imagem
+          foto: data.foto ? `http://localhost:3000/${data.foto.replace(/\\/g, '/')}` : 'https://via.placeholder.com/150', 
         });
       } catch (e) {
         setError("Não foi possível carregar os dados do cliente: " + e.message);
@@ -84,7 +82,7 @@ export default function EditClientPage() {
       reader.onloadend = () => {
         setClientData((prevData) => ({
           ...prevData,
-          foto: reader.result, // Armazena a URL da imagem base64
+          foto: reader.result, 
         }));
       };
       reader.readAsDataURL(file);
@@ -113,7 +111,7 @@ export default function EditClientPage() {
 
     try {
       const response = await fetch(`http://localhost:3000/clientes/${id}`, {
-        method: 'PUT', // Ou 'PATCH' dependendo da sua API
+        method: 'PUT', 
         headers: {
           'Content-Type': 'application/json',
         },
@@ -164,7 +162,7 @@ export default function EditClientPage() {
         <div className={styles.formContainer}>
           <div className={styles.avatarSection}>
             <img
-              src={clientData.foto} // Corrigido de 'avatar' para 'foto'
+              src={clientData.foto} 
               alt="Avatar"
               className={styles.avatar}
             />
@@ -184,9 +182,9 @@ export default function EditClientPage() {
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.row}>
               <div>
-                <label htmlFor="nomeCompleto">Nome completo</label> {/* Corrigido */}
+                <label htmlFor="nomeCompleto">Nome completo</label> 
                 <input
-                  id="nomeCompleto" // Corrigido
+                  id="nomeCompleto" 
                   type="text"
                   placeholder="Nome completo"
                   value={clientData.nomeCompleto}
@@ -194,9 +192,9 @@ export default function EditClientPage() {
                 />
               </div>
               <div>
-                <label htmlFor="dataNascimento">Data de nascimento</label> {/* Corrigido */}
+                <label htmlFor="dataNascimento">Data de nascimento</label> 
                 <input
-                  id="dataNascimento" // Corrigido
+                  id="dataNascimento" 
                   type="date"
                   value={clientData.dataNascimento}
                   onChange={handleChange}
@@ -216,24 +214,24 @@ export default function EditClientPage() {
 
             <div className={styles.row}>
               <div>
-                <label htmlFor="idCliente">ID do Cliente</label> {/* Corrigido */}
+                <label htmlFor="idCliente">ID do Cliente</label> 
                 <input
-                  id="idCliente" // Corrigido
+                  id="idCliente" 
                   type="text"
                   placeholder="12345"
                   value={clientData.idCliente}
                   onChange={handleChange}
-                  disabled // O ID geralmente não é editável
+                  disabled 
                 />
               </div>
               <div>
-                <label htmlFor="clienteDesde">Cliente desde</label> {/* Corrigido */}
+                <label htmlFor="clienteDesde">Cliente desde</label> 
                 <input
-                  id="clienteDesde" // Corrigido
+                  id="clienteDesde" 
                   type="date"
                   value={clientData.clienteDesde}
                   onChange={handleChange}
-                  disabled // Data de criação geralmente não é editável
+                  disabled 
                 />
               </div>
               <div>
@@ -250,9 +248,9 @@ export default function EditClientPage() {
 
             <div className={styles.row}>
               <div>
-                <label htmlFor="problemasSaude">Problemas de saúde</label> {/* Corrigido */}
+                <label htmlFor="problemasSaude">Problemas de saúde</label> 
                 <input
-                  id="problemasSaude" // Corrigido
+                  id="problemasSaude" 
                   type="text"
                   placeholder="Ex: Nenhum"
                   value={clientData.problemasSaude}
@@ -263,9 +261,9 @@ export default function EditClientPage() {
 
             <div className={styles.row}>
               <div>
-                <label htmlFor="informacoesAdicionais">Informações adicionais</label> {/* Corrigido */}
+                <label htmlFor="informacoesAdicionais">Informações adicionais</label> 
                 <input
-                  id="informacoesAdicionais" // Corrigido
+                  id="informacoesAdicionais" 
                   type="text"
                   placeholder="Prefere vir de manhã"
                   value={clientData.informacoesAdicionais}
@@ -273,9 +271,9 @@ export default function EditClientPage() {
                 />
               </div>
               <div>
-                <label htmlFor="telefone">Telefone</label> {/* Corrigido */}
+                <label htmlFor="telefone">Telefone</label> 
                 <input
-                  id="telefone" // Corrigido
+                  id="telefone" 
                   type="text"
                   placeholder="(XX) XXXXX-XXXX"
                   value={clientData.telefone}

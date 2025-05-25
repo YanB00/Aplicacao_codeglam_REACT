@@ -1,14 +1,12 @@
-// components/EmployeeCard.jsx
 import React from 'react';
 import styles from './EmployeeCard.module.css';
 import { FaBriefcase } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
-export default function EmployeeCard({ employee, userId }) { // Accept userId prop
+export default function EmployeeCard({ employee, userId }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    // Append userId to the navigation path as a query parameter
     navigate(`/funcionario/${employee.idFuncionario}?userId=${userId}`);
   };
 
