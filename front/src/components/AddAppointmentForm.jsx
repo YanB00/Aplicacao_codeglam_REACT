@@ -6,9 +6,9 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
   const [formData, setFormData] = useState({
     timeStart: '',
     timeEnd: '',
-    service: '',
-    client: '',
-    employee: '',
+    service: '', // Should store the _id of the selected service
+    client: '',   // Should store the _id of the selected client
+    employee: '', // Should store the _id of the selected employee
     valor: '',
     observacoes: '',
   });
@@ -17,7 +17,8 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
   const [clients, setClients] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(null); 
+  const [saveError, setSaveError] = useState(null); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,7 +28,8 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
 
       try {
         if (salaoId) {
-          const servicesRes = await fetch(`${BASE_URL}/servicos/${salaoId}`);
+          console.log(`Fetching services for salaoId: ${salaoId}`);
+          const servicesRes = await fetch(`${BASE_URL}/servicos/${salaoId}`); 
           if (!servicesRes.ok) {
             const errorData = await servicesRes.text();
             throw new Error(`Falha ao buscar serviços: ${servicesRes.statusText} - ${errorData}`);
@@ -36,9 +38,11 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
           setServices(servicesData.data || []);
         } else {
           setError("ID do Salão não fornecido. Não é possível carregar serviços.");
+          console.warn("salaoId is missing in AddAppointmentForm, cannot fetch services.");
           setServices([]);
         }
 
+        console.log("Fetching clients from /clientes/listClientes");
         const clientsRes = await fetch(`${BASE_URL}/clientes/listClientes`);
         if (!clientsRes.ok) {
           const errorData = await clientsRes.text();
@@ -47,7 +51,8 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
         const clientsData = await clientsRes.json();
         setClients(clientsData.data || []);
 
-        const employeesRes = await fetch(`${BASE_URL}/funcionarios`);
+        console.log("Fetching employees from /funcionarios");
+        const employeesRes = await fetch(`${BASE_URL}/funcionarios?salaoId=${salaoId}`); 
         if (!employeesRes.ok) {
           const errorData = await employeesRes.text();
           throw new Error(`Falha ao buscar funcionários: ${employeesRes.statusText} - ${errorData}`);
@@ -75,7 +80,8 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
   };
 
   const handleSave = async () => {
-    // Validações básicas antes de enviar
+    setSaveError(null); 
+
     if (!selectedDate) {
       alert("Data do agendamento não selecionada.");
       return;
@@ -84,7 +90,7 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
       alert("ID do Salão não fornecido. Não é possível salvar.");
       return;
     }
-    if (!formData.timeStart || !formData.timeEnd || !formData.service || !formData.client || !formData.employee || !formData.valor) {
+    if (!formData.timeStart || !formData.timeEnd || !formData.service || !formData.client || !formData.employee || formData.valor === '' || formData.valor === null) {
       alert("Por favor, preencha todos os campos obrigatórios: Hora Início, Hora Fim, Serviço, Cliente, Funcionário e Valor.");
       return;
     }
@@ -93,32 +99,43 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
       salaoId: salaoId,
       horaInicio: formData.timeStart,
       horaFim: formData.timeEnd,
-      servicoId: formData.service,
-      clienteId: formData.client,
-      funcionarioId: formData.employee,
+      servicoId: formData.service, 
+      clienteId: formData.client,   
+      funcionarioId: formData.employee, 
       valor: parseFloat(formData.valor) || 0,
       observacoes: formData.observacoes,
       dataAgendamento: selectedDate, 
     };
 
+    console.log("Data being sent to backend:", JSON.stringify(appointmentData, null, 2));
+
     const BASE_URL = 'http://localhost:3000';
     try {
       const response = await fetch(`${BASE_URL}/agendamentos`, {
-        method: 'POST', 
+        method: 'POST',
         headers: {
-          'Content-Type': 'application/json', 
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(appointmentData), 
+        body: JSON.stringify(appointmentData),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        let errorMessage = errorText;
+        let specificErrorMessage = `Erro HTTP ${response.status} ao salvar agendamento.`;
+        let backendErrorObject = null;
+
         try {
-          errorMessage = JSON.parse(errorText).mensageStatus || errorText;
+          const parsedError = JSON.parse(errorText);
+          specificErrorMessage = parsedError.mensageStatus || specificErrorMessage;
+          backendErrorObject = parsedError.errorObject; 
+          console.error("Backend error details (parsed):", parsedError);
         } catch (e) {
+          console.error("Failed to parse backend error as JSON. Raw error text:", errorText);
+          specificErrorMessage = errorText || specificErrorMessage; 
         }
-        throw new Error(errorMessage || `Erro HTTP ${response.status} ao salvar agendamento`);
+        const finalErrorMessage = backendErrorObject ? `${specificErrorMessage} (Detalhe: ${backendErrorObject})` : specificErrorMessage;
+        setSaveError(finalErrorMessage); 
+        throw new Error(finalErrorMessage);
       }
 
       const contentType = response.headers.get("content-type");
@@ -127,10 +144,11 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
       if (contentType && contentType.indexOf("application/json") !== -1) {
         const result = await response.json();
         if (result.errorStatus) {
+          setSaveError(result.mensageStatus || 'Erro retornado pelo backend ao salvar agendamento');
           throw new Error(result.mensageStatus || 'Erro retornado pelo backend ao salvar agendamento');
         }
         alert(result.mensageStatus || 'Agendamento salvo com sucesso!');
-        resultData = result.data; 
+        resultData = result.data;
       } else {
         const successText = await response.text();
         alert(successText || 'Operação concluída, mas resposta não foi JSON.');
@@ -142,10 +160,12 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
         onAppointmentSuccessfullySaved();
       }
 
-      onClose(); 
+      onClose();
     } catch (err) {
-      console.error('Erro ao salvar agendamento:', err);
-      alert(`Erro ao salvar: ${err.message}`);
+      if (!saveError) { 
+        console.error('Erro ao salvar agendamento (catch geral):', err);
+        setSaveError(err.message || "Ocorreu um erro desconhecido ao salvar.");
+      }
     }
   };
 
@@ -170,8 +190,11 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
         <AiOutlineClose className={styles.closeIcon} onClick={onClose} />
       </div>
       <div className={styles.formContent}>
-        {error && (
-          <p style={{ color: 'red', whiteSpace: 'pre-wrap' }}>Erro ao carregar dados: {error}. Verifique o console e a disponibilidade da API.</p>
+        {error && ( 
+          <p className={styles.errorMessage}>Erro ao carregar dados: {error}. Verifique o console e a disponibilidade da API.</p>
+        )}
+        {saveError && ( 
+          <p className={styles.errorMessage}>Erro ao salvar: {saveError}</p>
         )}
         <div className={styles.inputGroup}>
           <label htmlFor="timeStart">Hora Início:</label>

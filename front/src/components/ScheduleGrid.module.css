@@ -1,67 +1,144 @@
 .container {
   display: grid;
-  grid-template-columns: 70px repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: 70px 1fr;
   border: 1px solid #ccc;
+  min-height: 500px;
+  font-family: 'Arial', sans-serif;
 }
 
 .timeColumn {
   grid-column: 1 / 2;
   display: flex;
   flex-direction: column;
+  background-color: #fdfdfd;
 }
 
-.timeSlot {
-  padding: 8px;
+.timeSlotLabel {
+  padding: 0 8px;
   border-bottom: 1px solid #eee;
   text-align: right;
   font-size: 0.8em;
-  height: 40px; 
+  color: #555;
+  height: 40px;
   line-height: 40px;
+  box-sizing: border-box;
+}
+.timeSlotLabel:last-child {
+  border-bottom: none;
 }
 
-.employeeColumns {
-  grid-column: 2 / -1;
+.gridContent {
+  grid-column: 2 / 3;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-}
-
-.employeeHeader {
-  padding: 8px;
-  text-align: center;
-  border-bottom: 1px solid #eee;
-  font-weight: bold;
-  font-size: 0.9em;
+  grid-template-rows: 1fr; 
+  overflow: hidden;
+  position: relative;
 }
 
 .eventArea {
-  grid-column: 2 / -1;
-  grid-row: 2 / -1;
+  grid-row: 1 / 2; 
   position: relative;
-  padding-top: 40px; 
+  min-height: calc((19 - 8) * 2 * 20px); 
+  overflow: auto;
 }
 
 .eventCell {
   position: absolute;
-  box-sizing: border-box; 
+  box-sizing: border-box;
   border-radius: 4px;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   z-index: 1;
-  padding: 8px;
-  font-size: 0.8em;
-  color: white;
+  padding: 5px 8px;
+  font-size: 13px;
+  line-height: 1.3;
+  color: black; 
+  border: 1px solid rgba(0,0,0,0.05);
 
-  top: calc(var(--event-start-half-hour) * 20px); 
-  left: calc(100% / var(--employee-count) * var(--employee-index));
-  width: calc(100% / var(--employee-count) - 2px); 
-  height: calc(var(--event-duration-half-hours) * 20px - 2px); 
+  top: calc(var(--event-start-half-hour) * 20px);
+  left: calc((100% / var(--employee-count, 1)) * var(--employee-index));
+  width: calc((100% / var(--employee-count, 1)) - 2px);
+  height: calc(var(--event-duration-half-hours) * 20px - 2px);
+  margin-left: 1px;
+  margin-right: 1px;
+  margin-top: 1px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease; 
+}
+
+.eventCell:hover {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.eventEmployee,
+.eventService,
+.eventTime {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eventEmployee {
+  font-weight: bold;
+  font-size: 0.95em;
+  margin-bottom: 1px;
+}
+
+.eventService {
+  font-size: 0.9em;
+  margin-bottom: 1px;
+}
+
+.eventTime {
+  font-size: 0.8em;
+}
+
+.concluidoEvent {
+  background-color: #28a745 !important; 
+  color: white !important; 
+  border-color: #1e7e34 !important; 
+}
+.concluidoEvent .eventTime { 
+    color: rgba(255, 255, 255, 0.85) !important;
 }
 
 
-.eventCell {
+.canceladoEvent {
+  background-color: #dc3545 !important; 
+  color: white !important; 
+  border-color: #b02a37 !important; 
+  text-decoration: line-through; 
+  opacity: 0.85; 
+}
+.canceladoEvent .eventTime {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
 
-  color: black; 
+
+.statusIndicatorConcluido,
+.statusIndicatorCancelado {
+  font-size: 0.75em;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-top: 2px;
+  display: none; 
+}
+
+
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.2em;
+  color: #555;
 }

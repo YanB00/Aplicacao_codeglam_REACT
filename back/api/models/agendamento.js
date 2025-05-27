@@ -41,6 +41,15 @@ const agendamentoSchema = new Schema({
     type: Date,
     required: true,
   },
+  concluido: {
+    type: Boolean,
+    default: false,
+  },
+  cancelado: {
+    type: Boolean,
+    default: false,
+  },
+
   dataCadastro: {
     type: Date,
     default: Date.now,
