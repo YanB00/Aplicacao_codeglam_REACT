@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './ScheduleGrid.module.css';
-import AppointmentDetails from '../components/AppoinmentDetails';
+import AppointmentDetails from '../components/AppoinmentDetails'; 
 import EditAppointmentForm from '../components/EditAppointmentForm';
 
-
-const ScheduleGrid = () => {
+const ScheduleGrid = ({ appointments = [], salaoId }) => {
   const startTime = 8;
   const endTime = 19;
   const timeSlots = Array.from({ length: (endTime - startTime) * 2 }, (_, i) => {
@@ -12,23 +11,41 @@ const ScheduleGrid = () => {
     const minute = (i % 2) * 30;
     return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
   });
-  const employees = ['Funcionário 1', 'Funcionário 2', 'Funcionário 3', 'Funcionário 4'];
+
+  const [employeeList, setEmployeeList] = useState([]);
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      if (!salaoId) {
+        setEmployeeList([]);
+        return;
+      }
+      setIsLoadingEmployees(true);
+      try {
+
+        const response = await fetch(`http://localhost:3000/funcionarios`); 
+        if (!response.ok) throw new Error('Falha ao buscar funcionários');
+        const data = await response.json();
+        if (data.errorStatus) throw new Error(data.mensageStatus || 'Erro ao buscar funcionários');
+
+        setEmployeeList(data.data || []);
+      } catch (error) {
+        console.error("Erro ao buscar lista de funcionários para o grid:", error);
+        setEmployeeList([]); 
+      } finally {
+        setIsLoadingEmployees(false);
+      }
+    };
+
+    fetchEmployees();
+
+  }, [salaoId]); 
 
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
   const [isEditFormVisible, setIsEditFormVisible] = useState(false);
   const [eventToEdit, setEventToEdit] = useState(null);
-
-  const scheduleData = [
-    { id: 1, timeStart: '08:30', timeEnd: '11:00', employee: 'Funcionário 1', service: 'Manicure', color: '#f8c6dc', client: 'Ana Souza', tipo: 'Alongamento em fibra', valor: '250,00' },
-    { id: 2, timeStart: '08:30', timeEnd: '10:00', employee: 'Funcionário 2', service: 'Design de Sobrancelhas', color: '#e5d0f8', client: 'Beatriz Oliveira', tipo: 'Henna', valor: '55,00' },
-    { id: 3, timeStart: '10:00', timeEnd: '11:00', employee: 'Funcionário 3', service: 'Corte de Cabelo', color: '#cdd9ff', client: 'Carlos Pereira', tipo: 'Curto', valor: '90,00' },
-    { id: 4, timeStart: '10:30', timeEnd: '12:00', employee: 'Funcionário 2', service: 'Depilação', color: '#c8f7f4', client: 'Daniela Rocha', tipo: 'Cera', valor: '70,00' },
-    { id: 5, timeStart: '12:00', timeEnd: '14:00', employee: 'Funcionário 1', service: 'Pedicure', color: '#f8c6dc', client: 'Fernanda Lima', tipo: 'Spa', valor: '95,00' },
-    { id: 6, timeStart: '15:00', timeEnd: '16:30', employee: 'Funcionário 3', service: 'Coloração', color: '#cdd9ff', client: 'Gabriel Santos', tipo: 'Retoque de raiz', valor: '120,00' },
-    { id: 7, timeStart: '15:30', timeEnd: '17:00', employee: 'Funcionário 4', service: 'Limpeza de Pele', color: '#a7f3d0', client: 'Helena Costa', tipo: 'Profunda', valor: '110,00' },
-    { id: 8, timeStart: '09:00', timeEnd: '10:30', employee: 'Funcionário 1', service: 'Massagem Relaxante', color: '#f5d7b0', client: 'Igor Martins', tipo: 'Terapêutica', valor: '100,00' },
-  ];
 
   const handleEventClick = (event) => {
     setSelectedEvent(event);
@@ -52,17 +69,27 @@ const ScheduleGrid = () => {
   };
 
   const handleSaveEdit = (updatedEvent) => {
-    const updatedScheduleData = scheduleData.map(item =>
-      item.id === updatedEvent.id ? updatedEvent : item
-    );
-    // Aqui você chamaria sua função para atualizar os dados (ex: API call)
-    console.log('Agendamento atualizado:', updatedEvent);
+
+    console.log('Agendamento atualizado (simulado):', updatedEvent);
     setIsEditFormVisible(false);
     setEventToEdit(null);
-
-    const [isAddFormVisible, setIsAddFormVisible] = useState(false);
-
   };
+  
+  const getEventColor = (item) => {
+    const colors = ['#f8c6dc', '#e5d0f8', '#cdd9ff', '#c8f7f4', '#a7f3d0', '#f5d7b0', '#ffcbcb', '#d4e157'];
+    const idPart = item.servicoId?._id || item.funcionarioId?._id || item._id || 'default';
+    let hash = 0;
+    for (let i = 0; i < idPart.length; i++) {
+      hash = idPart.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
+
+
+  if (isLoadingEmployees && employeeList.length === 0) { 
+    return <div className={styles.container}><p>Carregando funcionários...</p></div>;
+  }
+
 
   return (
     <div className={styles.container}>
@@ -71,38 +98,63 @@ const ScheduleGrid = () => {
           <div key={time} className={styles.timeSlot}>{time.slice(0, 2)}:00</div>
         ))}
       </div>
-      <div className={styles.employeeColumns} style={{ gridTemplateColumns: `repeat(${employees.length}, minmax(150px, 1fr))` }}>
-        {employees.map(employee => (
-          <div key={employee} className={styles.employeeHeader}>{employee}</div>
-        ))}
+      <div className={styles.employeeColumns} style={{ gridTemplateColumns: `repeat(${employeeList.length || 1}, minmax(150px, 1fr))` }}>
+        {employeeList.length > 0 ? employeeList.map(employee => (
+          <div key={employee._id || employee.nomeCompleto} className={styles.employeeHeader}>
+            {employee.nomeCompleto}
+          </div>
+        )) : <div className={styles.employeeHeader}>Nenhum funcionário encontrado</div>}
       </div>
-      <div className={styles.eventArea} style={{ '--employee-count': employees.length }}>
-        {scheduleData.map((item, index) => {
-          const startHour = parseInt(item.timeStart.split(':')[0]);
-          const startMinute = parseInt(item.timeStart.split(':')[1]);
-          const endHour = parseInt(item.timeEnd.split(':')[0]);
-          const endMinute = parseInt(item.timeEnd.split(':')[1]);
+      <div className={styles.eventArea} style={{ '--employee-count': employeeList.length || 1 }}>
+        {appointments.map((item) => {
+          const timeStartStr = String(item.horaInicio || '00:00');
+          const timeEndStr = String(item.horaFim || '00:00');
+
+          const startHour = parseInt(timeStartStr.split(':')[0]);
+          const startMinute = parseInt(timeStartStr.split(':')[1]);
+          const endHour = parseInt(timeEndStr.split(':')[0]);
+          const endMinute = parseInt(timeEndStr.split(':')[1]);
 
           const startHalfHour = (startHour - startTime) * 2 + startMinute / 30;
           const durationHalfHours = (endHour * 2 + endMinute / 30) - (startHour * 2 + startMinute / 30);
-          const employeeIndex = employees.indexOf(item.employee);
+
+          const employeeName = item.funcionarioId?.nomeCompleto;
+          const employeeIndex = employeeList.findIndex(emp => emp.nomeCompleto === employeeName);
+
+          if (employeeIndex === -1 && employeeList.length > 0) {
+
+            console.warn(`Funcionário "${employeeName}" do agendamento ID ${item._id} não encontrado na lista de funcionários do grid.`);
+          }
+          
+          const displayItem = {
+            id: item._id, 
+            timeStart: item.horaInicio,
+            timeEnd: item.horaFim,
+            employee: item.funcionarioId?.nomeCompleto || 'N/A', 
+            service: item.servicoId?.titulo || item.servicoId?.nome || 'Serviço N/A', 
+            color: item.color || getEventColor(item), 
+            client: item.clienteId?.nomeCompleto || 'Cliente N/A', 
+            valor: item.valor,
+            observacoes: item.observacoes,
+          };
 
           return (
             <div
-              key={item.id}
+              key={displayItem.id}
               className={styles.eventCell}
               style={{
                 '--event-start-half-hour': startHalfHour,
                 '--event-duration-half-hours': durationHalfHours,
-                '--employee-index': employeeIndex,
-                backgroundColor: item.color,
-                color: 'black',
+                '--employee-index': employeeIndex >= 0 ? employeeIndex : 0, 
+                backgroundColor: displayItem.color,
+                color: 'black', 
+                display: durationHalfHours <= 0 ? 'none' : 'block', 
               }}
-              onClick={() => handleEventClick(item)}
+              onClick={() => handleEventClick(displayItem)}
             >
-              <div className={styles.employee}>{item.employee}</div>
-              <div className={styles.service}>{item.service}</div>
-              <div className={styles.time}>{`${item.timeStart} - ${item.timeEnd}`}</div>
+              <div className={styles.employee}>{displayItem.employee}</div>
+              <div className={styles.service}>{displayItem.service}</div>
+              <div className={styles.time}>{`${displayItem.timeStart} - ${displayItem.timeEnd}`}</div>
             </div>
           );
         })}
@@ -112,7 +164,7 @@ const ScheduleGrid = () => {
         <AppointmentDetails
           event={selectedEvent}
           onClose={handleCloseDetails}
-          onEdit={handleEditClick} // Passa a função de edição
+          onEdit={handleEditClick}
         />
       )}
 
@@ -121,6 +173,7 @@ const ScheduleGrid = () => {
           event={eventToEdit}
           onClose={handleCloseEditForm}
           onSave={handleSaveEdit}
+          salaoId={salaoId}
         />
       )}
     </div>

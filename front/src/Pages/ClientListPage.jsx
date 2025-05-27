@@ -25,28 +25,39 @@ export default function ClientListPage() {
     const fetchClients = useCallback(async () => {
         setLoading(true);
         setError(null);
-    try {
-        const response = await fetch('http://localhost:3000/clientes/listClientes');
-        if (!response.ok) {
-    const errorData = await response.json();
-        throw new Error(errorData.mensageStatus || 'Failed to fetch clients');
-        }
-    const result = await response.json();
-    const sortedClients = result.data.sort((a, b) =>
-        a.nomeCompleto.localeCompare(b.nomeCompleto)
-        );
-    setClients(sortedClients);
+        try {
+            const response = await fetch('http://localhost:3000/clientes/listClientes');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.mensageStatus || 'Failed to fetch clients');
+            }
+            const result = await response.json();
+            if (result.data) { 
+                const sortedClients = result.data.sort((a, b) =>
+                    a.nomeCompleto.localeCompare(b.nomeCompleto)
+                );
+                setClients(sortedClients);
+            } else {
+                setClients([]); 
+            }
         } catch (err) {
-        console.error('Error fetching clients:', err);
-        setError(err.message || 'Erro ao carregar clientes.');
+            console.error('Error fetching clients:', err);
+            setError(err.message || 'Erro ao carregar clientes.');
+            setClients([]); 
         } finally {
-        setLoading(false);
+            setLoading(false);
         }
     }, []);
 
     useEffect(() => {
-        fetchClients();
-        }, [fetchClients]);
+        if (userId && userId !== 'null') {
+            fetchClients();
+        } else {
+            setLoading(false);
+            setClients([]);
+            setError('Usuário não autenticado ou inválido. Não é possível carregar clientes.');
+        }
+    }, [userId, fetchClients]);
 
     const handleSearch = (event) => {
     const term = event.target.value.toLowerCase();
@@ -109,13 +120,12 @@ export default function ClientListPage() {
         </div>
 
             {loading && <p>Carregando clientes...</p>}
-            {error && <p className={styles.errorMessage}>Erro: {error}</p>}
-            {!loading && !error && filteredClients.length === 0 && (
-            <p>Nenhum cliente encontrado.</p>
-            )}
+                {!loading && !error && filteredClients.length === 0 && (
+                    <p>Nenhum cliente encontrado.</p>
+                )}
 
-            {!loading && !error && filteredClients.length > 0 && (
-            <>
+                {!loading && !error && filteredClients.length > 0 && (
+                    <>
         <div className={styles.grid}>
         {currentClients.map((client) => (
         <ClientCard

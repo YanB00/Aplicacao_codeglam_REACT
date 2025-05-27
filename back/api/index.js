@@ -7,6 +7,7 @@ require('./database');
 const funcionarioRoutes = require('./routes/funcionario.routes');
 const clienteRoutes = require('./routes/cliente.routes');
 const servicosRoutes = require('./routes/servicos.routes');
+const agendamentosRoutes = require('./routes/agendamento.routes');
 
 app.use(cors())
 app.use(express.json()); 
@@ -24,8 +25,7 @@ app.use(require('./routes/login.routes'));
 
 app.use('/clientes', clienteRoutes);
 app.use ('/servicos', servicosRoutes);
-
-// app.use(require('./routes/agendamento.routes'));
+app.use('/agendamentos', agendamentosRoutes);
 
 
 app.listen(app.get('port'), ()=>{

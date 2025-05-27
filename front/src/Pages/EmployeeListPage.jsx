@@ -1,5 +1,4 @@
-// pages/EmployeeListPage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import EmployeeCard from '../components/EmployeeCard';
 import styles from './EmployeeListPage.module.css';
 import { FaSearch, FaUserPlus, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
@@ -9,12 +8,18 @@ import Sidebar from '../components/Sidebar';
 export default function EmployeeListPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [currentUserId, setCurrentUserId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [employees, setEmployees] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const employeesPerPage = 6;
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        setCurrentUserId(params.get('userId'));
+    }, [location.search]);
 
   const getUserIdFromUrl = () => {
     const params = new URLSearchParams(location.search);
@@ -23,29 +28,49 @@ export default function EmployeeListPage() {
 
   const userId = getUserIdFromUrl(); 
 
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch('http://localhost:3000/funcionarios');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+   const fetchEmployeesAPI = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        setEmployees([]); 
+        try {
+            const response = await fetch('http://localhost:3000/funcionarios');
+            if (!response.ok) {
+                let errorMessage = `HTTP error! status: ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    if (errorData && errorData.mensageStatus) {
+                        errorMessage = errorData.mensageStatus;
+                    }
+                } catch (parseError) {
+                }
+                throw new Error(errorMessage);
+            }
+            const data = await response.json();
+            if (data && data.data && Array.isArray(data.data)) {
+                const sortedEmployees = data.data.sort((a, b) =>
+                    a.nomeCompleto.localeCompare(b.nomeCompleto)
+                );
+                setEmployees(sortedEmployees);
+            } else {
+                setEmployees([]); 
+            }
+        } catch (e) {
+            setError(e); 
+            setEmployees([]); 
+        } finally {
+            setLoading(false);
         }
-        const data = await response.json();
-        const sortedEmployees = data.data.sort((a, b) =>
-          a.nomeCompleto.localeCompare(b.nomeCompleto)
-        );
-        setEmployees(sortedEmployees);
-      } catch (e) {
-        setError(e);
-      } finally {
-        setLoading(false);
-      }
-    };
+    }, []);
 
-    fetchEmployees();
-  }, []);
+      useEffect(() => {
+        if (currentUserId && currentUserId !== 'null') {
+            fetchEmployeesAPI();
+        } else {
+            setLoading(false);
+            setEmployees([]); 
+            setError(new Error('Usuário não autenticado ou inválido. Não é possível carregar funcionários.'));
+        }
+    }, [currentUserId, fetchEmployeesAPI]);
 
   const handleSearch = (event) => {
     const term = event.target.value.toLowerCase();
@@ -54,14 +79,14 @@ export default function EmployeeListPage() {
   };
 
   const handleAddEmployeeClick = () => {
-    navigate(`/add-funcionario?userId=${userId}`);
-  };
+    navigate(`/add-funcionario?userId=${currentUserId || ''}`);
+    };
 
   const filteredEmployees = employees.filter(
     (employee) =>
       employee.nomeCompleto.toLowerCase().includes(searchTerm) ||
-      employee.idFuncionario.toLowerCase().includes(searchTerm)
-  );
+      (employee.idFuncionario && employee.idFuncionario.toLowerCase().includes(searchTerm))
+    );
 
   const indexOfLastEmployee = currentPage * employeesPerPage;
   const indexOfFirstEmployee = indexOfLastEmployee - employeesPerPage;
@@ -88,56 +113,63 @@ export default function EmployeeListPage() {
     pageNumbers.push(i);
   }
 
-  if (loading) {
-    return <div>Carregando funcionários...</div>;
-  }
+   let contentToRender;
+    if (loading) {
+        contentToRender = <div>Carregando funcionários...</div>;
+    } else if (error) {
+        contentToRender = <div>Erro ao carregar funcionários: {error.message}</div>;
+    } else if (filteredEmployees.length === 0) {
+        contentToRender = <div>Nenhum funcionário encontrado.</div>;
+    } else {
+        contentToRender = (
+            <>
+                <div className={styles.grid}>
+                    {currentEmployees.map((employee) => (
+                        <EmployeeCard key={employee.idFuncionario} employee={employee} userId={currentUserId} />
+                    ))}
+                </div>
+                <div className={styles.pagination}>
+                    <button onClick={prevPage} disabled={currentPage === 1} className={styles.paginationButton}>
+                        <FaChevronLeft />
+                    </button>
+                    {pageNumbers.map((number) => (
+                        <button
+                            key={number}
+                            onClick={() => paginate(number)}
+                            className={`${styles.paginationButton} ${currentPage === number ? styles.active : ''}`}
+                        >
+                            {number}
+                        </button>
+                    ))}
+                    <button onClick={nextPage} disabled={currentPage === totalPages || totalPages === 0} className={styles.paginationButton}>
+                        <FaChevronRight />
+                    </button>
+                </div>
+            </>
+        );
+    }
 
-  if (error) {
-    return <div>Erro ao carregar funcionários: {error.message}</div>;
-  }
-
-  return (
-    <div className={styles.pageContainer}>
-      <Sidebar userId={userId} />
-      <div className={styles.content}>
-        <div className={styles.topBar}>
-          <h2 className={styles.topBarTitle}>Funcionários</h2>
-          <div className={styles.searchContainer}>
-            <input
-              type="text"
-              placeholder="Buscar por nome ou ID..."
-              value={searchTerm}
-              onChange={handleSearch}
-              className={styles.searchInput}
-            />
-          </div>
+    return (
+        <div className={styles.pageContainer}>
+            <Sidebar userId={currentUserId} />
+            <div className={styles.content}>
+                <div className={styles.topBar}>
+                    <h2 className={styles.topBarTitle}>Funcionários</h2>
+                    <div className={styles.searchContainer}>
+                        <input
+                            type="text"
+                            placeholder="Buscar por nome ou ID..."
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            className={styles.searchInput}
+                        />
+                    </div>
+                </div>
+                {contentToRender} 
+                <button className={styles.addButton} onClick={handleAddEmployeeClick}>
+                    <FaUserPlus /> Adicionar Funcionário
+                </button>
+            </div>
         </div>
-        <div className={styles.grid}>
-          {currentEmployees.map((employee) => (
-            <EmployeeCard key={employee.idFuncionario} employee={employee} userId={userId} /> 
-          ))}
-        </div>
-        <div className={styles.pagination}>
-          <button onClick={prevPage} disabled={currentPage === 1} className={styles.paginationButton}>
-            <FaChevronLeft />
-          </button>
-          {pageNumbers.map((number) => (
-            <button
-              key={number}
-              onClick={() => paginate(number)}
-              className={`${styles.paginationButton} ${currentPage === number ? styles.active : ''}`}
-            >
-              {number}
-            </button>
-          ))}
-          <button onClick={nextPage} disabled={currentPage === totalPages} className={styles.paginationButton}>
-            <FaChevronRight />
-          </button>
-        </div>
-        <button className={styles.addButton} onClick={handleAddEmployeeClick}>
-          <FaUserPlus /> Adicionar Funcionário
-        </button>
-      </div>
-    </div>
-  );
+    );
 }
