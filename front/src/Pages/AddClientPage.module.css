@@ -145,9 +145,21 @@
   }
   
   .saveBtn:hover {
-    background-color: #a855f7; /* Um tom um pouco mais escuro para o hover */
+    background-color: #a855f7; 
   }
   
   .cancelBtn:hover {
     background-color: #ccc;
   }
+
+.errorMessage {
+  color: red;
+  font-size: 0.8em;
+  margin-top: 5px;
+}
+
+.successMessage {
+  color: green;
+  font-size: 0.8em;
+  margin-top: 5px;
+}

@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use(morgan('dev'));
 
-
+app.use('/uploads', express.static('uploads'));
 app.set ('port', 3000);
 app.use('/funcionarios', funcionarioRoutes);
 

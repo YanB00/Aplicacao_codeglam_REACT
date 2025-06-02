@@ -43,7 +43,16 @@ const funcionarioSchema = new Schema({
   dataCadastro: {
     type: Date,
     default: Date.now,
-  }
+  },
+  active: {
+    type: Boolean,
+    default: true, 
+  },
+  salaoId: {
+    type: mongoose.Types.ObjectId,
+    ref: 'Registro', 
+    required: true, 
+  },
 });
 
 module.exports = mongoose.model('Funcionario', funcionarioSchema);

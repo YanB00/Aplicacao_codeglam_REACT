@@ -26,7 +26,7 @@ const menuItems = [
 ];
 
 export default function Sidebar({ userId }) {
-    console.log("Sidebar userId:", userId);
+    // console.log("Sidebar userId:", userId);
     const [expanded, setExpanded] = useState(true);
     const [companyName, setCompanyName] = useState('');
 

@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const agendamentoSchema = new Schema({ 
   salaoId: {
     type: mongoose.Types.ObjectId,
-    ref: 'Salao',
+    ref: 'Registro',
     required: true,
   },
   horaInicio: {

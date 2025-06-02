@@ -129,3 +129,147 @@
 .backButton:hover {
   background-color: #9b59b6; 
 }
+
+.buttonContainer {
+  display: flex;
+  gap: 10px; 
+  margin-top: 20px;
+}
+
+.button {
+background-color: #c084fc;
+color: white;
+border: none;
+padding: 8px 16px;
+border-radius: 12px;
+cursor: pointer;
+transition: background-color 0.3s ease;
+text-decoration: none;
+font-size: 1rem; 
+align-items: center;
+gap: 5px;
+}
+
+.button:hover {
+background-color: #a855f7;
+}
+
+.historySection {
+padding: 20px 30px 40px;
+}
+
+.backButton {
+background-color: #8e44ad;
+color: white;
+border: none;
+padding: 8px 16px;
+border-radius: 8px;
+cursor: pointer;
+font-size: 1rem;
+display: flex;
+align-items: center;
+gap: 8px;
+transition: background-color 0.3s ease;
+margin-top: 0;
+height: auto;
+width: auto;
+padding-left: 12px;
+padding-right: 12px;
+}
+
+.backButton:hover {
+background-color: #9b59b6;
+}
+
+.buttonContainer {
+display: flex;
+gap: 10px; 
+margin-top: 20px;
+}
+
+.deleteButton {
+background-color: #c084fc;
+color: white;
+border: none;
+padding: 8px 16px; 
+border-radius: 12px; 
+cursor: pointer;
+font-size: 1rem; 
+display: inline-flex;
+align-items: center;
+gap: 5px;
+}
+
+.deleteButton:hover {
+background-color: #a855f7; 
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6); 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; 
+}
+
+.modalContent {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  animation: fadeIn 0.3s ease-out; 
+}
+
+.modalContent h3 {
+  margin-top: 0;
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+
+.modalContent p {
+  color: #555;
+  font-size: 1rem;
+  margin-bottom: 25px;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.modalCancelButton {
+  background-color: #8e44ad; 
+}
+
+.modalCancelButton:hover {
+  background-color: #c084fc
+}
+
+.modalConfirmButton {
+  background-color: #8e44ad;
+}
+
+.modalConfirmButton:hover {
+  background-color: #7a1da1
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -5,6 +5,7 @@ const router = express.Router();
 const Funcionario = require('../models/funcionario');
 const RegistroFuncionario = require('../models/relationship/funcionarioRegistro');
 const FuncionarioServico = require('../models/relationship/funcionarioServico');
+const getSalaoIdFromUser = require('../middlewares/authMiddleware')
 
 // Configuração do multer
 const storage = multer.diskStorage({
@@ -19,10 +20,22 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Rota para criar um novo funcionário (POST)
-router.post('/add-funcionario', upload.single('foto'), async (req, res) => {
-  const { nomeCompleto, dataNascimento, cpf, dataAdmissao, servicosRealizados, beneficios, informacoesAdicionais, telefone, email } = req.body;
+router.post('/add-funcionario', upload.single('foto'), getSalaoIdFromUser, async (req, res) => {
+  const { nomeCompleto, dataNascimento, cpf, dataAdmissao, servicosRealizados, beneficios, informacoesAdicionais, telefone, email } = req.body; // Remove salaoId daqui, pois virá do middleware
 
   const foto = req.file ? req.file.filename : null;
+  const salaoId = req.salaoId; // <--- CAPTURAR salaoId ANEXADO PELO MIDDLEWARE
+
+  console.log('### ROTA ADD-FUNCIONARIO: Iniciando rota.');
+  console.log('### ROTA ADD-FUNCIONARIO: salaoId recebido do middleware (req.salaoId):', salaoId ? salaoId.toString() : 'null'); // LOG G
+
+  if (!salaoId) {
+    console.error('### ROTA ADD-FUNCIONARIO: ERRO: salaoId não encontrado após middleware.'); // LOG H
+    return res.status(400).json({
+      errorStatus: true,
+      mensageStatus: 'Salao ID não encontrado na requisição. Não é possível cadastrar funcionário sem um salão associado.',
+    });
+  }
 
   try {
     const novoFuncionario = new Funcionario({
@@ -36,9 +49,11 @@ router.post('/add-funcionario', upload.single('foto'), async (req, res) => {
       telefone,
       email,
       foto,
+      salaoId, // Passar o salaoId obtido
     });
 
     const funcionarioSalvo = await novoFuncionario.save();
+    console.log('### ROTA ADD-FUNCIONARIO: Funcionário salvo com sucesso!'); // LOG I
 
     return res.status(201).json({
       errorStatus: false,
@@ -46,7 +61,16 @@ router.post('/add-funcionario', upload.single('foto'), async (req, res) => {
       data: { ...funcionarioSalvo.toObject(), idFuncionario: funcionarioSalvo._id.toString() },
     });
   } catch (error) {
-    console.error('Erro ao cadastrar funcionário:', error);
+    console.error('### ROTA ADD-FUNCIONARIO: Erro (CATCH) ao cadastrar funcionário:', error); // LOG J
+    if (error.name === 'ValidationError') {
+      const errors = Object.keys(error.errors).map(key => error.errors[key].message);
+      return res.status(400).json({
+        errorStatus: true,
+        mensageStatus: `Erro de validação: ${errors.join(', ')}`,
+        validationErrors: error.errors,
+        errorObject: error,
+      });
+    }
     return res.status(400).json({
       errorStatus: true,
       mensageStatus: 'HOUVE UM ERRO AO CADASTRAR O FUNCIONÁRIO',
@@ -55,13 +79,12 @@ router.post('/add-funcionario', upload.single('foto'), async (req, res) => {
   }
 });
 
-
-// Rota para obter todos os funcionários (GET)
+// Rota para obter todos os funcionários (GET) -Apenas funcionarios Ativos
 router.get('/', async (req, res) => {
   console.log('GET /funcionarios - Acessando rota');
   try {
-    const funcionarios = await Funcionario.find();
-    console.log('GET /funcionarios - Funcionários encontrados:', funcionarios);
+    const funcionarios = await Funcionario.find({ active: true });
+    console.log('GET /funcionarios - Funcionários encontrados (ativos):', funcionarios);
     const funcionariosComIdString = funcionarios.map(funcionario => ({
       ...funcionario.toObject(),
       idFuncionario: funcionario._id.toString(),
@@ -70,7 +93,7 @@ router.get('/', async (req, res) => {
 
     return res.status(200).json({
       errorStatus: false,
-      mensageStatus: 'FUNCIONÁRIOS ENCONTRADOS',
+      mensageStatus: 'FUNCIONÁRIOS ATIVOS ENCONTRADOS',
       data: funcionariosComIdString,
     });
   } catch (error) {
@@ -82,12 +105,16 @@ router.get('/', async (req, res) => {
     });
   }
 });
+
+
+
 // Rota para obter um funcionário específico pelo ID (GET)
 router.get('/:idFuncionario', async (req, res) => {
   const { idFuncionario } = req.params;
 
   try {
-    const funcionario = await Funcionario.findById(idFuncionario); // Busca pelo _id
+    const funcionario = await Funcionario.findById(idFuncionario)
+      .populate('salaoId');
 
     if (!funcionario) {
       return res.status(404).json({
@@ -95,11 +122,14 @@ router.get('/:idFuncionario', async (req, res) => {
         mensageStatus: 'FUNCIONÁRIO NÃO ENCONTRADO',
       });
     }
-
     return res.status(200).json({
       errorStatus: false,
       mensageStatus: 'FUNCIONÁRIO ENCONTRADO',
-      data: { ...funcionario.toObject(), idFuncionario: funcionario._id.toString() }, // Retorna _id como idFuncionario
+      data: { 
+        ...funcionario.toObject(), 
+        idFuncionario: funcionario._id.toString(),
+        salaoId: funcionario.salaoId ? (funcionario.salaoId._id ? funcionario.salaoId._id.toString() : funcionario.salaoId.toString()) : null 
+      }, 
     });
   } catch (error) {
     console.error('Erro ao buscar funcionário por ID:', error);
@@ -112,16 +142,29 @@ router.get('/:idFuncionario', async (req, res) => {
 });
 
 // Rota para atualizar um funcionário existente (PUT)
-router.put('/:idFuncionario', upload.single('foto'), async (req, res) => {
+router.put('/:idFuncionario', upload.any(), async (req, res) => { // <-- MUDANÇA AQUI: de upload.single('foto') para upload.any()
   const { idFuncionario } = req.params;
-  const { nomeCompleto, dataNascimento, cpf, dataAdmissao, cargo, beneficios, informacoesAdicionais, telefone, email } = req.body; 
-  const foto = req.file ? req.file.filename : (req.body.fotoExistente || null); // Pega o nome do arquivo se um novo foi enviado, ou mantém o existente
+  const { nomeCompleto, dataNascimento, cpf, dataAdmissao, cargo, beneficios, informacoesAdicionais, telefone, email, fotoExistente } = req.body; // <-- Adicione fotoExistente aqui para fácil acesso
+
+  let foto = null;
+
+  // Verificar se um novo arquivo de foto foi enviado
+  if (req.files && req.files.length > 0) {
+    // Se houver múltiplos arquivos e você espera apenas um, pegue o primeiro
+
+    const uploadedPhoto = req.files.find(file => file.fieldname === 'foto');
+    if (uploadedPhoto) {
+      foto = uploadedPhoto.filename;
+    }
+  } else if (fotoExistente) {
+    foto = fotoExistente;
+  }
 
   try {
     const funcionarioAtualizado = await Funcionario.findByIdAndUpdate(
       idFuncionario,
       { nomeCompleto, dataNascimento, cpf, dataAdmissao, cargo, beneficios, informacoesAdicionais, telefone, email, foto },
-      { new: true }
+      { new: true, runValidators: true } 
     );
 
     if (!funcionarioAtualizado) {
@@ -135,38 +178,53 @@ router.put('/:idFuncionario', upload.single('foto'), async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao atualizar funcionário:', error);
+    // Verifique se o erro é de validação do Mongoose
+    if (error.name === 'ValidationError') {
+      const errors = Object.keys(error.errors).map(key => error.errors[key].message);
+      return res.status(400).json({
+        errorStatus: true,
+        mensageStatus: `Erro de validação: ${errors.join(', ')}`,
+        validationErrors: error.errors,
+        errorObject: error,
+      });
+    }
     return res.status(500).json({ errorStatus: true, mensageStatus: 'HOUVE UM ERRO AO ATUALIZAR O FUNCIONÁRIO', errorObject: error });
   }
 });
 
-// Rota para deletar um funcionário (DELETE)
-router.delete('/:idFuncionario', async (req, res) => {
+// Rota para "desativar" um funcionário (PUT - Soft Delete)
+router.put('/deactivate/:idFuncionario', async (req, res) => {
   const { idFuncionario } = req.params;
 
   try {
-    const funcionarioDeletado = await Funcionario.findByIdAndDelete(idFuncionario); // Busca e deleta pelo _id
+    const funcionarioDesativado = await Funcionario.findByIdAndUpdate(
+      idFuncionario,
+      { active: false }, 
+      { new: true }
+    );
 
-    if (!funcionarioDeletado) {
+    if (!funcionarioDesativado) {
       return res.status(404).json({
         errorStatus: true,
-        mensageStatus: 'FUNCIONÁRIO NÃO ENCONTRADO PARA DELEÇÃO',
+        mensageStatus: 'FUNCIONÁRIO NÃO ENCONTRADO PARA DESATIVAÇÃO',
       });
     }
 
     return res.status(200).json({
       errorStatus: false,
-      mensageStatus: 'FUNCIONÁRIO DELETADO COM SUCESSO',
-      data: { ...funcionarioDeletado.toObject(), idFuncionario: funcionarioDeletado._id.toString() }, // Retorna _id como idFuncionario
+      mensageStatus: 'FUNCIONÁRIO DESATIVADO COM SUCESSO',
+      data: { ...funcionarioDesativado.toObject(), idFuncionario: funcionarioDesativado._id.toString() },
     });
   } catch (error) {
-    console.error('Erro ao deletar funcionário:', error);
+    console.error('Erro ao desativar funcionário:', error);
     return res.status(500).json({
       errorStatus: true,
-      mensageStatus: 'HOUVE UM ERRO AO DELETAR O FUNCIONÁRIO',
+      mensageStatus: 'HOUVE UM ERRO AO DESATIVAR O FUNCIONÁRIO',
       errorObject: error,
     });
   }
 });
+
 
 // Rotas para lidar com o relacionamento Funcionário-Registro (RegistroFuncionario)
 

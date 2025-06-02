@@ -6,9 +6,9 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
   const [formData, setFormData] = useState({
     timeStart: '',
     timeEnd: '',
-    service: '', // Should store the _id of the selected service
-    client: '',   // Should store the _id of the selected client
-    employee: '', // Should store the _id of the selected employee
+    service: '', 
+    client: '',   
+    employee: '', 
     valor: '',
     observacoes: '',
   });
@@ -147,11 +147,11 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
           setSaveError(result.mensageStatus || 'Erro retornado pelo backend ao salvar agendamento');
           throw new Error(result.mensageStatus || 'Erro retornado pelo backend ao salvar agendamento');
         }
-        alert(result.mensageStatus || 'Agendamento salvo com sucesso!');
+        // alert(result.mensageStatus || 'Agendamento salvo com sucesso!');
         resultData = result.data;
       } else {
         const successText = await response.text();
-        alert(successText || 'Operação concluída, mas resposta não foi JSON.');
+        // alert(successText || 'Operação concluída, mas resposta não foi JSON.');
       }
 
       if (onAppointmentSuccessfullySaved && resultData) {

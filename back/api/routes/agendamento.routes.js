@@ -1,6 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
+const moment = require('moment-timezone');
 const Agendamento = require('../models/agendamento'); 
+
+function getBrasiliaStartOfDayUTC(dateString) { 
+    const localMoment = moment.tz(dateString, 'YYYY-MM-DD', 'America/Sao_Paulo');
+    return localMoment.startOf('day').utc().toDate();
+}
+
 
 // Rota para criar um novo agendamento (POST)
 router.post('/', async (req, res) => {
@@ -13,66 +21,74 @@ router.post('/', async (req, res) => {
     funcionarioId,
     valor,
     observacoes,
-    dataAgendamento,
+    dataAgendamento, 
     concluido,
     cancelado,
   } = req.body;
 
-  try {
-    const novoAgendamento = new Agendamento({
-      salaoId,
-      horaInicio,
-      horaFim,
-      servicoId,
-      clienteId,
-      funcionarioId,
-      valor,
-      observacoes,
-      dataAgendamento,
-      concluido: concluido || false,
-      cancelado: cancelado || false,
-    });
+try {
+    let dataAgendamentoUTC;
+    if (dataAgendamento) {
+        dataAgendamentoUTC = getBrasiliaStartOfDayUTC(dataAgendamento);
+    } else {
+        return res.status(400).json({
+            errorStatus: true,
+            mensageStatus: 'O campo dataAgendamento é obrigatório.',
+        });
+    }
 
-    const agendamentoSalvo = await novoAgendamento.save();
+  const novoAgendamento = new Agendamento({
+    salaoId,
+    horaInicio,
+    horaFim,
+    servicoId,
+    clienteId,
+    funcionarioId,
+    valor,
+    observacoes,
+    dataAgendamento: dataAgendamentoUTC, 
+    concluido: concluido || false,
+    cancelado: cancelado || false,
+  });
 
-    const agendamentoPopulado = await Agendamento.findById(agendamentoSalvo._id)
-      .populate('salaoId', 'nome')
-      .populate('servicoId', 'titulo') 
-      .populate('clienteId', 'nomeCompleto')
-      .populate('funcionarioId', 'nomeCompleto');
+  const agendamentoSalvo = await novoAgendamento.save();
 
-    return res.status(201).json({
-      errorStatus: false,
-      mensageStatus: 'AGENDAMENTO CRIADO COM SUCESSO',
-      data: agendamentoPopulado,
+  const agendamentoPopulado = await Agendamento.findById(agendamentoSalvo._id)
+    .populate('salaoId', 'nome')
+    .populate('servicoId', 'titulo') 
+    .populate('clienteId', 'nomeCompleto')
+    .populate('funcionarioId', 'nomeCompleto');
+
+  return res.status(201).json({
+    errorStatus: false,
+    mensageStatus: 'AGENDAMENTO CRIADO COM SUCESSO',
+    data: agendamentoPopulado,
     });
   } catch (error) {
     console.error('Erro detalhado ao criar agendamento (backend):', JSON.stringify(error, null, 2)); 
 
     if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map(err => ({
-        field: err.path,
-        message: err.message,
-        value: err.value, 
+      const errors = Object.values(error.errors).map(err => ({field: err.path,
+      message: err.message,
+      value: err.value, 
       }));
       console.error('Erros de validação do Mongoose:', errors);
       return res.status(400).json({
-        errorStatus: true,
-        mensageStatus: 'Erro de validação ao criar o agendamento. Verifique os campos.',
-        validationErrors: errors, 
-        errorObject: error.message, 
+      errorStatus: true,
+      mensageStatus: 'Erro de validação ao criar o agendamento. Verifique os campos.',
+      validationErrors: errors, 
+      errorObject: error.message, 
       });
-    }
+      }
 
     return res.status(400).json({ 
       errorStatus: true,
       mensageStatus: 'HOUVE UM ERRO AO CRIAR O AGENDAMENTO',
       errorObject: error.message,
+      });
+      }
     });
-  }
-});
 
-// --- MANTENHA AS OUTRAS ROTAS (GET, PUT, DELETE) COMO ESTAVAM ---
 // Rota para obter todos os agendamentos (GET)
 router.get('/', async (req, res) => {
   try {
@@ -123,7 +139,6 @@ router.get('/:agendamentoId', async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao buscar agendamento por ID:', error);
-    // Verifica se é um erro de CastError (ID inválido)
     if (error.name === 'CastError') {
         return res.status(400).json({
             errorStatus: true,
@@ -165,7 +180,7 @@ router.put('/:agendamentoId', async (req, res) => {
   if (funcionarioId !== undefined) updateFields.funcionarioId = funcionarioId;
   if (valor !== undefined) updateFields.valor = valor;
   if (observacoes !== undefined) updateFields.observacoes = observacoes;
-  if (dataAgendamento !== undefined) updateFields.dataAgendamento = dataAgendamento;
+  if (dataAgendamento !== undefined) { updateFields.dataAgendamento = getBrasiliaStartOfDayUTC(dataAgendamento); }
   if (concluido !== undefined) updateFields.concluido = concluido;
   if (cancelado !== undefined) updateFields.cancelado = cancelado;
 
@@ -214,7 +229,7 @@ router.put('/:agendamentoId', async (req, res) => {
         errorObject: error.message,
       });
     }
-    if (error.name === 'CastError') { // Erro de ID inválido
+    if (error.name === 'CastError') { 
         return res.status(400).json({
             errorStatus: true,
             mensageStatus: `ID de agendamento inválido para atualização: ${agendamentoId}`,
@@ -243,7 +258,7 @@ router.delete('/:agendamentoId', async (req, res) => {
     return res.status(200).json({
       errorStatus: false,
       mensageStatus: 'AGENDAMENTO DELETADO COM SUCESSO',
-      data: { id: agendamentoDeletado._id }, // Envia o ID do item deletado
+      data: { id: agendamentoDeletado._id }, 
     });
   } catch (error) {
     console.error('Erro ao deletar agendamento:', error);
@@ -314,48 +329,76 @@ router.get('/cliente/:clienteId', async (req, res) => {
 
 // Rota para obter agendamentos por Funcionário (GET)
 router.get('/funcionario/:funcionarioId', async (req, res) => {
-  const { funcionarioId } = req.params;
-  try {
-    const agendamentosFuncionario = await Agendamento.find({ funcionarioId })
-      .populate('salaoId', 'nome')
-      .populate('servicoId', 'titulo')
-      .populate('clienteId', 'nomeCompleto')
-      .sort({ dataAgendamento: 1, horaInicio: 1 });
-    return res.status(200).json({
-      errorStatus: false,
-      mensageStatus: 'AGENDAMENTOS DO FUNCIONÁRIO ENCONTRADOS',
-      data: agendamentosFuncionario,
-    });
-  } catch (error) {
-    console.error('Erro ao buscar agendamentos por funcionário:', error);
-    return res.status(500).json({
-      errorStatus: true,
-      mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS AGENDAMENTOS DO FUNCIONÁRIO',
-      errorObject: error.message,
-    });
-  }
-});
+    const { funcionarioId } = req.params;
+    console.log('--- BACKEND AGENDAMENTOS (GET por Funcionário) ---');
+    console.log('  ID de Funcionário recebido (req.params.funcionarioId):', funcionarioId);
 
+    try {
+        // CRIE UM OBJETOID A PARTIR DA STRING DO PARAMETRO
+        const funcionarioObjectId = new mongoose.Types.ObjectId(funcionarioId); 
+        console.log('  ID de Funcionário convertido para ObjectId:', funcionarioObjectId); 
+
+        const query = { funcionarioId: funcionarioObjectId }; 
+        console.log('  Objeto de Query de Mongoose:', JSON.stringify(query)); 
+
+        const agendamentosFuncionario = await Agendamento.find(query) 
+            .populate('salaoId', 'nome')
+            .populate('servicoId', 'titulo')
+            .populate('clienteId', 'nomeCompleto')
+            .populate('funcionarioId', 'nomeCompleto')
+            .sort({ dataAgendamento: 1, horaInicio: 1 });
+        
+        console.log('  Resultado da busca (agendamentosFuncionario):', agendamentosFuncionario);
+        console.log('  Número de agendamentos encontrados:', agendamentosFuncionario.length);
+
+        return res.status(200).json({
+            errorStatus: false,
+            mensageStatus: 'AGENDAMENTOS DO FUNCIONÁRIO ENCONTRADOS',
+            data: agendamentosFuncionario, 
+        });
+    } catch (error) {
+        console.error('  Erro ao buscar agendamentos por funcionário:', error);
+        if (error.name === 'CastError') {
+             return res.status(400).json({
+                errorStatus: true,
+                mensageStatus: `ID do funcionário inválido para busca: ${funcionarioId}`,
+                errorObject: error.message,
+            });
+        }
+        return res.status(500).json({
+            errorStatus: true,
+            mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS AGENDAMENTOS DO FUNCIONÁRIO',
+            errorObject: error.message,
+        });
+    }
+});
 // Rota para obter agendamentos por Data (GET)
 router.get('/data/:dataAgendamento', async (req, res) => {
   const { dataAgendamento } = req.params;
   try {
+    const startOfDayBrasiliaUTC = getBrasiliaStartOfDayUTC(dataAgendamento);
     const date = new Date(dataAgendamento + 'T00:00:00.000Z');
     const startOfDay = new Date(date);
     const endOfDay = new Date(date);
     endOfDay.setUTCDate(date.getUTCDate() + 1);
 
+    const nextDayBrasiliaUTC = moment.tz(dataAgendamento, 'YYYY-MM-DD', 'America/Sao_Paulo')
+                                      .add(1, 'days')
+                                      .startOf('day')
+                                      .utc()
+                                      .toDate();
     const agendamentosData = await Agendamento.find({
-      dataAgendamento: {
-        $gte: startOfDay,
-        $lt: endOfDay,
-      },
-    })
-      .populate('salaoId', 'nome')
-      .populate('servicoId', 'titulo')
-      .populate('clienteId', 'nomeCompleto')
-      .populate('funcionarioId', 'nomeCompleto')
-      .sort({ horaInicio: 1 });
+            dataAgendamento: {
+                $gte: startOfDayBrasiliaUTC,
+                $lt: nextDayBrasiliaUTC,     
+            },
+        })
+            .populate('salaoId', 'nome')
+            .populate('servicoId', 'titulo')
+            .populate('clienteId', 'nomeCompleto')
+            .populate('funcionarioId', 'nomeCompleto')
+            .sort({ horaInicio: 1 });
+
 
     return res.status(200).json({
       errorStatus: false,

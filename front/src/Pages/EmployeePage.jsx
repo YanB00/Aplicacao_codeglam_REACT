@@ -1,24 +1,25 @@
-// employeePage jsx:
+// EmployeePage.jsx
+
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom'; 
-import { FaKey, FaBirthdayCake, FaIdCard, FaPhone, FaEnvelope, FaArrowLeft } from 'react-icons/fa';
-import EmployeeHistory from '../components/EmployeeHistory';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { FaKey, FaBirthdayCake, FaIdCard, FaPhone, FaEnvelope, FaArrowLeft, FaTrashAlt } from 'react-icons/fa';
+import EmployeeHistory from '../components/EmployeeHistory'; 
 import styles from './EmployeePage.module.css';
 
 export default function EmployeePage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation(); 
+  const location = useLocation();
   const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false); 
 
   const getUserIdFromUrl = () => {
     const params = new URLSearchParams(location.search);
     return params.get('userId');
   };
-
-  const userId = getUserIdFromUrl(); 
+  const userId = getUserIdFromUrl();
 
   useEffect(() => {
     const fetchEmployeeDetails = async () => {
@@ -30,7 +31,7 @@ export default function EmployeePage() {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setEmployee(data.data);
+        setEmployee(data.data); 
       } catch (e) {
         setError(e);
       } finally {
@@ -48,6 +49,34 @@ export default function EmployeePage() {
   const handleEditClick = () => {
     if (employee) {
       navigate(`/funcionario/Editar/${employee.idFuncionario}?userId=${userId}`);
+    }
+  };
+
+  const handleOpenConfirmModal = () => {
+    setShowConfirmModal(true);
+  };
+
+  const handleCloseConfirmModal = () => {
+    setShowConfirmModal(false);
+  };
+
+  const handleConfirmDeactivation = async () => {
+    handleCloseConfirmModal();
+
+    if (!employee) return; 
+
+    try {
+      const response = await fetch(`http://localhost:3000/funcionarios/deactivate/${employee.idFuncionario}`, {
+        method: 'PUT',
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.mensageStatus || `HTTP error! status: ${response.status}`);
+      }
+      navigate(`/funcionarios?userId=${userId}`);
+    } catch (e) {
+      console.error('Erro ao desativar funcionário:', e);
+      setError(e); 
     }
   };
 
@@ -127,7 +156,7 @@ export default function EmployeePage() {
         <div className={styles.mainContent}>
           <div className={styles.profileCard}>
             <div className={styles.avatarWrapper}>
-              <img src={employee.foto ? `http://localhost:3000/uploads/${employee.foto}` : 'URL_DA_IMAGEM_PADRAO'} alt={employee.nomeCompleto} />
+              <img src={employee.foto ? `http://localhost:3000/uploads/${employee.foto}` : 'https://placehold.co/150'} alt={employee.nomeCompleto} /> {/* URL_DA_IMAGEM_PADRAO */}
               <h2>{employee.nomeCompleto}</h2>
               <div className={styles.underline} />
               <p className={styles.since}>Funcionário desde {new Date(employee.dataAdmissao).toLocaleDateString()}</p>
@@ -167,16 +196,46 @@ export default function EmployeePage() {
               <p><strong>Informações adicionais:</strong> Nenhuma</p>
             )}
 
-            <button className={styles.button} onClick={handleEditClick}>
-              Atualizar
-            </button>
+            <div className={styles.buttonContainer}>
+              <button className={styles.button} onClick={handleEditClick}>
+                Atualizar
+              </button>
+              <button className={`${styles.button} ${styles.deleteButton}`} onClick={handleOpenConfirmModal}>
+                <FaTrashAlt /> Apagar
+              </button>
+            </div>
           </div>
         </div>
 
         <div className={styles.historySection}>
-          <EmployeeHistory employeeId={employee.idFuncionario} userId={userId} />
+=          {employee.salaoId ? (
+            <EmployeeHistory 
+              employeeId={employee.idFuncionario} 
+              userId={userId}  
+              salaoId={employee.salaoId} 
+            />
+          ) : (
+            <p>Carregando histórico de atendimentos e filtros...</p> 
+          )}
         </div>
       </div>
+
+      {showConfirmModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3>Confirmar Desativação</h3>
+            <p>Tem certeza que deseja desativar este funcionário?</p>
+            <div className={styles.modalActions}>
+              <button className={`${styles.button} ${styles.modalCancelButton}`} onClick={handleCloseConfirmModal}>
+                Cancelar
+              </button>
+              <button className={`${styles.button} ${styles.modalConfirmButton}`} onClick={handleConfirmDeactivation}>
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
