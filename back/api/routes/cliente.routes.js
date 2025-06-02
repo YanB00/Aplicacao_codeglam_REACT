@@ -3,20 +3,37 @@ const router = express.Router();
 const Cliente = require('../models/cliente');
 const ClienteRegistro = require('../models/relationship/clienteRegistro');
 const multer = require('multer'); 
-const path = require('path'); 
+const path = require('path');
+const fs = require('fs'); 
 
+const uploadDir = 'uploads/client_photos/';
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-
-    cb(null, 'uploads/client_photos/');
+    cb(null, uploadDir); 
   },
   filename: function (req, file, cb) {
     cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
   }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 10 * 1024 * 1024 }, 
+    fileFilter: (req, file, cb) => {
+        const filetypes = /jpeg|jpg|png|gif|webp|avif/;
+        const mimetype = filetypes.test(file.mimetype);
+        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+        if (mimetype && extname) {
+            return cb(null, true);
+        }
+        cb(new Error('Apenas imagens (jpeg, jpg, png, gif, webp, avif) são permitidas!'));
+    }
+});
 
 router.use((req, res, next) => {
   console.log('CLIENTES ROUTES - Requisição recebida:', req.method, req.originalUrl);
@@ -78,6 +95,12 @@ router.get('/:idCliente', async (req, res) => {
 
 // Rota para criar um novo cliente (POST)
 router.post('/', upload.single('foto'), async (req, res) => {
+  if (req.fileValidationError) {
+    return res.status(400).json({
+      errorStatus: true,
+      mensageStatus: req.fileValidationError,
+    });
+  }
 
   const { nomeCompleto, dataNascimento, cpf, telefone, email, favoritos, problemasSaude, informacoesAdicionais } = req.body;
   const fotoPath = req.file ? req.file.path : null;
@@ -91,7 +114,7 @@ router.post('/', upload.single('foto'), async (req, res) => {
       cpf: cleanedCpf, 
       telefone,
       email,
-      favoritos: favoritos ? favoritos.split(',').map(s => s.trim()).filter(s => s !== '') : [],
+      favoritos: Array.isArray(favoritos) ? favoritos : (favoritos ? favoritos.split(',').map(s => s.trim()).filter(s => s !== '') : []),
       problemasSaude,
       informacoesAdicionais,
       foto: fotoPath
@@ -105,6 +128,7 @@ router.post('/', upload.single('foto'), async (req, res) => {
     });
 
   } catch (error) {
+    console.error('CLIENTES ROUTES - POST / - Erro ao cadastrar cliente:', error);
     if (error.code === 11000) {
         return res.status(409).json({
             errorStatus: true,
@@ -127,6 +151,7 @@ router.post('/', upload.single('foto'), async (req, res) => {
     }
   }
 });
+
 // Rota para atualizar um cliente existente (PUT)
 router.put('/:idCliente', async (req, res) => {
   const { idCliente } = req.params;
@@ -136,7 +161,15 @@ router.put('/:idCliente', async (req, res) => {
   try {
     const clienteAtualizado = await Cliente.findByIdAndUpdate( 
       idCliente,
-      { nomeCompleto, dataNascimento, telefone, email, favoritos, problemasSaude, informacoesAdicionais },
+      { 
+        nomeCompleto, 
+        dataNascimento, 
+        telefone, 
+        email, 
+        favoritos: favoritos ? favoritos.split(',').map(s => s.trim()).filter(s => s !== '') : [], 
+        problemasSaude, 
+        informacoesAdicionais 
+      },
       { new: true }
     );
 
@@ -152,7 +185,7 @@ router.put('/:idCliente', async (req, res) => {
     return res.status(200).json({
       errorStatus: false,
       mensageStatus: 'CLIENTE ATUALIZADO COM SUCESSO',
-      data: { ...clienteAtualizado.toObject(), idCliente: clienteAtualizado._id.toString() }, // Retornamos o _id como idCliente
+      data: { ...clienteAtualizado.toObject(), idCliente: clienteAtualizado._id.toString() }, 
     });
   } catch (error) {
     console.error('CLIENTES ROUTES - PUT /:idCliente - Erro ao atualizar cliente:', error);
@@ -184,7 +217,7 @@ router.delete('/:idCliente', async (req, res) => {
     return res.status(200).json({
       errorStatus: false,
       mensageStatus: 'CLIENTE DELETADO COM SUCESSO',
-      data: { ...clienteDeletado.toObject(), idCliente: clienteDeletado._id.toString() }, // Retornamos o _id como idCliente
+      data: { ...clienteDeletado.toObject(), idCliente: clienteDeletado._id.toString() }, 
     });
   } catch (error) {
     console.error('CLIENTES ROUTES - DELETE /:idCliente - Erro ao deletar cliente:', error);

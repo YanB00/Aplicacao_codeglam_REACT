@@ -11,19 +11,76 @@ export default function AddClientPage() {
   const [nomeCompleto, setNomeCompleto] = useState('');
   const [dataNascimento, setDataNascimento] = useState('');
   const [cpf, setCpf] = useState('');
-  const [clienteDesde, setClienteDesde] = useState('');
   const [favoritos, setFavoritos] = useState('');
   const [problemasSaude, setProblemasSaude] = useState('');
   const [informacoesAdicionais, setInformacoesAdicionais] = useState('');
   const [telefone, setTelefone] = useState('');
   const [email, setEmail] = useState('');
   const [foto, setFoto] = useState(null);
+  const [cpfError, setCpfError] = useState('');
+  const [messageStatus, setMessageStatus] = useState(''); 
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setUserId(params.get('userId'));
     console.log('UserID na AddClientPage:', params.get('userId'));
   }, [location.search]);
+
+  const validateCpf = (cpf) => {
+    cpf = cpf.replace(/[^\d]+/g, '');
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
+      return false;
+    }
+    let sum = 0;
+    let remainder;
+
+    for (let i = 1; i <= 9; i++) {
+      sum = sum + parseInt(cpf.substring(i - 1, i)) * (11 - i);
+    }
+    remainder = (sum * 10) % 11;
+
+    if ((remainder === 10) || (remainder === 11)) {
+      remainder = 0;
+    }
+    if (remainder !== parseInt(cpf.substring(9, 10))) {
+      return false;
+    }
+
+    sum = 0;
+    for (let i = 1; i <= 10; i++) {
+      sum = sum + parseInt(cpf.substring(i - 1, i)) * (12 - i);
+    }
+    remainder = (sum * 10) % 11;
+
+    if ((remainder === 10) || (remainder === 11)) {
+      remainder = 0;
+    }
+    if (remainder !== parseInt(cpf.substring(10, 11))) {
+      return false;
+    }
+    return true;
+  };
+
+  const formatCpf = (value) => {
+    value = value.replace(/\D/g, '');
+    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    return value;
+  };
+
+  const formatPhone = (value) => {
+    value = value.replace(/\D/g, '');
+    if (value.length > 10) {
+      value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
+    } else if (value.length > 6) {
+      value = value.replace(/^(\d{2})(\d{4})(\d{4}).*/, '($1) $2-$3');
+    } else if (value.length > 2) {
+      value = value.replace(/^(\d{2})(\d+)/, '($1) $2');
+    }
+    return value;
+  };
 
   const handleInputChange = (e) => {
     const { id, value, type, files } = e.target;
@@ -39,10 +96,17 @@ export default function AddClientPage() {
           setDataNascimento(value);
           break;
         case 'cpf':
-          setCpf(value);
-          break;
-        case 'startDate':
-          setClienteDesde(value);
+          const formattedCpf = formatCpf(value);
+          setCpf(formattedCpf);
+          if (formattedCpf.length === 14) {
+            if (!validateCpf(formattedCpf)) {
+              setCpfError('CPF inválido.');
+            } else {
+              setCpfError('');
+            }
+          } else {
+            setCpfError('');
+          }
           break;
         case 'favorites':
           setFavoritos(value);
@@ -54,7 +118,8 @@ export default function AddClientPage() {
           setInformacoesAdicionais(value);
           break;
         case 'tel':
-          setTelefone(value);
+          const formattedPhone = formatPhone(value);
+          setTelefone(formattedPhone);
           break;
         case 'email':
           setEmail(value);
@@ -76,10 +141,23 @@ export default function AddClientPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    if (!nomeCompleto || !dataNascimento || !cpf || !telefone || !email) {
+      setMessageStatus('Por favor, preencha todos os campos obrigatórios.');
+      setIsError(true);
+      return;
+    }
+
+    if (cpfError) {
+      setMessageStatus('Por favor, corrija o CPF inválido.');
+      setIsError(true);
+      return;
+    }
+
     const formData = new FormData();
     formData.append('nomeCompleto', nomeCompleto);
     formData.append('dataNascimento', dataNascimento);
-    formData.append('cpf', cpf);
+    formData.append('cpf', cpf.replace(/\D/g, '')); 
+    
     const favoritosArray = favoritos.split(',').map(item => item.trim()).filter(item => item !== '');
     favoritosArray.forEach(fav => formData.append('favoritos', fav));
 
@@ -97,30 +175,40 @@ export default function AddClientPage() {
         body: formData,
       });
 
+      const data = await response.json(); 
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.mensageStatus}`);
+        setMessageStatus(data.mensageStatus || 'Erro ao cadastrar cliente.');
+        setIsError(true);
+        console.error('Erro do Backend:', data.errorObject || data);
+        return; 
       }
 
-      // Limpar os campos do formulário após o sucesso
+      setMessageStatus(data.mensageStatus || 'CLIENTE CADASTRADO COM SUCESSO');
+      setIsError(false);
+
       setNomeCompleto('');
       setDataNascimento('');
       setCpf('');
-      setClienteDesde('');
       setFavoritos('');
       setProblemasSaude('');
       setInformacoesAdicionais('');
       setTelefone('');
       setEmail('');
       setFoto(null);
+      setCpfError(''); 
 
-      if (userId) {
-        navigate(`/clientes?userId=${userId}`);
-      } else {
-        navigate('/clientes');
-      }
-
+      setTimeout(() => {
+        if (userId) {
+          navigate(`/clientes?userId=${userId}`);
+        } else {
+          navigate('/clientes');
+        }
+      }, 1000); 
+      
     } catch (error) {
+      setMessageStatus('Houve um erro ao enviar os dados. Verifique a conexão com o servidor.');
+      setIsError(true);
       console.error('Erro na requisição:', error);
     }
   };
@@ -159,7 +247,8 @@ export default function AddClientPage() {
                   type="text"
                   placeholder="Nome completo"
                   value={nomeCompleto}
-                  onChange={handleInputChange} 
+                  onChange={handleInputChange}
+                  required // Make this field required
                 />
               </div>
               <div>
@@ -168,7 +257,8 @@ export default function AddClientPage() {
                   id="birthdate"
                   type="date"
                   value={dataNascimento}
-                  onChange={handleInputChange} 
+                  onChange={handleInputChange}
+                  required 
                 />
               </div>
               <div>
@@ -178,21 +268,15 @@ export default function AddClientPage() {
                   type="text"
                   placeholder="000.000.000-00"
                   value={cpf}
-                  onChange={handleInputChange} 
+                  onChange={handleInputChange}
+                  maxLength="14"
+                  required 
                 />
+                {cpfError && <p className={styles.errorMessage}>{cpfError}</p>}
               </div>
             </div>
 
             <div className={styles.row}>
-              <div>
-                <label htmlFor="startDate">Cliente desde</label>
-                <input
-                  id="startDate"
-                  type="date"
-                  value={clienteDesde}
-                  onChange={handleInputChange} 
-                />
-              </div>
               <div>
                 <label htmlFor="favorites">Favoritos</label>
                 <input
@@ -213,7 +297,7 @@ export default function AddClientPage() {
                   type="text"
                   placeholder="Ex: Nenhum"
                   value={problemasSaude}
-                  onChange={handleInputChange} 
+                  onChange={handleInputChange}
                 />
               </div>
             </div>
@@ -226,7 +310,7 @@ export default function AddClientPage() {
                   type="text"
                   placeholder="Prefere vir de manhã"
                   value={informacoesAdicionais}
-                  onChange={handleInputChange} 
+                  onChange={handleInputChange}
                 />
               </div>
               <div>
@@ -236,20 +320,29 @@ export default function AddClientPage() {
                   type="text"
                   placeholder="(XX) XXXXX-XXXX"
                   value={telefone}
-                  onChange={handleInputChange} 
+                  onChange={handleInputChange}
+                  maxLength="15"
+                  required 
                 />
               </div>
               <div>
                 <label htmlFor="email">Email</label>
                 <input
                   id="email"
-                  type="text"
+                  type="email" 
                   placeholder="juliana@gmail.com"
                   value={email}
-                  onChange={handleInputChange} 
+                  onChange={handleInputChange}
+                  required 
                 />
               </div>
             </div>
+
+            {messageStatus && (
+              <p className={isError ? styles.errorMessage : styles.successMessage}>
+                {messageStatus}
+              </p>
+            )}
 
             <div className={styles.buttonGroup}>
               <button type="button" className={styles.cancelBtn} onClick={handleCancel}>
