@@ -4,7 +4,7 @@ import styles from './EditEmployeePage.module.css';
 import { FaCamera } from 'react-icons/fa';
 
 export default function EditClientPage() {
-  const { id } = useParams();
+  const { id } = useParams(); 
   const navigate = useNavigate(); 
 
   const [clientData, setClientData] = useState({
@@ -19,11 +19,73 @@ export default function EditClientPage() {
     telefone: '', 
     email: '',
     foto: 'https://via.placeholder.com/150', 
+    newFotoFile: null, 
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [cpfError, setCpfError] = useState(''); 
+  const [messageStatus, setMessageStatus] = useState(''); 
+  const [isError, setIsError] = useState(false); 
+
+  const validateCpf = (cpf) => {
+    cpf = cpf.replace(/[^\d]+/g, '');
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
+      return false;
+    }
+    let sum = 0;
+    let remainder;
+
+    for (let i = 1; i <= 9; i++) {
+      sum = sum + parseInt(cpf.substring(i - 1, i)) * (11 - i);
+    }
+    remainder = (sum * 10) % 11;
+
+    if ((remainder === 10) || (remainder === 11)) {
+      remainder = 0;
+    }
+    if (remainder !== parseInt(cpf.substring(9, 10))) {
+      return false;
+    }
+
+    sum = 0;
+    for (let i = 1; i <= 10; i++) {
+      sum = sum + parseInt(cpf.substring(i - 1, i)) * (12 - i);
+    }
+    remainder = (sum * 10) % 11;
+
+    if ((remainder === 10) || (remainder === 11)) {
+      remainder = 0;
+    }
+    if (remainder !== parseInt(cpf.substring(10, 11))) {
+      return false;
+    }
+    return true;
+  };
+
+  // Utility function to format CPF
+  const formatCpf = (value) => {
+    value = value.replace(/\D/g, '');
+    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    return value;
+  };
+
+  // Utility function to format phone
+  const formatPhone = (value) => {
+    value = value.replace(/\D/g, '');
+    if (value.length > 10) {
+      value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
+    } else if (value.length > 6) {
+      value = value.replace(/^(\d{2})(\d{4})(\d{4}).*/, '($1) $2-$3');
+    } else if (value.length > 2) {
+      value = value.replace(/^(\d{2})(\d+)/, '($1) $2');
+    }
+    return value;
+  };
 
   useEffect(() => {
+    console.log("EditClientPage - ID do cliente da URL:", id); // Log para depuração
     const fetchClientData = async () => {
       try {
         const response = await fetch(`http://localhost:3000/clientes/${id}`);
@@ -44,15 +106,16 @@ export default function EditClientPage() {
         setClientData({
           nomeCompleto: data.nomeCompleto || '',
           dataNascimento: data.dataNascimento ? new Date(data.dataNascimento).toISOString().split('T')[0] : '',
-          cpf: data.cpf || '',
+          cpf: data.cpf ? formatCpf(data.cpf) : '', 
           idCliente: data.idCliente || '',
           clienteDesde: data.dataCadastro ? new Date(data.dataCadastro).toISOString().split('T')[0] : '',
-          favoritos: data.favoritos || '',
+          favoritos: Array.isArray(data.favoritos) ? data.favoritos.join(', ') : (data.favoritos || ''),
           problemasSaude: data.problemasSaude || '',
           informacoesAdicionais: data.informacoesAdicionais || '',
-          telefone: data.telefone || '',
+          telefone: data.telefone ? formatPhone(data.telefone) : '', 
           email: data.email || '',
           foto: data.foto ? `http://localhost:3000/${data.foto.replace(/\\/g, '/')}` : 'https://via.placeholder.com/150', 
+          newFotoFile: null, 
         });
       } catch (e) {
         setError("Não foi possível carregar os dados do cliente: " + e.message);
@@ -69,10 +132,35 @@ export default function EditClientPage() {
 
   const handleChange = (e) => {
     const { id, value } = e.target;
-    setClientData((prevData) => ({
-      ...prevData,
-      [id]: value,
-    }));
+    
+    if (id === 'cpf') {
+      const formattedCpf = formatCpf(value);
+      setClientData((prevData) => ({
+        ...prevData,
+        cpf: formattedCpf,
+      }));
+      if (formattedCpf.length === 14) {
+        if (!validateCpf(formattedCpf)) {
+          setCpfError('CPF inválido.');
+        } else {
+          setCpfError('');
+        }
+      } else {
+        setCpfError('');
+      }
+    } else if (id === 'telefone') {
+      const formattedPhone = formatPhone(value);
+      setClientData((prevData) => ({
+        ...prevData,
+        telefone: formattedPhone,
+      }));
+    }
+    else {
+      setClientData((prevData) => ({
+        ...prevData,
+        [id]: value,
+      }));
+    }
   };
 
   const handleImageUpload = (e) => {
@@ -83,6 +171,7 @@ export default function EditClientPage() {
         setClientData((prevData) => ({
           ...prevData,
           foto: reader.result, 
+          newFotoFile: file, 
         }));
       };
       reader.readAsDataURL(file);
@@ -93,41 +182,66 @@ export default function EditClientPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setMessageStatus('');
+    setIsError(false);
 
-    const dataToSend = {
-      nomeCompleto: clientData.nomeCompleto,
-      dataNascimento: clientData.dataNascimento,
-      cpf: clientData.cpf,
-      idCliente: clientData.idCliente, 
-    dataCadastro: clientData.clienteDesde, 
-      favoritos: clientData.favoritos,
-      problemasSaude: clientData.problemasSaude,
-      informacoesAdicionais: clientData.informacoesAdicionais,
-      telefone: clientData.telefone,
-      email: clientData.email,
-      foto: clientData.foto, 
-    };
+    if (!clientData.nomeCompleto || !clientData.dataNascimento || !clientData.cpf || !clientData.telefone || !clientData.email) {
+      setMessageStatus('Por favor, preencha todos os campos obrigatórios.');
+      setIsError(true);
+      setLoading(false);
+      return;
+    }
 
+    if (cpfError) { 
+      setMessageStatus('Por favor, corrija o CPF inválido.');
+      setIsError(true);
+      setLoading(false);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('nomeCompleto', clientData.nomeCompleto);
+    formData.append('dataNascimento', clientData.dataNascimento);
+    formData.append('cpf', clientData.cpf.replace(/\D/g, '')); 
+    
+    const favoritosArray = clientData.favoritos.split(',').map(item => item.trim()).filter(item => item !== '');
+    favoritosArray.forEach(fav => formData.append('favoritos', fav));
+
+    formData.append('problemasSaude', clientData.problemasSaude);
+    formData.append('informacoesAdicionais', clientData.informacoesAdicionais);
+    formData.append('telefone', clientData.telefone.replace(/\D/g, ''));
+    formData.append('email', clientData.email);
+
+    if (clientData.newFotoFile) {
+      formData.append('foto', clientData.newFotoFile);
+    }
 
     try {
       const response = await fetch(`http://localhost:3000/clientes/${id}`, {
         method: 'PUT', 
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataToSend), // Enviar os dados mapeados
+        body: formData, 
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json(); 
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.mensageStatus || 'Erro desconhecido'}`);
       }
 
       const result = await response.json();
       console.log('Dados atualizados com sucesso:', result);
-      alert('Cliente atualizado com sucesso!');
-      navigate(`/clientes/${id}`); // Redireciona de volta para a página do cliente
+      setMessageStatus('Cliente atualizado com sucesso!');
+      setIsError(false);
+      
+      const navigatePath = `/cliente/${id}`; 
+      console.log('Tentando navegar para:', navigatePath); 
+      setTimeout(() => {
+        navigate(navigatePath); 
+      }, 1500);
+
     } catch (e) {
       setError("Não foi possível atualizar os dados do cliente: " + e.message);
+      setMessageStatus("Não foi possível atualizar os dados do cliente: " + e.message);
+      setIsError(true);
       console.error("Erro ao atualizar dados do cliente:", e);
     } finally {
       setLoading(false);
@@ -189,6 +303,7 @@ export default function EditClientPage() {
                   placeholder="Nome completo"
                   value={clientData.nomeCompleto}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div>
@@ -198,6 +313,7 @@ export default function EditClientPage() {
                   type="date"
                   value={clientData.dataNascimento}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div>
@@ -208,7 +324,10 @@ export default function EditClientPage() {
                   placeholder="000.000.000-00"
                   value={clientData.cpf}
                   onChange={handleChange}
+                  maxLength="14"
+                  required
                 />
+                {cpfError && <p className={styles.errorMessage}>{cpfError}</p>} 
               </div>
             </div>
 
@@ -278,6 +397,8 @@ export default function EditClientPage() {
                   placeholder="(XX) XXXXX-XXXX"
                   value={clientData.telefone}
                   onChange={handleChange}
+                  maxLength="15"
+                  required
                 />
               </div>
 
@@ -285,13 +406,20 @@ export default function EditClientPage() {
                 <label htmlFor="email">Email</label>
                 <input
                   id="email"
-                  type="text"
+                  type="email" 
                   placeholder="juliana@gmail.com"
                   value={clientData.email}
                   onChange={handleChange}
+                  required
                 />
               </div>
             </div>
+
+            {messageStatus && (
+              <p className={isError ? styles.errorMessage : styles.successMessage}>
+                {messageStatus}
+              </p>
+            )}
 
             <div className={styles.buttonGroup}>
               <button type="button" className={styles.cancelBtn} onClick={() => navigate(-1)}>

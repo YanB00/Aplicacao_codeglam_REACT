@@ -38,7 +38,11 @@ const clienteSchema = new Schema({
   email: {
     type: String,
   },
-    foto: { type: String }
+    foto: { type: String },
+    active: {
+    type: Boolean,
+    default: true, 
+  },
 });
 
 module.exports = mongoose.model('Cliente', clienteSchema);

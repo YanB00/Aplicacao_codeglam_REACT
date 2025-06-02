@@ -248,7 +248,7 @@ export default function AddClientPage() {
                   placeholder="Nome completo"
                   value={nomeCompleto}
                   onChange={handleInputChange}
-                  required // Make this field required
+                  required 
                 />
               </div>
               <div>

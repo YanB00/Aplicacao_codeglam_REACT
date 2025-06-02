@@ -1,5 +1,3 @@
-// EmployeePage.jsx
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FaKey, FaBirthdayCake, FaIdCard, FaPhone, FaEnvelope, FaArrowLeft, FaTrashAlt } from 'react-icons/fa';

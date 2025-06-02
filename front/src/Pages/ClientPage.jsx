@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { FaKey, FaBirthdayCake, FaIdCard, FaPhone, FaEnvelope, FaArrowLeft, FaUserCircle } from 'react-icons/fa';
+import { FaKey, FaBirthdayCake, FaIdCard, FaPhone, FaEnvelope, FaArrowLeft, FaUserCircle, FaTrashAlt } from 'react-icons/fa';
 import ClientHistory from '../components/ClientHistory';
 import styles from './EmployeePage.module.css'; 
 
@@ -14,6 +14,7 @@ export default function ClientPage() {
     const [error, setError] = useState(null);
     const [currentUserId, setCurrentUserId] = useState(null);
     const [imageError, setImageError] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false); 
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
@@ -30,7 +31,7 @@ export default function ClientPage() {
                 const response = await fetch(`http://localhost:3000/clientes/${id}`);
                 if (!response.ok) {
                     if (response.status === 404) {
-                        throw new Error('Cliente não encontrado.');
+                        throw new Error('Cliente não encontrado ou inativo.');
                     }
                     throw new Error(`Erro ao buscar cliente: ${response.statusText}`);
                 }
@@ -81,6 +82,40 @@ export default function ClientPage() {
             } else {
                 navigate(`/cliente/editar/${client.idCliente}`);
             }
+        }
+    };
+
+    const handleOpenConfirmModal = () => {
+        setShowConfirmModal(true);
+    };
+
+    const handleCloseConfirmModal = () => {
+        setShowConfirmModal(false);
+    };
+
+    const handleConfirmDeactivation = async () => {
+        handleCloseConfirmModal(); 
+
+        if (!client || !client.idCliente) return;
+
+        try {
+            const response = await fetch(`http://localhost:3000/clientes/deactivate/${client.idCliente}`, {
+                method: 'PUT', 
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.mensageStatus || `Erro HTTP! status: ${response.status}`);
+            }
+
+            if (currentUserId) {
+                navigate(`/clientes?userId=${currentUserId}`);
+            } else {
+                navigate('/clientes');
+            }
+        } catch (e) {
+            console.error('Erro ao desativar cliente:', e);
+            setError(e.message); 
         }
     };
 
@@ -167,7 +202,6 @@ export default function ClientPage() {
                             <p className={styles.since}> cliente desde {client.clienteDesde}</p>
                         </div>
 
-                        {/* Mantenha as informações básicas aqui */}
                         <div className={styles.infoItem}><FaKey /> <span>ID: #{client.idCliente}</span></div>
                         <div className={styles.infoItem}><FaBirthdayCake /> <span>Nascimento: {client.dataNascimento}</span></div>
                         <div className={styles.infoItem}><FaIdCard /> <span>CPF: {client.cpf}</span></div>
@@ -176,14 +210,19 @@ export default function ClientPage() {
                     </div>
 
                     <div className={styles.detailsCard}>
-                        <h3>Informações do Cliente</h3> {/* Título ajustado */}
+                        <h3>Informações do Cliente</h3>
                         <p><strong>Favoritos:</strong> {client.favoritos}</p>
                         <p><strong>Problemas de saúde:</strong> {client.problemasSaude}</p>
                         <p><strong>Informações adicionais:</strong> {client.informacoesAdicionais}</p>
 
-                        <button className={styles.button} onClick={handleEditClick}>
-                            Atualizar
-                        </button>
+                        <div className={styles.buttonContainer}>
+                            <button className={styles.button} onClick={handleEditClick}>
+                                Atualizar
+                            </button>
+                            <button className={`${styles.button} ${styles.deleteButton}`} onClick={handleOpenConfirmModal}>
+                                <FaTrashAlt /> Apagar 
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -191,6 +230,23 @@ export default function ClientPage() {
                     <ClientHistory clientId={client.idCliente} />
                 </div>
             </div>
+
+            {showConfirmModal && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modalContent}>
+                        <h3>Confirmar Desativação</h3> 
+                        <p>Tem certeza que deseja desativar este cliente?</p> 
+                        <div className={styles.modalActions}>
+                            <button className={`${styles.button} ${styles.modalCancelButton}`} onClick={handleCloseConfirmModal}>
+                                Cancelar
+                            </button>
+                            <button className={`${styles.button} ${styles.modalConfirmButton}`} onClick={handleConfirmDeactivation}>
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
