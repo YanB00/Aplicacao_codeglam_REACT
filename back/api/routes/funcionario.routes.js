@@ -1,5 +1,7 @@
 const express = require('express');
 const multer = require('multer');
+const mongoose = require('mongoose'); 
+const Registro = require('../models/registro');
 const path = require('path');
 const router = express.Router();
 const Funcionario = require('../models/funcionario');
@@ -18,6 +20,49 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage });
+
+router.get('/user-salao/:userId', async (req, res) => { 
+    const { userId } = req.params;
+    console.log('--- BACKEND FUNCIONÁRIOS (GET salaoId por userId) ---');
+    console.log('   ID de Usuário recebido (req.params.userId):', userId);
+
+    try {
+        // Validação básica do ID
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({
+                errorStatus: true,
+                mensageStatus: `ID de usuário inválido: ${userId}`,
+            });
+        }
+
+        const registro = await Registro.findById(userId);
+
+        if (!registro) {
+            return res.status(404).json({
+                errorStatus: true,
+                mensageStatus: 'Registro (Salao) não encontrado para este usuário.',
+            });
+        }
+
+        const salaoId = registro._id;
+        console.log('   SalaoId encontrado para o usuário:', salaoId);
+
+        return res.status(200).json({
+            errorStatus: false,
+            mensageStatus: 'SalaoId encontrado com sucesso.',
+            salaoId: salaoId,
+        });
+
+    } catch (error) {
+        console.error('   Erro ao buscar salaoId por usuário:', error);
+        return res.status(500).json({
+            errorStatus: true,
+            mensageStatus: 'Houve um erro ao buscar o ID do salão para o usuário.',
+            errorObject: error.message,
+        });
+    }
+});
+
 
 // Rota para criar um novo funcionário (POST)
 router.post('/add-funcionario', upload.single('foto'), getSalaoIdFromUser, async (req, res) => {
@@ -142,15 +187,13 @@ router.get('/:idFuncionario', async (req, res) => {
 });
 
 // Rota para atualizar um funcionário existente (PUT)
-router.put('/:idFuncionario', upload.any(), async (req, res) => { // <-- MUDANÇA AQUI: de upload.single('foto') para upload.any()
+router.put('/:idFuncionario', upload.any(), async (req, res) => { 
   const { idFuncionario } = req.params;
   const { nomeCompleto, dataNascimento, cpf, dataAdmissao, cargo, beneficios, informacoesAdicionais, telefone, email, fotoExistente } = req.body; // <-- Adicione fotoExistente aqui para fácil acesso
 
   let foto = null;
 
-  // Verificar se um novo arquivo de foto foi enviado
   if (req.files && req.files.length > 0) {
-    // Se houver múltiplos arquivos e você espera apenas um, pegue o primeiro
 
     const uploadedPhoto = req.files.find(file => file.fieldname === 'foto');
     if (uploadedPhoto) {
@@ -223,6 +266,48 @@ router.put('/deactivate/:idFuncionario', async (req, res) => {
       errorObject: error,
     });
   }
+});
+
+router.get('/salao/:salaoId', async (req, res) => {
+    const { salaoId } = req.params;
+    console.log('--- BACKEND FUNCIONÁRIOS (GET por SalaoId) ---');
+    console.log('   SalaoId recebido (req.params.salaoId):', salaoId);
+
+    try {
+        // Validação básica do ID
+        if (!mongoose.Types.ObjectId.isValid(salaoId)) {
+            console.error('   ERRO: ID do salão inválido:', salaoId);
+            return res.status(400).json({
+                errorStatus: true,
+                mensageStatus: `ID do salão inválido: ${salaoId}`,
+            });
+        }
+
+        const funcionarios = await Funcionario.find({ salaoId: new mongoose.Types.ObjectId(salaoId), active: true });
+
+        const funcionariosComIdString = funcionarios.map(func => ({
+            ...func.toObject(),
+            _id: func._id.toString(), 
+            idFuncionario: func._id.toString(), 
+        }));
+
+        console.log('   Funcionários encontrados para o salão:', funcionariosComIdString.length);
+
+        return res.status(200).json({
+            errorStatus: false,
+            mensageStatus: 'FUNCIONÁRIOS DO SALÃO ENCONTRADOS',
+            data: funcionariosComIdString,
+        });
+
+    } catch (error) {
+        console.error('   ERRO (CATCH) ao buscar funcionários por salão:', error.message);
+        console.error('   Stack Trace:', error.stack);
+        return res.status(500).json({
+            errorStatus: true,
+            mensageStatus: 'Houve um erro interno ao buscar os funcionários do salão.',
+            errorObject: error.message,
+        });
+    }
 });
 
 

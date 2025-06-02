@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FaKey, FaBirthdayCake, FaIdCard, FaPhone, FaEnvelope, FaArrowLeft, FaUserCircle, FaTrashAlt } from 'react-icons/fa';
 import ClientHistory from '../components/ClientHistory';
-import styles from './EmployeePage.module.css'; 
+import styles from './EmployeePage.module.css';
 
 export default function ClientPage() {
     const { id } = useParams();
@@ -13,8 +13,9 @@ export default function ClientPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [currentUserId, setCurrentUserId] = useState(null);
+    const [salaoId, setSalaoId] = useState(null);
     const [imageError, setImageError] = useState(false);
-    const [showConfirmModal, setShowConfirmModal] = useState(false); 
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
@@ -45,7 +46,7 @@ export default function ClientPage() {
                     ...result.data,
                     dataNascimento: result.data.dataNascimento ? new Date(result.data.dataNascimento).toLocaleDateString('pt-BR') : 'N/A',
                     cpf: result.data.cpf ? formatCpf(result.data.cpf) : 'N/A',
-                    foto: result.data.foto ? `http://localhost:3000/${result.data.foto.replace(/\\/g, '/')}` : 'https://via.placeholder.com/150',
+                    foto: result.data.foto ? `http://localhost:3000/${result.data.foto.replace(/\\\\/g, '/')}` : 'https://via.placeholder.com/150',
                     favoritos: Array.isArray(result.data.favoritos) ? result.data.favoritos.join(', ') : (result.data.favoritos || 'N/A'),
                     problemasSaude: result.data.problemasSaude || 'Nenhum',
                     informacoesAdicionais: result.data.informacoesAdicionais || 'Nenhum',
@@ -62,10 +63,32 @@ export default function ClientPage() {
             }
         };
 
+        const fetchSalaoId = async () => {
+            if (!fetchedUserId) {
+                console.warn('userId não fornecido, não é possível buscar salaoId.');
+                return;
+            }
+            try {
+                const response = await fetch(`http://localhost:3000/funcionarios/user-salao/${fetchedUserId}`);
+                if (!response.ok) {
+                    throw new Error(`Erro ao buscar salaoId: ${response.statusText}`);
+                }
+                const result = await response.json();
+                setSalaoId(result.salaoId);
+                console.log('SalaoId fetched:', result.salaoId);
+            } catch (error) {
+                console.error('Erro ao buscar salaoId:', error);
+                setError(error.message);
+            }
+        };
+
         if (id) {
             fetchClient();
         }
-    }, [id, location.search]);
+        if (fetchedUserId) {
+            fetchSalaoId();
+        }
+    }, [id, location.search, currentUserId]);
 
     const handleGoBack = () => {
         if (currentUserId) {
@@ -94,13 +117,13 @@ export default function ClientPage() {
     };
 
     const handleConfirmDeactivation = async () => {
-        handleCloseConfirmModal(); 
+        handleCloseConfirmModal();
 
         if (!client || !client.idCliente) return;
 
         try {
             const response = await fetch(`http://localhost:3000/clientes/deactivate/${client.idCliente}`, {
-                method: 'PUT', 
+                method: 'PUT',
             });
 
             if (!response.ok) {
@@ -115,15 +138,15 @@ export default function ClientPage() {
             }
         } catch (e) {
             console.error('Erro ao desativar cliente:', e);
-            setError(e.message); 
+            setError(e.message);
         }
     };
 
     const formatCpf = (cpf) => {
         if (!cpf) return '';
-        const cleanedCpf = cpf.replace(/\D/g, '');
+        const cleanedCpf = cpf.replace(/\\D/g, '');
         if (cleanedCpf.length === 11) {
-            return cleanedCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            return cleanedCpf.replace(/(\\d{3})(\\d{3})(\\d{3})(\\d{2})/, '$1.$2.$3-$4');
         }
         return cpf;
     };
@@ -220,22 +243,26 @@ export default function ClientPage() {
                                 Atualizar
                             </button>
                             <button className={`${styles.button} ${styles.deleteButton}`} onClick={handleOpenConfirmModal}>
-                                <FaTrashAlt /> Apagar 
+                                <FaTrashAlt /> Apagar
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <div className={styles.historySection}>
-                    <ClientHistory clientId={client.idCliente} />
+                    <div className={styles.historySection}>
+                    {salaoId ? (
+                        <ClientHistory clientId={client.idCliente} salaoId={salaoId} />
+                    ) : (
+                        <p>Carregando histórico (aguardando ID do salão)...</p>
+                    )}
                 </div>
             </div>
 
             {showConfirmModal && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modalContent}>
-                        <h3>Confirmar Desativação</h3> 
-                        <p>Tem certeza que deseja desativar este cliente?</p> 
+                        <h3>Confirmar Desativação</h3>
+                        <p>Tem certeza que deseja desativar este cliente?</p>
                         <div className={styles.modalActions}>
                             <button className={`${styles.button} ${styles.modalCancelButton}`} onClick={handleCloseConfirmModal}>
                                 Cancelar

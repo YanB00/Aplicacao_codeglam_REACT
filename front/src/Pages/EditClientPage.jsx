@@ -12,7 +12,6 @@ export default function EditClientPage() {
     dataNascimento: '', 
     cpf: '',
     idCliente: '', 
-    clienteDesde: '', 
     favoritos: '',
     problemasSaude: '',
     informacoesAdicionais: '',
@@ -108,7 +107,6 @@ export default function EditClientPage() {
           dataNascimento: data.dataNascimento ? new Date(data.dataNascimento).toISOString().split('T')[0] : '',
           cpf: data.cpf ? formatCpf(data.cpf) : '', 
           idCliente: data.idCliente || '',
-          clienteDesde: data.dataCadastro ? new Date(data.dataCadastro).toISOString().split('T')[0] : '',
           favoritos: Array.isArray(data.favoritos) ? data.favoritos.join(', ') : (data.favoritos || ''),
           problemasSaude: data.problemasSaude || '',
           informacoesAdicionais: data.informacoesAdicionais || '',
@@ -343,16 +341,7 @@ export default function EditClientPage() {
                   disabled 
                 />
               </div>
-              <div>
-                <label htmlFor="clienteDesde">Cliente desde</label> 
-                <input
-                  id="clienteDesde" 
-                  type="date"
-                  value={clientData.clienteDesde}
-                  onChange={handleChange}
-                  disabled 
-                />
-              </div>
+
               <div>
                 <label htmlFor="favoritos">Favoritos</label>
                 <input
