@@ -234,7 +234,7 @@ router.put('/deactivate/:idCliente', async (req, res) => {
   try {
     const clienteDesativado = await Cliente.findByIdAndUpdate(
       idCliente,
-      { active: false }, // Define o campo 'active' como false
+      { active: false }, 
       { new: true }
     );
 
@@ -261,6 +261,54 @@ router.put('/deactivate/:idCliente', async (req, res) => {
     });
   }
 });
+
+router.get('/birthdays/currentMonth', async (req, res) => {
+  console.log('CLIENTES ROUTES - GET /birthdays/currentMonth - Buscando aniversariantes do mês atual');
+  const currentMonth = new Date().getMonth() + 1; 
+
+  try {
+    const birthdayClients = await Cliente.aggregate([
+      {
+        $match: {
+          active: true, 
+          $expr: {
+            $eq: [{ $month: '$dataNascimento' }, currentMonth]
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          nomeCompleto: 1,
+          foto: 1,
+          dataNascimento: 1,
+          email: 1,
+          telefone: 1,
+          favoritos: 1,
+          problemasSaude: 1,
+          informacoesAdicionais: 1,
+          since: "$createdAt" 
+        }
+      }
+    ]);
+
+    console.log('CLIENTES ROUTES - GET /birthdays/currentMonth - Aniversariantes encontrados:', birthdayClients.length);
+
+    return res.status(200).json({
+      errorStatus: false,
+      mensageStatus: 'ANIVERSARIANTES DO MÊS ENCONTRADOS',
+      data: birthdayClients,
+    });
+  } catch (error) {
+    console.error('CLIENTES ROUTES - GET /birthdays/currentMonth - Erro ao buscar aniversariantes:', error);
+    return res.status(500).json({
+      errorStatus: true,
+      mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS ANIVERSARIANTES DO MÊS',
+      errorObject: error,
+    });
+  }
+});
+
 
 
 // Rota para remover um vínculo cliente-registro (DELETE) - Mantido, pois é uma relação

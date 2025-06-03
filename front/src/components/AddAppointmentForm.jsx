@@ -19,7 +19,7 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
   const [isLoading, setIsLoading] = useState(true);
   
   const [message, setMessage] = useState(null);
-  const [messageType, setMessageType] = useState(null); // 'success' ou 'error'
+  const [messageType, setMessageType] = useState(null); 
 
   const showMessage = (msg, type) => {
     setMessage(msg);
