@@ -6,7 +6,7 @@ import styles from './App.module.css';
 import Sidebar from './components/Sidebar';
 import TopCards from './components/TopCards';
 import ChartArea from './components/ChartArea';
-import BirthdayList from './components/BirthdayList';
+import BirthdayList from './components/BirthdayList'; 
 
 // Importe páginas
 import ClientPage from './Pages/ClientPage';
@@ -28,6 +28,7 @@ import AllAppointmentsHistory from './Pages/AllAppointmentsHistoryPage';
 function Dashboard() {
     const [searchParams] = useSearchParams();
     const userId = searchParams.get('userId');
+    console.log('Dashboard - Fetched userId:', userId); 
 
     return (
         <div className={styles.appContainer}>
@@ -37,7 +38,7 @@ function Dashboard() {
                 <TopCards />
                 <div className={styles.gridArea}>
                     <ChartArea />
-                    <BirthdayList />
+                    <BirthdayList userId={userId} />
                 </div>
             </div>
         </div>
@@ -55,6 +56,10 @@ function ScheduleWrapper() {
             </div>
         </div>
     );
+}
+
+function ClientPageWrapper() {
+    return <ClientPage />;
 }
 
 function App() {
@@ -79,7 +84,6 @@ function App() {
                 <Route path="/servico/:id" element={<ServiceDetailsPage />} />
                 <Route path="/servicos/editar/:id" element={<EditServicePage />} />
                 <Route path="/historico" element={<AllAppointmentsHistory />} />
-
 
             </Routes>
         </BrowserRouter>

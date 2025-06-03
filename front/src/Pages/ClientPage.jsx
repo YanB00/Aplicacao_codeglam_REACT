@@ -88,7 +88,7 @@ export default function ClientPage() {
         if (fetchedUserId) {
             fetchSalaoId();
         }
-    }, [id, location.search, currentUserId]);
+    }, [id, location.search]);
 
     const handleGoBack = () => {
         if (currentUserId) {

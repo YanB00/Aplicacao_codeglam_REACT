@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
+// Import useNavigate instead of Link
+import { useNavigate } from 'react-router-dom';
 import styles from './BirthdayList.module.css';
 import { FaUserCircle } from 'react-icons/fa';
 import BirthdayModal from './BirthdayModal';
 
 const API_BASE_URL = 'http://localhost:3000'; 
 
-export default function BirthdayList() {
+export default function BirthdayList({ userId }) {
   const [selected, setSelected] = useState(null);
   const [birthdays, setBirthdays] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBirthdays = async () => {
@@ -36,8 +40,9 @@ export default function BirthdayList() {
           return {
             id: client._id,
             name: client.nomeCompleto,
-            img: client.foto ? `${API_BASE_URL}/${client.foto}` : null,
-            birthdate: client.dataNascimento, 
+            img: client.foto ? `${API_BASE_URL}/${client.foto.replace(/\\\\/g, '/')}` : null,
+            birthdate: client.dataNascimento,
+            since: client.since || client.createdAt,
             favorites: Array.isArray(client.favoritos) ? client.favoritos : [],
             email: client.email,
             telefone: client.telefone,
@@ -57,6 +62,15 @@ export default function BirthdayList() {
 
     fetchBirthdays();
   }, []);
+
+  const handlePersonClick = (p, index) => {
+    setSelected(selected === index ? null : index);
+    if (userId) {
+      navigate(`/cliente/${p.id}?userId=${userId}`);
+    } else {
+      navigate(`/cliente/${p.id}`);
+    }
+  };
 
   if (loading) {
     return (
@@ -91,14 +105,14 @@ export default function BirthdayList() {
             <div
               key={p.id}
               className={styles.personWrapper}
-              onClick={() => setSelected(selected === i ? null : i)}
+              onClick={() => handlePersonClick(p, i)}
             >
               <div className={styles.person}>
                 <div className={styles.avatar}>
                   {p.img ? (
                     <img src={p.img} alt={p.name} />
                   ) : (
-                    <div className={styles.placeholder}>👤</div> 
+                    <div className={styles.placeholder}>👤</div>
                   )}
                 </div>
                 <span>{p.name}</span>
@@ -106,7 +120,7 @@ export default function BirthdayList() {
 
               {selected === i && (
                 <div className={styles.inlineModal}>
-                  <BirthdayModal person={p} />
+                  <BirthdayModal person={p} salonId={userId} />
                 </div>
               )}
             </div>
