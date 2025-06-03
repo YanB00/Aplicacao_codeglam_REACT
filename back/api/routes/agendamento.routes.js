@@ -3,6 +3,8 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const moment = require('moment-timezone');
 const Agendamento = require('../models/agendamento'); 
+const Servico = require('../models/servico'); 
+
 
 function getBrasiliaStartOfDayUTC(dateString) { 
     const localMoment = moment.tz(dateString, 'YYYY-MM-DD', 'America/Sao_Paulo');
@@ -12,82 +14,108 @@ function getBrasiliaStartOfDayUTC(dateString) {
 
 // Rota para criar um novo agendamento (POST)
 router.post('/', async (req, res) => {
-  const {
-    salaoId,
-    horaInicio,
-    horaFim,
-    servicoId,
-    clienteId,
-    funcionarioId,
-    valor,
-    observacoes,
-    dataAgendamento, 
-    concluido,
-    cancelado,
-  } = req.body;
+    const {
+        salaoId,
+        horaInicio,
+        horaFim,
+        servicoId,
+        clienteId,
+        funcionarioId,
+        valor,
+        observacoes,
+        dataAgendamento,
+        concluido,
+        cancelado,
+    } = req.body;
 
-try {
-    let dataAgendamentoUTC;
-    if (dataAgendamento) {
-        dataAgendamentoUTC = getBrasiliaStartOfDayUTC(dataAgendamento);
-    } else {
+    try {
+        let dataAgendamentoUTC;
+        if (dataAgendamento) {
+            dataAgendamentoUTC = getBrasiliaStartOfDayUTC(dataAgendamento);
+        } else {
+            return res.status(400).json({
+                errorStatus: true,
+                mensageStatus: 'O campo dataAgendamento é obrigatório.',
+            });
+        }
+
+        const servico = await Servico.findById(servicoId);
+
+        if (!servico) {
+            return res.status(404).json({
+                errorStatus: true,
+                mensageStatus: 'Serviço não encontrado.',
+            });
+        }
+
+        if (servico.status !== 'Ativo') {
+            return res.status(400).json({
+                errorStatus: true,
+                mensageStatus: `O serviço '${servico.titulo}' está com status '${servico.status}' e não pode ser agendado. Apenas serviços 'Ativo' são permitidos.`,
+            });
+        }
+        
+
+        const novoAgendamento = new Agendamento({
+            salaoId,
+            horaInicio,
+            horaFim,
+            servicoId,
+            clienteId,
+            funcionarioId,
+            valor,
+            observacoes,
+            dataAgendamento: dataAgendamentoUTC,
+            concluido: concluido || false,
+            cancelado: cancelado || false,
+        });
+
+        const agendamentoSalvo = await novoAgendamento.save();
+
+        const agendamentoPopulado = await Agendamento.findById(agendamentoSalvo._id)
+            .populate('salaoId', 'nome')
+            .populate('servicoId', 'titulo')
+            .populate('clienteId', 'nomeCompleto')
+            .populate('funcionarioId', 'nomeCompleto');
+
+        return res.status(201).json({
+            errorStatus: false,
+            mensageStatus: 'AGENDAMENTO CRIADO COM SUCESSO',
+            data: agendamentoPopulado,
+        });
+    } catch (error) {
+        console.error('Erro detalhado ao criar agendamento (backend):', JSON.stringify(error, null, 2));
+
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map(err => ({
+                field: err.path,
+                message: err.message,
+                value: err.value,
+            }));
+            console.error('Erros de validação do Mongoose:', errors);
+            return res.status(400).json({
+                errorStatus: true,
+                mensageStatus: 'Erro de validação ao criar o agendamento. Verifique os campos.',
+                validationErrors: errors,
+                errorObject: error.message,
+            });
+        }
+        if (error.name === 'CastError' && error.path === '_id') { 
+            return res.status(400).json({
+                errorStatus: true,
+                mensageStatus: `ID de serviço inválido: ${servicoId}.`,
+                errorObject: error.message,
+            });
+        }
+
+
         return res.status(400).json({
             errorStatus: true,
-            mensageStatus: 'O campo dataAgendamento é obrigatório.',
+            mensageStatus: 'HOUVE UM ERRO AO CRIAR O AGENDAMENTO',
+            errorObject: error.message,
         });
     }
-
-  const novoAgendamento = new Agendamento({
-    salaoId,
-    horaInicio,
-    horaFim,
-    servicoId,
-    clienteId,
-    funcionarioId,
-    valor,
-    observacoes,
-    dataAgendamento: dataAgendamentoUTC, 
-    concluido: concluido || false,
-    cancelado: cancelado || false,
-  });
-
-  const agendamentoSalvo = await novoAgendamento.save();
-
-  const agendamentoPopulado = await Agendamento.findById(agendamentoSalvo._id)
-    .populate('salaoId', 'nome')
-    .populate('servicoId', 'titulo') 
-    .populate('clienteId', 'nomeCompleto')
-    .populate('funcionarioId', 'nomeCompleto');
-
-  return res.status(201).json({
-    errorStatus: false,
-    mensageStatus: 'AGENDAMENTO CRIADO COM SUCESSO',
-    data: agendamentoPopulado,
-    });
-  } catch (error) {
-    console.error('Erro detalhado ao criar agendamento (backend):', JSON.stringify(error, null, 2)); 
-
-    if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map(err => ({field: err.path,
-      message: err.message,
-      value: err.value, 
-      }));
-      console.error('Erros de validação do Mongoose:', errors);
-      return res.status(400).json({
-      errorStatus: true,
-      mensageStatus: 'Erro de validação ao criar o agendamento. Verifique os campos.',
-      validationErrors: errors, 
-      errorObject: error.message, 
-      });
-      }
-
-    return res.status(400).json({ 
-      errorStatus: true,
-      mensageStatus: 'HOUVE UM ERRO AO CRIAR O AGENDAMENTO',
-      errorObject: error.message,
-      });
-      }
-    });
+});
 
 // Rota para obter todos os agendamentos (GET)
 router.get('/', async (req, res) => {

@@ -6,9 +6,9 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
   const [formData, setFormData] = useState({
     timeStart: '',
     timeEnd: '',
-    service: '', 
-    client: '',   
-    employee: '', 
+    service: '',
+    client: '',
+    employee: '',
     valor: '',
     observacoes: '',
   });
@@ -17,27 +17,42 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
   const [clients, setClients] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null); 
-  const [saveError, setSaveError] = useState(null); 
+  
+  const [message, setMessage] = useState(null);
+  const [messageType, setMessageType] = useState(null); // 'success' ou 'error'
+
+  const showMessage = (msg, type) => {
+    setMessage(msg);
+    setMessageType(type);
+
+  };
+
+  const clearMessage = () => {
+    setMessage(null);
+    setMessageType(null);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      setError(null);
+      clearMessage(); 
       const BASE_URL = 'http://localhost:3000';
 
       try {
         if (salaoId) {
           console.log(`Fetching services for salaoId: ${salaoId}`);
-          const servicesRes = await fetch(`${BASE_URL}/servicos/${salaoId}`); 
+          const servicesRes = await fetch(`${BASE_URL}/servicos/${salaoId}`);
           if (!servicesRes.ok) {
             const errorData = await servicesRes.text();
+            showMessage(`Falha ao buscar serviços: ${servicesRes.statusText} - ${errorData}`, 'error');
             throw new Error(`Falha ao buscar serviços: ${servicesRes.statusText} - ${errorData}`);
           }
           const servicesData = await servicesRes.json();
-          setServices(servicesData.data || []);
+          // FILTRA APENAS OS SERVIÇOS COM STATUS 'Ativo' AQUI!
+          const activeServices = (servicesData.data || []).filter(service => service.status === 'Ativo');
+          setServices(activeServices);
         } else {
-          setError("ID do Salão não fornecido. Não é possível carregar serviços.");
+          showMessage("ID do Salão não fornecido. Não é possível carregar serviços.", 'error');
           console.warn("salaoId is missing in AddAppointmentForm, cannot fetch services.");
           setServices([]);
         }
@@ -46,15 +61,17 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
         const clientsRes = await fetch(`${BASE_URL}/clientes/listClientes`);
         if (!clientsRes.ok) {
           const errorData = await clientsRes.text();
+          showMessage(`Falha ao buscar clientes: ${clientsRes.statusText} - ${errorData}`, 'error');
           throw new Error(`Falha ao buscar clientes: ${clientsRes.statusText} - ${errorData}`);
         }
         const clientsData = await clientsRes.json();
         setClients(clientsData.data || []);
 
         console.log("Fetching employees from /funcionarios");
-        const employeesRes = await fetch(`${BASE_URL}/funcionarios?salaoId=${salaoId}`); 
+        const employeesRes = await fetch(`${BASE_URL}/funcionarios?salaoId=${salaoId}`);
         if (!employeesRes.ok) {
           const errorData = await employeesRes.text();
+          showMessage(`Falha ao buscar funcionários: ${employeesRes.statusText} - ${errorData}`, 'error');
           throw new Error(`Falha ao buscar funcionários: ${employeesRes.statusText} - ${errorData}`);
         }
         const employeesData = await employeesRes.json();
@@ -62,7 +79,9 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
 
       } catch (err) {
         console.error("Erro ao buscar dados para os dropdowns:", err);
-        setError(err.message);
+        if (!message) { 
+            showMessage(`Erro ao carregar dados: ${err.message}. Verifique o console e a disponibilidade da API.`, 'error');
+        }
         setServices([]);
         setClients([]);
         setEmployees([]);
@@ -72,26 +91,27 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
     };
 
     fetchData();
-  }, [salaoId]);
+  }, [salaoId, message]); 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    clearMessage(); 
   };
 
   const handleSave = async () => {
-    setSaveError(null); 
+    clearMessage(); 
 
     if (!selectedDate) {
-      alert("Data do agendamento não selecionada.");
+      showMessage("Data do agendamento não selecionada.", 'error');
       return;
     }
     if (!salaoId) {
-      alert("ID do Salão não fornecido. Não é possível salvar.");
+      showMessage("ID do Salão não fornecido. Não é possível salvar.", 'error');
       return;
     }
     if (!formData.timeStart || !formData.timeEnd || !formData.service || !formData.client || !formData.employee || formData.valor === '' || formData.valor === null) {
-      alert("Por favor, preencha todos os campos obrigatórios: Hora Início, Hora Fim, Serviço, Cliente, Funcionário e Valor.");
+      showMessage("Por favor, preencha todos os campos obrigatórios: Hora Início, Hora Fim, Serviço, Cliente, Funcionário e Valor.", 'error');
       return;
     }
 
@@ -99,12 +119,12 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
       salaoId: salaoId,
       horaInicio: formData.timeStart,
       horaFim: formData.timeEnd,
-      servicoId: formData.service, 
-      clienteId: formData.client,   
-      funcionarioId: formData.employee, 
+      servicoId: formData.service,
+      clienteId: formData.client,
+      funcionarioId: formData.employee,
       valor: parseFloat(formData.valor) || 0,
       observacoes: formData.observacoes,
-      dataAgendamento: selectedDate, 
+      dataAgendamento: selectedDate,
     };
 
     console.log("Data being sent to backend:", JSON.stringify(appointmentData, null, 2));
@@ -122,20 +142,18 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
       if (!response.ok) {
         const errorText = await response.text();
         let specificErrorMessage = `Erro HTTP ${response.status} ao salvar agendamento.`;
-        let backendErrorObject = null;
 
         try {
           const parsedError = JSON.parse(errorText);
           specificErrorMessage = parsedError.mensageStatus || specificErrorMessage;
-          backendErrorObject = parsedError.errorObject; 
           console.error("Backend error details (parsed):", parsedError);
         } catch (e) {
           console.error("Failed to parse backend error as JSON. Raw error text:", errorText);
-          specificErrorMessage = errorText || specificErrorMessage; 
+          specificErrorMessage = errorText || specificErrorMessage;
         }
-        const finalErrorMessage = backendErrorObject ? `${specificErrorMessage} (Detalhe: ${backendErrorObject})` : specificErrorMessage;
-        setSaveError(finalErrorMessage); 
-        throw new Error(finalErrorMessage);
+        
+        showMessage(specificErrorMessage, 'error'); 
+        return; 
       }
 
       const contentType = response.headers.get("content-type");
@@ -144,14 +162,14 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
       if (contentType && contentType.indexOf("application/json") !== -1) {
         const result = await response.json();
         if (result.errorStatus) {
-          setSaveError(result.mensageStatus || 'Erro retornado pelo backend ao salvar agendamento');
-          throw new Error(result.mensageStatus || 'Erro retornado pelo backend ao salvar agendamento');
+          showMessage(result.mensageStatus || 'Erro retornado pelo backend ao salvar agendamento', 'error');
+          return;
         }
-        // alert(result.mensageStatus || 'Agendamento salvo com sucesso!');
+        showMessage(result.mensageStatus || 'Agendamento salvo com sucesso!', 'success'); // Exibe o sucesso no alert customizado
         resultData = result.data;
       } else {
         const successText = await response.text();
-        // alert(successText || 'Operação concluída, mas resposta não foi JSON.');
+        showMessage(successText || 'Operação concluída, mas resposta não foi JSON.', 'success');
       }
 
       if (onAppointmentSuccessfullySaved && resultData) {
@@ -160,11 +178,11 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
         onAppointmentSuccessfullySaved();
       }
 
-      onClose();
+
     } catch (err) {
-      if (!saveError) { 
-        console.error('Erro ao salvar agendamento (catch geral):', err);
-        setSaveError(err.message || "Ocorreu um erro desconhecido ao salvar.");
+      console.error('Erro ao salvar agendamento (catch geral):', err);
+      if (!message) { 
+          showMessage(err.message || "Ocorreu um erro desconhecido ao salvar o agendamento.", 'error');
       }
     }
   };
@@ -190,12 +208,13 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
         <AiOutlineClose className={styles.closeIcon} onClick={onClose} />
       </div>
       <div className={styles.formContent}>
-        {error && ( 
-          <p className={styles.errorMessage}>Erro ao carregar dados: {error}. Verifique o console e a disponibilidade da API.</p>
+        {message && (
+          <div className={`${styles.customAlert} ${messageType === 'error' ? styles.error : styles.success}`}>
+            <span>{message}</span>
+            <button onClick={clearMessage} className={styles.closeAlertButton}>OK</button>
+          </div>
         )}
-        {saveError && ( 
-          <p className={styles.errorMessage}>Erro ao salvar: {saveError}</p>
-        )}
+
         <div className={styles.inputGroup}>
           <label htmlFor="timeStart">Hora Início:</label>
           <input type="time" id="timeStart" name="timeStart" value={formData.timeStart} onChange={handleChange} required />

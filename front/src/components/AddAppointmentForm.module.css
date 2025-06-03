@@ -98,3 +98,45 @@
   background-color: #e0e0e0;
 }
 
+.customAlert {
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  color: white; 
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.customAlert.error {
+  background-color: #dc3545; 
+  border: 1px solid #c82333;
+}
+
+.customAlert.success {
+  background-color: #9b5de5; 
+  border: 1px solid #7032bb;
+}
+
+.customAlert span {
+  flex-grow: 1; 
+  margin-right: 10px;
+}
+
+.closeAlertButton {
+  background: none;
+  border: 1px solid white; 
+  color: white;
+  padding: 5px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.2s ease;
+}
+
+.closeAlertButton:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
