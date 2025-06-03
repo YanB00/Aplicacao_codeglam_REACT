@@ -22,13 +22,33 @@
   margin-bottom: 20px; 
   color: white;
   flex-shrink: 0;
+  position: relative; /* Added for positioning the back button */
 }
 
 .pageTitle { 
   color: #fff;
   font-size: 24px;
   font-weight: 600;
-  margin: 0;
+  margin: 0 auto; /* Centered the title */
+}
+
+.backButtonTop { /* New style for the top-left back button */
+  background-color: #c084fc; /* Matching client page saveBtn */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 12px; /* Matching client page saveBtn */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between icon and text */
+  position: absolute; /* Position it absolutely within topBar */
+  left: 20px; /* Align to the left */
+}
+
+.backButtonTop:hover {
+  background-color: #a855f7; /* Darker purple on hover */
 }
 
 .contentWrapper { /* Área abaixo da topBar, envolve o detailsContainer */
@@ -42,67 +62,72 @@
 .errorContainer,
 .notFoundContainer {
   background-color: #ffffff; /* Card branco */
-  /* SINCRONIZADO: Com o estilo do card do 'front-puro' */
   padding: 20px;
-  border-radius: 5px; /* Do .detailsContainer do 'front-puro' */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Do .detailsContainer do 'front-puro' */
-  /* Sem max-width, para ocupar a largura disponível no .contentWrapper */
-  margin-bottom: 20px; /* Adicionado do 'front-puro' para espaçamento se houver conteúdo abaixo */
+  border-radius: 20px; /* Matched client page formContainer */
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.08); /* Matched client page formContainer */
+  margin-bottom: 20px;
 }
 
 .errorContainer,
 .notFoundContainer {
   text-align: center;
 }
-.errorContainer .backButton, /* Assegura que os botões de voltar tenham margem */
+.errorContainer .backButton,
 .notFoundContainer .backButton {
-    margin-top: 20px;
+  margin-top: 20px;
+  background-color: #c084fc; /* Matched client page saveBtn */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 12px; /* Matched client page saveBtn */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.errorContainer .backButton:hover,
+.notFoundContainer .backButton:hover {
+  background-color: #a855f7; /* Darker purple on hover */
 }
 
+
 .errorText {
-  color: #dc3545; /* Do .error do 'front-puro' */
+  color: #dc3545;
   margin-bottom: 15px;
   font-size: 1.1em;
 }
 .notFoundContainer p {
-    font-size: 1.1em;
-    color: #6c757d; /* Do .notFound do 'front-puro' */
+  font-size: 1.1em;
+  color: #6c757d;
 }
 
 /* Título DENTRO do card de detalhes (ex: "Corte") */
 .serviceTitleCard {
-  /* SINCRONIZADO: Com .title do 'front-puro' */
   color: #343a40;
   font-size: 2em;
-  font-weight: bold; /* Implícito pelo font-size: 2em no 'front-puro', mas pode ser explícito */
+  font-weight: bold;
   margin-bottom: 10px;
 }
 
 .id {
-  /* SINCRONIZADO: Com .id do 'front-puro' */
   color: #6c757d;
   font-size: 0.9em;
   margin-bottom: 15px;
 }
 
 .infoSection {
-  /* SINCRONIZADO: Com .infoSection do 'front-puro' */
   margin-bottom: 20px;
   line-height: 1.6;
 }
 
 .infoSection p {
-  /* SINCRONIZADO: Com .infoSection p do 'front-puro' */
   color: #495057;
   margin-bottom: 8px;
-  font-size: 1em; /* 'front-puro' não especificava, 1em é um bom padrão */
+  font-size: 1em;
 }
 
-/* Classes específicas para preço, comissão, etc., podem herdar de .infoSection p ou ter leves ajustes */
 .priceInfo {
-  color: #38a169; /* Cor do Price da ListPage, mas pode ser #495057 como outros p */
+  color: #38a169;
   font-size: 1em;
-  font-weight: 700; /* Para destaque */
+  font-weight: 700;
   margin-bottom: 8px;
 }
 
@@ -120,7 +145,7 @@
 
 .statusInfo {
   font-size: 1em;
-  font-weight: 600; /* Para destaque */
+  font-weight: 600;
   margin-bottom: 8px;
 }
 .statusAtivo { color: green !important; }
@@ -128,71 +153,139 @@
 .statusCancelado { color: red !important; }
 
 .descriptionSection {
-  /* SINCRONIZADO: Com .descriptionSection do 'front-puro' */
   margin-bottom: 20px;
 }
 
-.descriptionHeader { /* "Descrição:" */
-  /* SINCRONIZADO: Com .descriptionSection h3 do 'front-puro' */
+.descriptionHeader {
   color: #343a40;
-  font-size: 1.2em; /* Ajuste conforme necessário, h3 costuma ser maior */
+  font-size: 1.2em;
   font-weight: bold;
   margin-top: 0;
   margin-bottom: 10px;
 }
 
 .descriptionText {
-  /* SINCRONIZADO: Com .descriptionText do 'front-puro' */
   color: #495057;
   line-height: 1.7;
   font-size: 1em;
 }
 
 .actionButtons {
-  /* SINCRONIZADO: Com .actionButtons do 'front-puro' */
   display: flex;
-  gap: 10px;
-  margin-top: 20px;
-  /* Removida borda e padding-top para se alinhar mais com a simplicidade do 'front-puro' */
+  justify-content: flex-end; /* Align buttons to the right */
+  gap: 15px; /* Matched client page buttonGroup gap */
+  margin-top: 30px; /* Matched client page buttonGroup margin-top */
 }
 
-.button { /* Estilo base para botões, buscando consistência com 'front-puro' */
-  padding: 10px 15px;
+.button { /* Base style for all buttons in actionButtons */
   border: none;
-  border-radius: 4px; /* Do 'front-puro' */
-  font-size: 1em;    /* Do 'front-puro' */
+  padding: 8px 16px; /* Matched client page saveBtn/cancelBtn padding */
+  border-radius: 12px; /* Matched client page saveBtn/cancelBtn border-radius */
   cursor: pointer;
-  transition: background-color 0.3s ease; /* Do 'front-puro' */
+  transition: background-color 0.3s ease;
   font-weight: 500;
   text-align: center;
-}
-
-.backButton {
-  /* SINCRONIZADO: Com .backButton do 'front-puro' */
-  background-color: #9c5df0; /* Cor roxa do 'front-puro' */
-  color: white;
-}
-.backButton:hover {
-  background-color: #7749b3; /* Hover do 'front-puro' */
+  font-size: 14px; /* Adjusted font size for consistency */
+  display: flex; /* For icon alignment */
+  align-items: center;
+  gap: 8px; /* Space between icon and text */
 }
 
 .editButton {
-  /* SINCRONIZADO: Com .editButton do 'front-puro' */
-  background-color: #ddd;
-  color: #333;
+  background-color: #c084fc; /* Matched client page saveBtn */
+  color: white;
 }
 .editButton:hover {
-  background-color: #c8c8ca;
+  background-color: #a855f7; /* Darker purple on hover */
 }
 
-.loading { /* Para a mensagem "Carregando..." */
-  /* SINCRONIZADO: Com .loading do 'front-puro' */
+.deleteButton { /* Renamed from .backButton to .deleteButton */
+  background-color: #ddd; /* Matched client page cancelBtn */
+  color: #333;
+}
+.deleteButton:hover {
+  background-color: #c8c8ca; /* Darker gray on hover */
+}
+
+.loading {
   padding: 20px;
   background-color: white;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
   font-size: 1.1em;
-  color: #6c757d; /* Cor do 'front-puro .notFound', geralmente texto de status é cinza */
+  color: #6c757d;
   margin-bottom: 20px;
 }
+
+/* Modal Styles - Copied from ClientPage.module.css and adapted */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.modalContent h3 {
+    margin-top: 0;
+    color: #333;
+    font-size: 1.5em;
+    margin-bottom: 15px;
+}
+
+.modalContent p {
+    color: #555;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.modalActions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.modalCancelButton {
+    background-color: #ddd;
+    color: #333;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.modalCancelButton:hover {
+    background-color: #c8c8ca;
+}
+
+.modalConfirmButton {
+    background-color: #c084fc;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.modalConfirmButton:hover {
+    background-color: #a855f7;
+}
+

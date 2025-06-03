@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import styles from './ServiceDetailsPage.module.css';
+import { FaArrowLeft, FaTrashAlt } from 'react-icons/fa'; 
 
 export default function ServiceDetailsPage() {
   const { id: servicoIdFromParams } = useParams();
@@ -10,6 +11,7 @@ export default function ServiceDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [salaoIdForSidebar, setSalaoIdForSidebar] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false); 
 
   useEffect(() => {
     console.log("ServiceDetailsPage: Effect triggered. servicoIdFromParams:", servicoIdFromParams);
@@ -52,7 +54,6 @@ export default function ServiceDetailsPage() {
           throw new Error(result.mensageStatus || 'Erro retornado pela API.');
         }
 
-        // ***** IMPORTANT CHECK ADDED HERE *****
         if (Array.isArray(result.data)) {
           console.error("ServiceDetailsPage: Erro crítico! Esperava um objeto de serviço, mas a API retornou um array.", result.data);
           if (result.mensageStatus === "SERVIÇOS DO SALÃO ENCONTRADOS") {
@@ -64,7 +65,6 @@ export default function ServiceDetailsPage() {
           }
           setService(null);
         } else if (typeof result.data === 'object' && result.data !== null) {
-          // This is the expected path if data is a single service object
           console.log("ServiceDetailsPage: Service data received (object):", result.data);
           setService(result.data);
 
@@ -75,9 +75,8 @@ export default function ServiceDetailsPage() {
             console.warn("ServiceDetailsPage: 'salaoId' não encontrado nos dados do serviço. Sidebar pode não carregar o nome da empresa.");
           }
         } else if (result.data === null && result.mensageStatus === 'Serviço não encontrado.') {
-            // Handle case where backend correctly says service not found with data: null
             console.warn("ServiceDetailsPage: Serviço não encontrado (conforme API).");
-            setError(result.mensageStatus); // "Serviço não encontrado."
+            setError(result.mensageStatus);
             setService(null);
         }else {
           console.error("ServiceDetailsPage: Dados do serviço em formato inesperado ou nulos:", result.data);
@@ -106,6 +105,43 @@ export default function ServiceDetailsPage() {
     navigate(salaoIdForSidebar ? `${editPath}?userId=${salaoIdForSidebar}` : editPath);
   };
 
+  const handleOpenConfirmModal = () => {
+    setShowConfirmModal(true);
+  };
+
+  const handleCloseConfirmModal = () => {
+    setShowConfirmModal(false);
+  };
+
+  const handleDeactivateService = async () => {
+    handleCloseConfirmModal(); 
+
+    if (!service || !service._id) {
+      setError('ID do serviço não disponível para desativação.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3000/servicos/deactivate/${service._id}`, {
+        method: 'PUT', 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.mensageStatus || `Erro ao desativar serviço. Status: ${response.status}`);
+      }
+
+      navigate(salaoIdForSidebar ? `/servicos?userId=${salaoIdForSidebar}` : '/servicos');
+
+    } catch (err) {
+      console.error('Erro ao desativar serviço:', err);
+      setError(err.message || 'Ocorreu um erro ao tentar desativar o serviço.');
+    }
+  };
+
   const formatCurrency = (value) => {
     if (typeof value !== 'number') {
       const parsedValue = parseFloat(value);
@@ -127,11 +163,51 @@ export default function ServiceDetailsPage() {
     }
   };
 
-   return (
+  const formatDuration = (duration) => {
+    let totalMinutes;
+
+    if (typeof duration === 'string' && duration.includes(':')) {
+      const parts = duration.split(':');
+      const hours = parseInt(parts[0] || '0');
+      const minutes = parseInt(parts[1] || '0');
+      totalMinutes = hours * 60 + minutes;
+    } else if (typeof duration === 'number') {
+      totalMinutes = parseInt(duration);
+    } else {
+      return duration || 'Não informada';
+    }
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    let durationString = '';
+    if (hours > 0) {
+      durationString += `${hours} hora${hours > 1 ? 's' : ''}`;
+    }
+    if (minutes > 0) {
+      if (hours > 0) {
+        durationString += ' e ';
+      }
+      durationString += `${minutes} minuto${minutes > 1 ? 's' : ''}`;
+    }
+
+    if (durationString === '') {
+      return '0 minutos';
+    }
+
+    return durationString;
+  };
+
+
+  return (
     <div className={styles.page}>
       <Sidebar userId={salaoIdForSidebar} />
       <div className={styles.mainArea}> 
         <div className={styles.topBar}>
+          {/* New "Voltar" button in the topBar */}
+          <button onClick={handleGoBack} className={styles.backButtonTop}>
+            <FaArrowLeft /> Voltar
+          </button>
           <h1 className={styles.pageTitle}>Detalhes do Serviço</h1>
         </div>
         <div className={styles.contentWrapper}> 
@@ -155,7 +231,7 @@ export default function ServiceDetailsPage() {
               <div className={styles.infoSection}>
                 <p>Preço: {service.preco !== undefined ? formatCurrency(service.preco) : 'R$ --,--'}</p>
                 <p>Comissão: {service.comissao !== undefined ? `${service.comissao}%` : '--%'}</p>
-                <p>Duração: {service.duracao || 'Não informada'}</p>
+                <p>Duração: {formatDuration(service.duracao)}</p> 
                 <p>Status: {service.status || 'Não informado'}</p>
                 <p>Cadastrado em: {formatDate(service.dataCadastro || service.createdAt)}</p>
               </div>
@@ -164,15 +240,17 @@ export default function ServiceDetailsPage() {
                 <p className={styles.descriptionText}>{service.descricao || 'Não informada'}</p>
               </div>
               <div className={styles.actionButtons}>
-                <button onClick={handleGoBack} className={`${styles.button} ${styles.backButton}`}>Voltar</button>
                 <button onClick={handleEditService} className={`${styles.button} ${styles.editButton}`}>Editar</button>
+                <button onClick={handleOpenConfirmModal} className={`${styles.button} ${styles.deleteButton}`}>
+                  <FaTrashAlt /> Apagar
+                </button>
               </div>
             </div>
           )}
 
           {!loading && !error && !service && (
             <div className={styles.notFoundContainer}> 
-               <p>Serviço não encontrado ou dados indisponíveis.</p>
+              <p>Serviço não encontrado ou dados indisponíveis.</p>
               <button onClick={handleGoBack} className={styles.backButton}>
                 Voltar para Serviços
               </button>
@@ -180,6 +258,23 @@ export default function ServiceDetailsPage() {
           )}
         </div>
       </div>
+
+      {showConfirmModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3>Confirmar Desativação</h3> 
+            <p>Tem certeza que deseja desativar o serviço "{service?.titulo}"?</p> 
+            <div className={styles.modalActions}>
+              <button className={`${styles.button} ${styles.modalCancelButton}`} onClick={handleCloseConfirmModal}>
+                Cancelar
+              </button>
+              <button className={`${styles.button} ${styles.modalConfirmButton}`} onClick={handleDeactivateService}>
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

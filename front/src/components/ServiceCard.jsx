@@ -14,18 +14,39 @@ export default function ServiceCard({ service }) {
   };
 
   const formatDuration = (duration) => {
+    let totalMinutes;
 
     if (typeof duration === 'string' && duration.includes(':')) {
-      return duration; 
+      const parts = duration.split(':');
+      const hours = parseInt(parts[0] || '0');
+      const minutes = parseInt(parts[1] || '0');
+      totalMinutes = hours * 60 + minutes;
     } else if (typeof duration === 'number') {
-      const totalMinutes = parseInt(duration);
-      const hours = Math.floor(totalMinutes / 60);
-      const minutes = totalMinutes % 60;
-      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+      totalMinutes = parseInt(duration);
+    } else {
+      return duration; 
     }
-    return duration; 
-  };
 
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    let durationString = '';
+    if (hours > 0) {
+      durationString += `${hours} hora${hours > 1 ? 's' : ''}`;
+    }
+    if (minutes > 0) {
+      if (hours > 0) {
+        durationString += ' e ';
+      }
+      durationString += `${minutes} minuto${minutes > 1 ? 's' : ''}`;
+    }
+
+    if (durationString === '') {
+      return '0 minutos'; // Or 'Tempo não especificado'
+    }
+
+    return durationString;
+  };
 
   const getStatusClassName = (status) => {
     switch (status) {
@@ -45,7 +66,7 @@ export default function ServiceCard({ service }) {
       <h4 className={styles.title}>{service.titulo}</h4>
       <p className={styles.price}>Preço: {formatPrice(service.preco)}</p>
       <p className={styles.commission}>Comissão: {service.comissao}%</p>
-      <p className={styles.duration}>Duração: {formatDuration(service.duracao)}</p> 
+      <p className={styles.duration}>Duração: {formatDuration(service.duracao)}</p>
       <p className={styles.status}>
         Status: <span className={getStatusClassName(service.status)}>{service.status}</span>
       </p>

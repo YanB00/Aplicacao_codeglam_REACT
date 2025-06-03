@@ -1,0 +1,123 @@
+/* Novo estilo para o cabeçalho roxo */
+.pageHeader {
+  background-color: #9b5de5; 
+  color: #fff;
+  padding: 15px 24px;
+  border-radius: 8px 8px 0 0; 
+  margin-bottom: 0px; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+}
+
+.pageHeader h2 {
+  margin: 0; 
+  font-size: 1.5rem; 
+}
+.panel {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 24px;
+  height: 90vh;         
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* filtros */
+.filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filters select,
+.searchInput,
+.dateSelector input {
+  padding: 8px;
+  border: 1px solid #a78bdc;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.searchInput {
+  flex: 1 1 250px;
+  max-width: 400px;   
+}
+
+.dateSelector { position: relative; }
+
+.calendarPopup {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+
+/* caixa rolável */
+.listBox {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 4px;         
+}
+
+/* cartão */
+.card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-left: 4px solid #a78bdc;
+  border-radius: 6px;
+  padding: 14px 18px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* status cores */
+.status {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.statusConcluido  { background: #d4edda; color: #155724; }
+.statusAberto     { background: #fff3cd; color: #85640c; }
+.statusCancelado  { background: #f8d7da; color: #721c24; }
+
+.dateSelector {
+  position: relative; 
+  display: flex; 
+  align-items: center;
+  gap: 5px; 
+}
+
+.dateSelector input {
+  padding-right: 25px; 
+}
+
+.clearDateIcon {
+  position: absolute;
+  right: 8px; 
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #888; 
+  font-size: 1.2em; 
+  z-index: 10; 
+}
+
+.clearDateIcon:hover {
+  color: #555; 
+}
+
+.calendarPopup {
+  position: absolute;
+  z-index: 20; 
+  top: 100%; 
+  left: 0;
+}

@@ -41,7 +41,7 @@ router.get('/:salaoId', async (req, res) => {
   const { salaoId } = req.params;
 
   try {
-    const servicos = await Servico.find({ salaoId });
+    const servicos = await Servico.find({ salaoId, status: { $ne: 'Desativado' } });
 
     return res.status(200).json({
       errorStatus: false,
@@ -64,11 +64,11 @@ router.put('/status/:servicoId', async (req, res) => {
   const { servicoId } = req.params;
   const { status } = req.body;
 
-  const allowedStatuses = ['Ativo', 'Cancelado', 'Bloqueado'];
+  const allowedStatuses = ['Ativo', 'Cancelado', 'Bloqueado', 'Desativado']; // Added 'Desativado'
   if (!allowedStatuses.includes(status)) {
     return res.status(400).json({
       errorStatus: true,
-      mensageStatus: 'Status inválido fornecido. Os status permitidos são: Ativo, Cancelado, Bloqueado.',
+      mensageStatus: 'Status inválido fornecido. Os status permitidos são: Ativo, Cancelado, Bloqueado, Desativado.',
     });
   }
 
@@ -137,6 +137,8 @@ router.get('/item/:servicoId', async (req, res) => {
     });
   }
 });
+
+// Rota para atualizar um serviço por ID (PUT)
 router.put('/item/:servicoId', async (req, res) => {
   const { servicoId } = req.params;
   const { titulo, preco, comissao, duracao, descricao, status, recorrencia } = req.body;
@@ -191,5 +193,46 @@ router.put('/item/:servicoId', async (req, res) => {
     });
   }
 });
+
+// Rota para "desativar" (soft delete) um serviço por ID (PUT)
+router.put('/deactivate/:servicoId', async (req, res) => { 
+  const { servicoId } = req.params;
+
+  try {
+    const servicoDesativado = await Servico.findByIdAndUpdate(
+      servicoId,
+      { status: 'Desativado' }, 
+      { new: true }
+    );
+
+    if (!servicoDesativado) {
+      return res.status(404).json({
+        errorStatus: true,
+        mensageStatus: 'Serviço não encontrado para desativação.',
+      });
+    }
+
+    return res.status(200).json({
+      errorStatus: false,
+      mensageStatus: 'SERVIÇO DESATIVADO COM SUCESSO',
+      data: servicoDesativado,
+    });
+  } catch (error) {
+    console.error('Erro ao desativar serviço:', error);
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        errorStatus: true,
+        mensageStatus: 'ID do serviço inválido para desativação.',
+        errorObject: error,
+      });
+    }
+    return res.status(500).json({
+      errorStatus: true,
+      mensageStatus: 'HOUVE UM ERRO AO DESATIVAR O SERVIÇO',
+      errorObject: error,
+    });
+  }
+});
+
 
 module.exports = router;

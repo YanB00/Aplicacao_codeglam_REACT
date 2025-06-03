@@ -10,6 +10,7 @@ import {
     FaCommentDots,
     FaTags,
     FaComments,
+    FaHistory,
     FaCog,
     FaHome
 } from 'react-icons/fa';
@@ -22,6 +23,7 @@ const menuItems = [
     { icon: <FaStar />, label: 'Serviços', to: '/servicos' },
     { icon: <FaUsers />, label: 'Clientes', to: '/clientes' },
     { icon: <FaUserTie />, label: 'Funcionários', to: '/funcionarios'},
+    { icon: <FaHistory />, label: 'Histórico', to: '/historico' },  
     { icon: <FaCog />, label: 'Configurações', to: '/configuracoes' },
 ];
 
@@ -31,7 +33,7 @@ export default function Sidebar({ userId }) {
     const [companyName, setCompanyName] = useState('');
 
     const fetchUserData = async () => {
-          console.log("Tentando buscar dados para userId:", userId);
+        console.log("Tentando buscar dados para userId:", userId);
         try {
             const response = await fetch(`http://localhost:3000/register/${userId}`, {
     headers: {

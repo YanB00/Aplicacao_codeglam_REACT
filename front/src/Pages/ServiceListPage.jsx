@@ -1,4 +1,3 @@
-// pages/ServiceListPage.jsx
 import React, { useState, useEffect, useCallback } from 'react'; 
 import ServiceCard from '../components/ServiceCard';
 import styles from './ServiceListPage.module.css';

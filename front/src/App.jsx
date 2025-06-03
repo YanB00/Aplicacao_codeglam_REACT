@@ -23,6 +23,7 @@ import AddServicePage from './Pages/AddServicePage';
 import ServiceDetailsPage from './Pages/ServiceDetailsPage';
 import EditServicePage from './Pages/EditServicePage';
 import SettingsPage from './Pages/SettingsPage';
+import AllAppointmentsHistory from './Pages/AllAppointmentsHistoryPage';
 
 function Dashboard() {
     const [searchParams] = useSearchParams();
@@ -77,6 +78,8 @@ function App() {
                 <Route path="/add-servico" element={<AddServicePage />} />
                 <Route path="/servico/:id" element={<ServiceDetailsPage />} />
                 <Route path="/servicos/editar/:id" element={<EditServicePage />} />
+                <Route path="/historico" element={<AllAppointmentsHistory />} />
+
 
             </Routes>
         </BrowserRouter>
