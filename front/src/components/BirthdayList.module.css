@@ -65,4 +65,40 @@
   left: 0;
   z-index: 20;
 }
+.personWrapper {
+  position: relative; 
+  cursor: pointer; 
+  padding: 8px; 
+  border-bottom: 1px solid #eee; 
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.personWrapper:hover {
+  background-color: #f9f9f9; 
+}
+
+.hoverModal {
+  position: absolute;
+  top: 100%; 
+  left: 0;
+  z-index: 10;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  min-width: 250px; 
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none; 
+}
+
+.personWrapper:hover .hoverModal {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto; 
+}
 

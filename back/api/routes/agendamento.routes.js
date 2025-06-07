@@ -11,7 +11,6 @@ function getBrasiliaStartOfDayUTC(dateString) {
     return localMoment.startOf('day').utc().toDate();
 }
 
-
 // Rota para criar um novo agendamento (POST)
 router.post('/', async (req, res) => {
     const {
@@ -117,6 +116,74 @@ router.post('/', async (req, res) => {
     }
 });
 
+// Rota para capturar agendamentos cancelados (GET)
+router.get('/cancelados', async (req, res) => {
+    try {
+        const agendamentosCancelados = await Agendamento.find({ cancelado: true })
+            .populate('salaoId', 'nome')
+            .populate('servicoId', 'titulo')
+            .populate('clienteId', 'nomeCompleto')
+            .populate('funcionarioId', 'nomeCompleto')
+            .sort({ dataAgendamento: -1, horaInicio: -1 }); 
+
+        return res.status(200).json({
+            errorStatus: false,
+            mensageStatus: 'AGENDAMENTOS CANCELADOS ENCONTRADOS',
+            data: agendamentosCancelados,
+        });
+    } catch (error) {
+        console.error('Erro ao buscar agendamentos cancelados:', error);
+        return res.status(500).json({
+            errorStatus: true,
+            mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS AGENDAMENTOS CANCELADOS',
+            errorObject: error.message,
+        });
+    }
+});
+
+// Rota para obter agendamentos por Data (GET)
+router.get('/data/:dataAgendamento', async (req, res) => {
+  const { dataAgendamento } = req.params;
+  try {
+    const startOfDayBrasiliaUTC = getBrasiliaStartOfDayUTC(dataAgendamento);
+    const date = new Date(dataAgendamento + 'T00:00:00.000Z');
+    const startOfDay = new Date(date);
+    const endOfDay = new Date(date);
+    endOfDay.setUTCDate(date.getUTCDate() + 1);
+
+    const nextDayBrasiliaUTC = moment.tz(dataAgendamento, 'YYYY-MM-DD', 'America/Sao_Paulo')
+                                      .add(1, 'days')
+                                      .startOf('day')
+                                      .utc()
+                                      .toDate();
+    const agendamentosData = await Agendamento.find({
+            dataAgendamento: {
+                $gte: startOfDayBrasiliaUTC,
+                $lt: nextDayBrasiliaUTC,     
+            },
+        })
+            .populate('salaoId', 'nome')
+            .populate('servicoId', 'titulo')
+            .populate('clienteId', 'nomeCompleto')
+            .populate('funcionarioId', 'nomeCompleto')
+            .sort({ horaInicio: 1 });
+
+
+    return res.status(200).json({
+      errorStatus: false,
+      mensageStatus: 'AGENDAMENTOS DA DATA ENCONTRADOS',
+      data: agendamentosData,
+    });
+  } catch (error) {
+    console.error('Erro ao buscar agendamentos por data:', error);
+    return res.status(500).json({
+      errorStatus: true,
+      mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS AGENDAMENTOS DA DATA',
+      errorObject: error.message,
+    });
+  }
+});
+
 // Rota para obter todos os agendamentos (GET)
 router.get('/', async (req, res) => {
   try {
@@ -181,6 +248,7 @@ router.get('/:agendamentoId', async (req, res) => {
     });
   }
 });
+
 
 // Rota para atualizar um agendamento existente (PUT)
 router.put('/:agendamentoId', async (req, res) => {
@@ -400,47 +468,6 @@ router.get('/funcionario/:funcionarioId', async (req, res) => {
         });
     }
 });
-// Rota para obter agendamentos por Data (GET)
-router.get('/data/:dataAgendamento', async (req, res) => {
-  const { dataAgendamento } = req.params;
-  try {
-    const startOfDayBrasiliaUTC = getBrasiliaStartOfDayUTC(dataAgendamento);
-    const date = new Date(dataAgendamento + 'T00:00:00.000Z');
-    const startOfDay = new Date(date);
-    const endOfDay = new Date(date);
-    endOfDay.setUTCDate(date.getUTCDate() + 1);
 
-    const nextDayBrasiliaUTC = moment.tz(dataAgendamento, 'YYYY-MM-DD', 'America/Sao_Paulo')
-                                      .add(1, 'days')
-                                      .startOf('day')
-                                      .utc()
-                                      .toDate();
-    const agendamentosData = await Agendamento.find({
-            dataAgendamento: {
-                $gte: startOfDayBrasiliaUTC,
-                $lt: nextDayBrasiliaUTC,     
-            },
-        })
-            .populate('salaoId', 'nome')
-            .populate('servicoId', 'titulo')
-            .populate('clienteId', 'nomeCompleto')
-            .populate('funcionarioId', 'nomeCompleto')
-            .sort({ horaInicio: 1 });
-
-
-    return res.status(200).json({
-      errorStatus: false,
-      mensageStatus: 'AGENDAMENTOS DA DATA ENCONTRADOS',
-      data: agendamentosData,
-    });
-  } catch (error) {
-    console.error('Erro ao buscar agendamentos por data:', error);
-    return res.status(500).json({
-      errorStatus: true,
-      mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS AGENDAMENTOS DA DATA',
-      errorObject: error.message,
-    });
-  }
-});
 
 module.exports = router;

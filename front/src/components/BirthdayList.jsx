@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-// Import useNavigate instead of Link
 import { useNavigate } from 'react-router-dom';
 import styles from './BirthdayList.module.css';
 import { FaUserCircle } from 'react-icons/fa';
 import BirthdayModal from './BirthdayModal';
 
-const API_BASE_URL = 'http://localhost:3000'; 
+const API_BASE_URL = 'http://localhost:3000';
 
 export default function BirthdayList({ userId }) {
-  const [selected, setSelected] = useState(null);
+  const [hoveredIndex, setHoveredIndex] = useState(null); 
   const [birthdays, setBirthdays] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,13 +62,21 @@ export default function BirthdayList({ userId }) {
     fetchBirthdays();
   }, []);
 
-  const handlePersonClick = (p, index) => {
-    setSelected(selected === index ? null : index);
+
+  const handleWrapperClick = (p) => {
     if (userId) {
       navigate(`/cliente/${p.id}?userId=${userId}`);
     } else {
       navigate(`/cliente/${p.id}`);
     }
+  };
+
+  const handleMouseEnter = (index) => {
+    setHoveredIndex(index);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredIndex(null);
   };
 
   if (loading) {
@@ -105,7 +112,9 @@ export default function BirthdayList({ userId }) {
             <div
               key={p.id}
               className={styles.personWrapper}
-              onClick={() => handlePersonClick(p, i)}
+              onClick={() => handleWrapperClick(p)} 
+              onMouseEnter={() => handleMouseEnter(i)} 
+              onMouseLeave={handleMouseLeave} 
             >
               <div className={styles.person}>
                 <div className={styles.avatar}>
@@ -118,9 +127,9 @@ export default function BirthdayList({ userId }) {
                 <span>{p.name}</span>
               </div>
 
-              {selected === i && (
-                <div className={styles.inlineModal}>
-                  <BirthdayModal person={p} salonId={userId} />
+              {hoveredIndex === i && (
+                <div className={styles.hoverModal}>
+                  <BirthdayModal person={p} />
                 </div>
               )}
             </div>

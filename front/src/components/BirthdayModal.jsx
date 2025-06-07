@@ -1,7 +1,5 @@
-// BirthdayModal.jsx
 import { FaHeart } from 'react-icons/fa';
 import styles from './BirthdayModal.module.css';
-import { Link } from 'react-router-dom';
 
 export default function BirthdayModal({ person, onClose }) {
   if (!person) return null;
@@ -10,7 +8,7 @@ export default function BirthdayModal({ person, onClose }) {
     if (!dateString) return 'N/A';
     try {
       const date = new Date(dateString);
-      if (isNaN(date.getTime())) { 
+      if (isNaN(date.getTime())) {
         return 'Invalid Date';
       }
       return date.toLocaleDateString('pt-BR', {
@@ -33,13 +31,11 @@ export default function BirthdayModal({ person, onClose }) {
         {person.img ? (
           <img src={person.img} alt={person.name} />
         ) : (
-          <div className={styles.placeholderLarge}>👤</div> 
+          <div className={styles.placeholderLarge}>👤</div>
         )}
       </div>
 
-      <Link to={`/cliente/${person.id}`} className={styles.name}>
-        {person.name} {person.age ? `, ${person.age}` : ''}
-      </Link>
+      <h4 className={styles.name}>{person.name}{person.age ?`, ${person.age}`: ''}</h4>
 
       <div className={styles.age}>
         {new Date(person.birthdate).toLocaleDateString('pt-BR', {
@@ -48,8 +44,7 @@ export default function BirthdayModal({ person, onClose }) {
           year: 'numeric',
         })}
       </div>
-
-      {person.favorites && person.favorites.length > 0 && ( 
+      {person.favorites && person.favorites.length > 0 && (
         <>
           <div className={styles.favLabel}>Procedimentos favoritos:</div>
           <ul className={styles.favList}>
@@ -62,6 +57,7 @@ export default function BirthdayModal({ person, onClose }) {
         </>
       )}
 
+ 
     </div>
   );
 }

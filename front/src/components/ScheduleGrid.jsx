@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import styles from './ScheduleGrid.module.css'; // Make sure this path is correct
-import AppointmentDetails from './AppoinmentDetails'; // Adjusted path, ensure it's correct
-import EditAppointmentForm from './EditAppointmentForm'; // Adjusted path, ensure it's correct
+import styles from './ScheduleGrid.module.css'; 
+import AppointmentDetails from './AppoinmentDetails'; 
+import EditAppointmentForm from './EditAppointmentForm'; 
 
-// Base URL for your API. Adjust if it's different or use environment variables.
-const API_BASE_URL = 'http://localhost:3000'; // Or your actual API base URL
+const API_BASE_URL = 'http://localhost:3000'; 
 
 const ScheduleGrid = ({ appointments: initialAppointments = [], salaoId, selectedDate }) => {
-  // Log initial appointments as soon as the component receives them
   console.log('ScheduleGrid received initialAppointments:', initialAppointments);
 
   const startTime = 8;
@@ -22,7 +20,6 @@ const ScheduleGrid = ({ appointments: initialAppointments = [], salaoId, selecte
   const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
   const [currentAppointments, setCurrentAppointments] = useState(initialAppointments);
 
-  // Effect to update currentAppointments when initialAppointments prop changes
   useEffect(() => {
     console.log('ScheduleGrid: initialAppointments prop changed, updating currentAppointments.');
     setCurrentAppointments(initialAppointments);
