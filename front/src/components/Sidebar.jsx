@@ -6,10 +6,6 @@ import {
     FaStar,
     FaUsers,
     FaUserTie,
-    FaDollarSign,
-    FaCommentDots,
-    FaTags,
-    FaComments,
     FaHistory,
     FaCog,
     FaHome
@@ -18,53 +14,55 @@ import {
 const SidebarContext = createContext();
 
 const menuItems = [
-    { icon: <FaHome />, label: 'Home', to: '/' },
-    { icon: <FaCalendarAlt />, label: 'Agenda', to: '/calendario' },
-    { icon: <FaStar />, label: 'Serviços', to: '/servicos' },
-    { icon: <FaUsers />, label: 'Clientes', to: '/clientes' },
-    { icon: <FaUserTie />, label: 'Funcionários', to: '/funcionarios'},
-    { icon: <FaHistory />, label: 'Histórico', to: '/historico' },  
-    { icon: <FaCog />, label: 'Configurações', to: '/configuracoes' },
+    { icon: <FaHome />, label: 'Home', to: '/usuario', isSalonSpecific: true },
+    { icon: <FaCalendarAlt />, label: 'Agenda', to: '/calendario', isSalonSpecific: true },
+    { icon: <FaStar />, label: 'Serviços', to: '/servicos', isSalonSpecific: false },
+    { icon: <FaUsers />, label: 'Clientes', to: '/clientes', isSalonSpecific: false },
+    { icon: <FaUserTie />, label: 'Funcionários', to: '/funcionarios', isSalonSpecific: false },
+    { icon: <FaHistory />, label: 'Histórico', to: '/historico', isSalonSpecific: false },
+    { icon: <FaCog />, label: 'Configurações', to: '/configuracoes', isSalonSpecific: false },
 ];
 
 export default function Sidebar({ userId }) {
-    // console.log("Sidebar userId:", userId);
     const [expanded, setExpanded] = useState(true);
     const [companyName, setCompanyName] = useState('');
 
     const fetchUserData = async () => {
-        console.log("Tentando buscar dados para userId:", userId);
+        console.log("Tentando buscar dados para userId (Sidebar):", userId); 
         try {
             const response = await fetch(`http://localhost:3000/register/${userId}`, {
-    headers: {
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache',
-    },
-});
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                },
+            });
             if (!response.ok) {
                 console.error(`HTTP error! status: ${response.status}`);
+                if (response.status === 400 || response.status === 404) {
+                    setCompanyName('ID Inválido/Não Encontrado');
+                }
                 return;
             }
-            const text = await response.text(); 
-            console.log("Resposta bruta da API:", text); 
+            const text = await response.text();
             const data = JSON.parse(text);
-            console.log("Dados parseados:", data); 
             if (data && data.data && data.data.empresa) {
                 setCompanyName(data.data.empresa);
+            } else {
+                setCompanyName('Salão Desconhecido'); 
             }
         } catch (error) {
-            console.error("Erro ao buscar dados do usuário:", error);
-            setCompanyName('Nome Padrão');
+            console.error("Erro ao buscar dados do usuário na Sidebar:", error); 
+            setCompanyName('Erro ao Carregar'); 
         }
     };
 
     useEffect(() => {
         if (userId) {
-            fetchUserData(); 
+            fetchUserData();
         } else {
-            setCompanyName('Nome Genérico');
+            setCompanyName('Carregando...'); 
         }
-    }, [userId]);
+    }, [userId]); 
 
     const getInitials = (name) => {
         const words = name.trim().split(" ");
@@ -88,7 +86,14 @@ export default function Sidebar({ userId }) {
                 <SidebarContext.Provider value={{ expanded }}>
                     <ul className={styles.menu}>
                         {menuItems.map((item, index) => (
-                            <SidebarItem key={index} icon={item.icon} label={item.label} to={item.to} userId={userId} />
+                            <SidebarItem
+                                key={index}
+                                icon={item.icon}
+                                label={item.label}
+                                to={item.to}
+                                userId={userId}
+                                isSalonSpecific={item.isSalonSpecific}
+                            />
                         ))}
                     </ul>
                 </SidebarContext.Provider>
@@ -97,8 +102,17 @@ export default function Sidebar({ userId }) {
     );
 }
 
-function SidebarItem({ icon, label, to, userId }) {
+function SidebarItem({ icon, label, to, userId, isSalonSpecific }) { 
     const { expanded } = useContext(SidebarContext);
+
+    let linkPath = to; 
+    if (isSalonSpecific && userId) {
+        linkPath = `${to}/${userId}`; 
+    }
+    else if (userId) {
+        linkPath = `${to}?userId=${userId}`; 
+    }
+
     const content = (
         <>
             <span className={styles.icon}>{icon}</span>
@@ -108,13 +122,10 @@ function SidebarItem({ icon, label, to, userId }) {
 
     return (
         <li className={styles.menuItem}>
-            {to ? (
-                <Link to={`${to}?userId=${userId}`} className={styles.link}>
-                    {content}
-                </Link>
-            ) : (
-                content
-            )}
+            <Link to={linkPath} className={styles.link}>
+                {content}
+            </Link>
         </li>
     );
 }
+

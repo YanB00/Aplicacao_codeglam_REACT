@@ -3,7 +3,7 @@ import styles from './ModalInfo.module.css';
 import { IoClose } from 'react-icons/io5';
 import { Link } from 'react-router-dom';
 
-export default function ModalInfo({ title, data, onClose }) {
+export default function ModalInfo({ title, data, onClose, salonId }) { 
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
@@ -26,11 +26,10 @@ export default function ModalInfo({ title, data, onClose }) {
         </div>
 
         <div className={styles.footer}>
-
-        <Link className={styles.moreLink} to={'/calendario'}>
+          <Link className={styles.moreLink} to={`/calendario/${salonId}`}>
             Ver mais
-        </Link>
-        
+          </Link>
+
         </div>
       </div>
     </div>

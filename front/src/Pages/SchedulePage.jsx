@@ -1,40 +1,39 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
 import ScheduleHeader from '../components/ScheduleHeader';
 import ScheduleGrid from '../components/ScheduleGrid';
 import AddAppointmentForm from '../components/AddAppointmentForm';
 import styles from './SchedulePage.module.css';
 
-const SchedulePage = () => {
+const SchedulePage = ({ salonId }) => {
   const [isAddFormVisible, setIsAddFormVisible] = useState(false);
   const [rawAppointmentsFromApi, setRawAppointmentsFromApi] = useState([]);
   const [filteredAppointmentsToShowInGrid, setFilteredAppointmentsToShowInGrid] = useState([]);
-  
+
   const [isLoadingAppointments, setIsLoadingAppointments] = useState(false);
   const [fetchAppointmentsError, setFetchAppointmentsError] = useState(null);
 
-  const [currentSalaoId, setCurrentSalaoId] = useState(null);
   const [selectedDateForNewAppointment, setSelectedDateForNewAppointment] = useState(null);
 
   const [activeFilters, setActiveFilters] = useState({
-    date: new Date().toISOString().split('T')[0], 
-    serviceId: '', 
-    employeeId: '', 
+    date: new Date().toISOString().split('T')[0],
+    serviceId: '',
+    employeeId: '',
   });
 
-  const location = useLocation();
   const BASE_URL = 'http://localhost:3000';
 
-  const fetchAllAppointmentsForSalao = useCallback(async (salaoId) => {
-    if (!salaoId) {
+  // --- MODIFICAÇÃO AQUI: Renomeando 'idDoSalao' para 'currentId' ---
+  const fetchAllAppointmentsForSalao = useCallback(async (currentId) => {
+    if (!currentId) { // Use currentId aqui
       setRawAppointmentsFromApi([]);
+      console.warn("SchedulePage: ID do Salão não fornecido para buscar agendamentos.");
       return;
     }
-    console.log(`SchedulePage: Buscando TODOS os agendamentos para salaoId: ${salaoId}`);
+    console.log(`SchedulePage: Buscando TODOS os agendamentos para salaoId: ${currentId}`); // Use currentId aqui
     setIsLoadingAppointments(true);
     setFetchAppointmentsError(null);
     try {
-      const response = await fetch(`${BASE_URL}/agendamentos/salao/${salaoId}`);
+      const response = await fetch(`${BASE_URL}/agendamentos/salao/${currentId}`); // Use currentId aqui
       if (!response.ok) {
         const errorData = await response.text();
         throw new Error(`Falha ao buscar agendamentos: ${response.statusText} - ${errorData}`);
@@ -53,31 +52,22 @@ const SchedulePage = () => {
       setIsLoadingAppointments(false);
     }
   }, [BASE_URL]);
+  // --- FIM DA MODIFICAÇÃO ---
+
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const userIdFromUrl = queryParams.get('userId');
-    if (userIdFromUrl) {
-      if (currentSalaoId !== userIdFromUrl) {
-        setCurrentSalaoId(userIdFromUrl);
-      }
-    } else if (currentSalaoId !== null) {
-      setCurrentSalaoId(null);
-      setRawAppointmentsFromApi([]); 
+    if (salonId) {
+      fetchAllAppointmentsForSalao(salonId);
+    } else {
+      console.warn("SchedulePage: salonId não recebido via props. Não é possível buscar agendamentos.");
+      setRawAppointmentsFromApi([]);
     }
-  }, [location.search, currentSalaoId]);
-
-  useEffect(() => {
-    if (currentSalaoId) {
-      fetchAllAppointmentsForSalao(currentSalaoId);
-    }
-  }, [currentSalaoId, fetchAllAppointmentsForSalao]);
+  }, [salonId, fetchAllAppointmentsForSalao]);
 
   useEffect(() => {
     console.log("SchedulePage: Aplicando filtros...", activeFilters, "sobre", rawAppointmentsFromApi.length, "agendamentos brutos.");
     let filtered = [...rawAppointmentsFromApi];
 
-    // Filtro por Data
     if (activeFilters.date) {
       filtered = filtered.filter(app => {
         if (!app.dataAgendamento) return false;
@@ -86,12 +76,10 @@ const SchedulePage = () => {
       });
     }
 
-    // Filtro por Serviço
     if (activeFilters.serviceId) {
       filtered = filtered.filter(app => app.servicoId?._id === activeFilters.serviceId);
     }
 
-    //Filtro por Funcionário
     if (activeFilters.employeeId) {
       filtered = filtered.filter(app => app.funcionarioId?._id === activeFilters.employeeId);
     }
@@ -99,13 +87,11 @@ const SchedulePage = () => {
     setFilteredAppointmentsToShowInGrid(filtered);
   }, [rawAppointmentsFromApi, activeFilters]);
 
-
-  // Callback para o ScheduleHeader atualizar um valor de filtro específico
   const handleFilterChange = useCallback((filterName, value) => {
     console.log(`SchedulePage: Filtro '${filterName}' alterado para '${value}'`);
     setActiveFilters(prevFilters => {
       if (prevFilters[filterName] === value) {
-        return prevFilters; 
+        return prevFilters;
       }
       console.log(`SchedulePage: Atualizando activeFilters.${filterName} para`, value);
       return {
@@ -119,10 +105,10 @@ const SchedulePage = () => {
     setSelectedDateForNewAppointment(activeFilters.date);
     console.log("SchedulePage: Botão Adicionar clicado. Data para novo agendamento:", activeFilters.date);
 
-    if (currentSalaoId) {
+    if (salonId) {
       setIsAddFormVisible(true);
     } else {
-      alert("ID do Salão não identificado na URL. Não é possível adicionar agendamento.");
+      alert("ID do Salão não identificado. Por favor, recarregue a página ou entre em contato com o suporte.");
     }
   };
 
@@ -133,8 +119,8 @@ const SchedulePage = () => {
 
   const handleAppointmentCreated = () => {
     console.log("SchedulePage: Agendamento criado. Buscando lista atualizada de todos os agendamentos do salão.");
-    if (currentSalaoId) {
-      fetchAllAppointmentsForSalao(currentSalaoId);
+    if (salonId) {
+      fetchAllAppointmentsForSalao(salonId);
     }
     setIsAddFormVisible(false);
   };
@@ -143,7 +129,7 @@ const SchedulePage = () => {
     <div className={styles.page}>
       <ScheduleHeader
         onAddClick={handleAddClick}
-        salaoId={currentSalaoId}
+        salaoId={salonId}
         currentDate={activeFilters.date}
         currentServiceId={activeFilters.serviceId}
         currentEmployeeId={activeFilters.employeeId}
@@ -152,13 +138,13 @@ const SchedulePage = () => {
       {isLoadingAppointments && <p>Carregando agendamentos...</p>}
       {fetchAppointmentsError && <p style={{ color: 'red' }}>Erro ao carregar agendamentos: {fetchAppointmentsError}</p>}
       {!isLoadingAppointments && !fetchAppointmentsError && (
-        <ScheduleGrid appointments={filteredAppointmentsToShowInGrid} salaoId={currentSalaoId} />
+        <ScheduleGrid appointments={filteredAppointmentsToShowInGrid} salaoId={salonId} />
       )}
-      
-      {isAddFormVisible && currentSalaoId && selectedDateForNewAppointment && (
+
+      {isAddFormVisible && salonId && selectedDateForNewAppointment && (
         <AddAppointmentForm
           onClose={handleCloseForm}
-          salaoId={currentSalaoId}
+          salaoId={salonId}
           selectedDate={selectedDateForNewAppointment}
           onAppointmentSuccessfullySaved={handleAppointmentCreated}
         />

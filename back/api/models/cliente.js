@@ -43,6 +43,11 @@ const clienteSchema = new Schema({
     type: Boolean,
     default: true, 
   },
+  salaoId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Registro', 
+    required: true, 
+  },
 });
 
 module.exports = mongoose.model('Cliente', clienteSchema);

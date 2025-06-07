@@ -42,7 +42,7 @@ export default function ServiceCard({ service }) {
     }
 
     if (durationString === '') {
-      return '0 minutos'; // Or 'Tempo não especificado'
+      return '0 minutos'; // 'Tempo não especificado'
     }
 
     return durationString;

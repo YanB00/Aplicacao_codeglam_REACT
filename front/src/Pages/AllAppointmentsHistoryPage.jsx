@@ -1,4 +1,3 @@
-// AllAppointmentsHistoryPage.jsx
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import styles from '../App.module.css';               

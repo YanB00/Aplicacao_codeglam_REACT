@@ -1,12 +1,12 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Link, useSearchParams } from 'react-router-dom';
+import React, {useEffect, useState} from 'react'; 
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import styles from './App.module.css';
 
 // Importe componentes Sidebar
 import Sidebar from './components/Sidebar';
 import TopCards from './components/TopCards';
 import ChartArea from './components/ChartArea';
-import BirthdayList from './components/BirthdayList'; 
+import BirthdayList from './components/BirthdayList';
 
 // Importe páginas
 import ClientPage from './Pages/ClientPage';
@@ -25,17 +25,18 @@ import EditServicePage from './Pages/EditServicePage';
 import SettingsPage from './Pages/SettingsPage';
 import AllAppointmentsHistory from './Pages/AllAppointmentsHistoryPage';
 
+// Remova a função LoginPage que estava aqui
+
 function Dashboard() {
-    const [searchParams] = useSearchParams();
-    const userId = searchParams.get('userId');
-    console.log('Dashboard - Fetched userId:', userId); 
+    const { userId } = useParams();
+    console.log('Dashboard - Fetched userId:', userId);
 
     return (
         <div className={styles.appContainer}>
             <Sidebar userId={userId} />
             <div className={styles.mainContent}>
                 <div className={styles.topBar}></div>
-                <TopCards />
+                <TopCards salonId={userId} />
                 <div className={styles.gridArea}>
                     <ChartArea />
                     <BirthdayList userId={userId} />
@@ -46,29 +47,28 @@ function Dashboard() {
 }
 
 function ScheduleWrapper() {
-    const [searchParams] = useSearchParams();
-    const userId = searchParams.get('userId');
+    const { salonId } = useParams();
     return (
         <div className={styles.appContainer}>
-            <Sidebar userId={userId} />
+            <Sidebar userId={salonId} />
             <div className={styles.mainContent}>
-                <SchedulePage />
+                <SchedulePage salonId={salonId} />
             </div>
         </div>
     );
 }
 
-function ClientPageWrapper() {
-    return <ClientPage />;
-}
-
 function App() {
+    const EXTERNAL_LOGIN_URL = "http://localhost:5173/login"; 
+
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/schedule" element={<ScheduleWrapper />} />
-                <Route path="/calendario" element={<ScheduleWrapper />} />
+                <Route path="/usuario/:userId" element={<Dashboard />} />
+
+                <Route path="/"  element={<Dashboard />} />
+
+                <Route path="/calendario/:salonId" element={<ScheduleWrapper />} />
                 <Route path="/cliente/:id" element={<ClientPage />} />
                 <Route path="/clientes" element={<ClientListPage />} />
                 <Route path="/cliente/editar/:id" element={<EditClientPage />} />

@@ -84,8 +84,6 @@ const ClientHistory = ({ clientId, salaoId }) => {
   }, [clientId]);
 
 
-
-  // Efeito para buscar dados de filtros (serviços e funcionários)
   useEffect(() => {
     const fetchFilterData = async () => {
       setLoadingFilters(true);
@@ -145,7 +143,7 @@ const ClientHistory = ({ clientId, salaoId }) => {
 
   const filteredAppointments = appointments.filter(appointment => {
     const matchesService = serviceFilter === '' || appointment.serviceId === serviceFilter;
-    const matchesEmployee = employeeFilter === '' || appointment.employeeId === employeeFilter; // Filtrar por funcionário
+    const matchesEmployee = employeeFilter === '' || appointment.employeeId === employeeFilter; 
 
     const apptDateBrasiliaString = getBrasiliaDateString(appointment.date);
     const filterDateBrasiliaString = getBrasiliaDateString(dateFilter);

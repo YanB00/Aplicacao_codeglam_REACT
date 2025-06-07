@@ -44,8 +44,8 @@ const AppointmentDetails = ({ event, onClose, onEdit, onAppointmentUpdate }) => 
     let payload = {};
     if (statusType === 'concluido') {
       payload = { concluido: newValue };
-      if (newValue === true) { // Se está a marcar como concluído
-        payload.cancelado = false; // Garante que cancelado é false
+      if (newValue === true) { 
+        payload.cancelado = false; 
       }
     } else if (statusType === 'cancelado') {
       payload = { cancelado: newValue };
@@ -134,7 +134,7 @@ const AppointmentDetails = ({ event, onClose, onEdit, onAppointmentUpdate }) => 
               id={`concluido-${event.id || 'temp'}`}
               checked={isConcluido}
               onChange={handleConcluidoChange}
-              disabled={isUpdating || isCancelado} // Se cancelado, não pode ser concluído
+              disabled={isUpdating || isCancelado} 
             />
           </div>
           <div>
@@ -144,7 +144,7 @@ const AppointmentDetails = ({ event, onClose, onEdit, onAppointmentUpdate }) => 
               id={`cancelado-${event.id || 'temp'}`}
               checked={isCancelado}
               onChange={handleCanceladoChange}
-              disabled={isUpdating || isConcluido} // Se concluído, não pode ser cancelado
+              disabled={isUpdating || isConcluido} 
             />
           </div>
         </div>

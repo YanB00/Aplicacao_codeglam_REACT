@@ -6,7 +6,6 @@ const path = require('path');
 const router = express.Router();
 const Funcionario = require('../models/funcionario');
 const RegistroFuncionario = require('../models/relationship/funcionarioRegistro');
-const FuncionarioServico = require('../models/relationship/funcionarioServico');
 const getSalaoIdFromUser = require('../middlewares/authMiddleware')
 
 // Configuração do multer

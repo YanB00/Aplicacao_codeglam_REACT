@@ -7,7 +7,7 @@ import BirthdayModal from './BirthdayModal';
 const API_BASE_URL = 'http://localhost:3000';
 
 export default function BirthdayList({ userId }) {
-  const [hoveredIndex, setHoveredIndex] = useState(null); 
+  const [hoveredIndex, setHoveredIndex] = useState(null);
   const [birthdays, setBirthdays] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,9 +16,16 @@ export default function BirthdayList({ userId }) {
 
   useEffect(() => {
     const fetchBirthdays = async () => {
+      if (!userId) { 
+        console.warn('BirthdayList: userId (salonId) é undefined. Não é possível buscar aniversariantes.');
+        setLoading(false);
+        setError('ID do salão não fornecido para buscar aniversariantes.');
+        return;
+      }
+
       try {
         setLoading(true);
-        const response = await fetch(`${API_BASE_URL}/clientes/birthdays/currentMonth`);
+        const response = await fetch(`${API_BASE_URL}/clientes/birthdays/currentMonth/${userId}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -60,10 +67,11 @@ export default function BirthdayList({ userId }) {
     };
 
     fetchBirthdays();
-  }, []);
+  }, [userId]); 
 
 
   const handleWrapperClick = (p) => {
+
     if (userId) {
       navigate(`/cliente/${p.id}?userId=${userId}`);
     } else {
@@ -106,15 +114,15 @@ export default function BirthdayList({ userId }) {
       <h3 className={styles.title}>Aniversariantes do mês</h3>
       <div className={styles.list}>
         {birthdays.length === 0 ? (
-          <p>Nenhum aniversariante neste mês.</p>
+          <p>Nenhum aniversariante neste mês para este salão.</p> 
         ) : (
           birthdays.map((p, i) => (
             <div
               key={p.id}
               className={styles.personWrapper}
-              onClick={() => handleWrapperClick(p)} 
-              onMouseEnter={() => handleMouseEnter(i)} 
-              onMouseLeave={handleMouseLeave} 
+              onClick={() => handleWrapperClick(p)}
+              onMouseEnter={() => handleMouseEnter(i)}
+              onMouseLeave={handleMouseLeave}
             >
               <div className={styles.person}>
                 <div className={styles.avatar}>

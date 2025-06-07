@@ -58,7 +58,6 @@ export default function AllAppointmentsHistory({ userId }) {
           employee: agendamento.funcionarioId ? agendamento.funcionarioId.nomeCompleto : 'N/A',
           employeeId: agendamento.funcionarioId ? agendamento.funcionarioId._id : 'N/A',
           value: agendamento.valor ? `R$ ${parseFloat(agendamento.valor).toFixed(2)}` : 'R$ 0,00',
-          payment: agendamento.formaPagamento || 'N/A',
           discount: agendamento.desconto ? `${parseFloat(agendamento.desconto).toFixed(2)}%` : '—',
           status: agendamento.concluido ? 'Concluído' : (agendamento.cancelado ? 'Cancelado' : 'Em aberto'),
           notes: agendamento.observacoes || 'Sem observações.'
@@ -263,9 +262,9 @@ export default function AllAppointmentsHistory({ userId }) {
                 <div><strong>Serviço:</strong> {a.service}</div>
                 <div><strong>Data:</strong> {a.date.toLocaleDateString('pt-BR')} | <strong>Hora:</strong> {a.time}</div>
                 <div><strong>Cliente:</strong> {a.client}</div>
-                <div><strong>Funcionário:</strong> {a.employee} | <strong>Pagamento:</strong> {a.payment}</div>
+                <div><strong>Funcionário:</strong> {a.employee} </div>
                 <div>
-                  <strong>Valor:</strong> {a.value} | <strong>Desconto:</strong> {a.discount} | <strong>Status:</strong>
+                  <strong>Valor:</strong> {a.value} | <strong>Status:</strong>
                   <span className={`${styles.status} ${
                     a.status === 'Concluído'
                       ? styles.statusConcluido

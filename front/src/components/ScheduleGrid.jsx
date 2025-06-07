@@ -98,7 +98,7 @@ const ScheduleGrid = ({ appointments: initialAppointments = [], salaoId, selecte
             observacoes: updatedAppointmentFromBackend.observacoes,
             concluido: updatedAppointmentFromBackend.concluido,
             cancelado: updatedAppointmentFromBackend.cancelado,
-            color: getEventColor(updatedAppointmentFromBackend), // Recalculate color based on original logic if not concluded/cancelled
+            color: getEventColor(updatedAppointmentFromBackend), 
         };
         setSelectedEvent(refreshedEvent);
     }
@@ -108,7 +108,7 @@ const ScheduleGrid = ({ appointments: initialAppointments = [], salaoId, selecte
     console.log("handleSaveEdit called with:", updatedEventDataFromForm);
     setCurrentAppointments(prevAppointments =>
         prevAppointments.map(appt => {
-            if (appt._id === updatedEventDataFromForm.id) { // updatedEventDataFromForm.id should be the original _id
+            if (appt._id === updatedEventDataFromForm.id) { 
                 const newAppt = {
                     ...appt,
                     horaInicio: updatedEventDataFromForm.timeStart || appt.horaInicio,
@@ -128,7 +128,6 @@ const ScheduleGrid = ({ appointments: initialAppointments = [], salaoId, selecte
                         nomeCompleto: updatedEventDataFromForm.employee || appt.funcionarioId?.nomeCompleto,
                     },
                 };
-                // Color will be handled by CSS classes or default getEventColor
                 return newAppt;
             }
             return appt;
@@ -139,7 +138,6 @@ const ScheduleGrid = ({ appointments: initialAppointments = [], salaoId, selecte
   };
 
   const getEventColor = (item) => {
-    // This function provides a fallback color if the event is not concluded or cancelled
     const servicoId = item.servicoId?._id || item.servicoId?.titulo || item.servicoId;
     const funcionarioId = item.funcionarioId?._id || item.funcionarioId?.nomeCompleto || item.funcionarioId;
     const itemId = item._id || item.id;
@@ -191,7 +189,6 @@ const ScheduleGrid = ({ appointments: initialAppointments = [], salaoId, selecte
             const employeeId = item.funcionarioId?._id || item.funcionarioId;
             const employeeIndex = employeeList.findIndex(emp => emp._id === employeeId);
 
-            // Determine base color for non-concluded/non-cancelled events
             const defaultEventColor = getEventColor(item);
 
             const displayItem = {
@@ -200,7 +197,7 @@ const ScheduleGrid = ({ appointments: initialAppointments = [], salaoId, selecte
               timeEnd: item.horaFim,
               employee: item.funcionarioId?.nomeCompleto || 'N/A',
               service: item.servicoId?.titulo || item.servicoId?.nome || 'Serviço N/A',
-              color: defaultEventColor, // Store default color for AppointmentDetails modal
+              color: defaultEventColor, 
               client: item.clienteId?.nomeCompleto || 'Cliente N/A',
               valor: item.valor,
               observacoes: item.observacoes,
@@ -229,12 +226,10 @@ const ScheduleGrid = ({ appointments: initialAppointments = [], salaoId, selecte
                   '--event-start-half-hour': startHalfHour,
                   '--event-duration-half-hours': durationHalfHours,
                   '--employee-index': employeeIndex >= 0 ? employeeIndex : 0,
-                  // backgroundColor and color will now be primarily controlled by CSS classes
-                  // Only apply defaultEventColor if not concluded or cancelled
+
                   backgroundColor: (!item.concluido && !item.cancelado) ? defaultEventColor : undefined,
                   display: durationHalfHours <= 0 ? 'none' : 'block',
-                  opacity: item.cancelado ? 0.7 : 1, // Keep opacity for cancelled
-                  // textDecoration: item.cancelado ? 'line-through' : 'none', // Text decoration can be in CSS
+                  opacity: item.cancelado ? 0.7 : 1,
                 }}
                 onClick={() => handleEventClick(displayItem)}
                 title={`${displayItem.service} com ${displayItem.employee}\nCliente: ${displayItem.client}\nStatus: ${item.concluido ? 'Concluído' : (item.cancelado ? 'Cancelado' : 'Agendado')}`}
@@ -242,9 +237,6 @@ const ScheduleGrid = ({ appointments: initialAppointments = [], salaoId, selecte
                 <div className={styles.eventEmployee}>{displayItem.employee}</div>
                 <div className={styles.eventService}>{displayItem.service}</div>
                 <div className={styles.eventTime}>{`${displayItem.timeStart} - ${displayItem.timeEnd}`}</div>
-                 {/* Status indicators can be styled or removed if the whole card color is enough */}
-                 {/* {item.concluido && <div className={styles.statusIndicatorConcluido}>Concluído</div>} */}
-                 {/* {item.cancelado && <div className={styles.statusIndicatorCancelado}>Cancelado</div>} */}
               </div>
             );
           })}

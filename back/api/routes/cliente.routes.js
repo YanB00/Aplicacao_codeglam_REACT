@@ -4,6 +4,7 @@ const Cliente = require('../models/cliente');
 const ClienteRegistro = require('../models/relationship/clienteRegistro');
 const multer = require('multer'); 
 const path = require('path');
+const mongoose = require('mongoose');
 const fs = require('fs'); 
 
 const uploadDir = 'uploads/client_photos/';
@@ -105,7 +106,7 @@ router.post('/', upload.single('foto'), async (req, res) => {
     });
   }
 
-  const { nomeCompleto, dataNascimento, cpf, telefone, email, favoritos, problemasSaude, informacoesAdicionais } = req.body;
+  const { nomeCompleto, dataNascimento, cpf, telefone, email, favoritos, problemasSaude, informacoesAdicionais, salaoId } = req.body;
   const fotoPath = req.file ? req.file.path : null;
 
   const cleanedCpf = cpf ? cpf.replace(/\D/g, '') : null;
@@ -121,6 +122,7 @@ router.post('/', upload.single('foto'), async (req, res) => {
       problemasSaude,
       informacoesAdicionais,
       foto: fotoPath,
+      salaoId
     });
 
     const clienteSalvo = await novoCliente.save();
@@ -167,7 +169,7 @@ router.put('/:idCliente', upload.single('foto'), async (req, res) => {
   const { idCliente } = req.params;
   console.log('CLIENTES ROUTES - PUT /:idCliente - ID:', idCliente, 'Body:', req.body);
   
-  const { nomeCompleto, dataNascimento, cpf, telefone, email, favoritos, problemasSaude, informacoesAdicionais } = req.body;
+  const { nomeCompleto, dataNascimento, cpf, telefone, email, favoritos, problemasSaude, informacoesAdicionais, salaoId } = req.body;
   const fotoPath = req.file ? req.file.path : null; 
 
   const updateData = { 
@@ -262,15 +264,19 @@ router.put('/deactivate/:idCliente', async (req, res) => {
   }
 });
 
-router.get('/birthdays/currentMonth', async (req, res) => {
-  console.log('CLIENTES ROUTES - GET /birthdays/currentMonth - Buscando aniversariantes do mês atual');
-  const currentMonth = new Date().getMonth() + 1; 
+router.get('/birthdays/currentMonth/:salaoId', async (req, res) => {
+  const { salaoId } = req.params;
+  console.log('CLIENTES ROUTES - GET /birthdays/currentMonth/:salaoId - Buscando aniversariantes do mês atual para o salão:', salaoId);
+
+  const currentMonth = new Date().getMonth() + 1; // getMonth() é 0-indexado, então +1 para mês real
 
   try {
+    // Filtra clientes que estão ATIVOS e pertencem ao salaoId fornecido
     const birthdayClients = await Cliente.aggregate([
       {
         $match: {
-          active: true, 
+          active: true,
+          salaoId: new mongoose.Types.ObjectId(salaoId), // <--- FILTRA POR SALAOID
           $expr: {
             $eq: [{ $month: '$dataNascimento' }, currentMonth]
           }
@@ -287,28 +293,35 @@ router.get('/birthdays/currentMonth', async (req, res) => {
           favoritos: 1,
           problemasSaude: 1,
           informacoesAdicionais: 1,
-          since: "$createdAt" 
+          since: "$createdAt"
         }
       }
     ]);
 
-    console.log('CLIENTES ROUTES - GET /birthdays/currentMonth - Aniversariantes encontrados:', birthdayClients.length);
+    console.log('CLIENTES ROUTES - GET /birthdays/currentMonth/:salaoId - Aniversariantes encontrados:', birthdayClients.length);
 
     return res.status(200).json({
       errorStatus: false,
-      mensageStatus: 'ANIVERSARIANTES DO MÊS ENCONTRADOS',
+      mensageStatus: 'ANIVERSARIANTES DO MÊS DO SALÃO ENCONTRADOS',
       data: birthdayClients,
     });
   } catch (error) {
-    console.error('CLIENTES ROUTES - GET /birthdays/currentMonth - Erro ao buscar aniversariantes:', error);
+    console.error('CLIENTES ROUTES - GET /birthdays/currentMonth/:salaoId - Erro ao buscar aniversariantes por salão:', error);
+    // Verifique se o erro é de CastError para ObjectId inválido
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        errorStatus: true,
+        mensageStatus: `ID do salão inválido: ${salaoId}`,
+        errorObject: error.message,
+      });
+    }
     return res.status(500).json({
       errorStatus: true,
-      mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS ANIVERSARIANTES DO MÊS',
-      errorObject: error,
+      mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS ANIVERSARIANTES DO MÊS DO SALÃO',
+      errorObject: error.message,
     });
   }
 });
-
 
 
 // Rota para remover um vínculo cliente-registro (DELETE) - Mantido, pois é uma relação

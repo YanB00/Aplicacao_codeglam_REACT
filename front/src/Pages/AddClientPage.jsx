@@ -169,6 +169,15 @@ export default function AddClientPage() {
       formData.append('foto', foto);
     }
 
+    if (userId) { 
+        formData.append('salaoId', userId);
+    } else {
+        setMessageStatus('ID do Salão não encontrado na URL. Não é possível cadastrar cliente.');
+        setIsError(true);
+        console.error('Erro: salonId (userId) faltando na AddClientPage para cadastro de cliente.');
+        return; 
+    }
+
     try {
       const response = await fetch('http://localhost:3000/clientes', {
         method: 'POST',

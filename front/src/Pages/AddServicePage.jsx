@@ -1,4 +1,3 @@
-// pages/AddServicePage.jsx
 import React, { useState, useEffect } from 'react';
 import styles from './AddServicePage.module.css';
 import { useNavigate, useLocation } from 'react-router-dom';

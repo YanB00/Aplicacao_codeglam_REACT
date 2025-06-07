@@ -152,10 +152,10 @@ router.get('/data/:dataAgendamento', async (req, res) => {
     endOfDay.setUTCDate(date.getUTCDate() + 1);
 
     const nextDayBrasiliaUTC = moment.tz(dataAgendamento, 'YYYY-MM-DD', 'America/Sao_Paulo')
-                                      .add(1, 'days')
-                                      .startOf('day')
-                                      .utc()
-                                      .toDate();
+      .add(1, 'days')
+      .startOf('day')
+      .utc()
+      .toDate();
     const agendamentosData = await Agendamento.find({
             dataAgendamento: {
                 $gte: startOfDayBrasiliaUTC,
@@ -183,6 +183,65 @@ router.get('/data/:dataAgendamento', async (req, res) => {
     });
   }
 });
+
+router.get('/grafico/agendamentos-mensal', async (req, res) => {
+    try {
+        const now = moment.tz('America/Sao_Paulo');
+        const startOfMonth = now.startOf('month').utc().toDate(); 
+        const endOfMonth = now.endOf('month').utc().toDate();  
+
+        const result = await Agendamento.aggregate([
+            {
+                $match: {
+                    dataAgendamento: {
+                        $gte: startOfMonth,
+                        $lte: endOfMonth
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null, 
+                    concluidos: {
+                        $sum: { $cond: [{ $eq: ["$concluido", true] }, 1, 0] }
+                    },
+                    cancelados: {
+                        $sum: { $cond: [{ $eq: ["$cancelado", true] }, 1, 0] }
+                    },
+                    emProgresso: {
+                        $sum: { $cond: [{ $and: [{ $eq: ["$concluido", false] }, { $eq: ["$cancelado", false] }] }, 1, 0] }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0, 
+                    concluidos: 1,
+                    cancelados: 1,
+                    emProgresso: 1,
+                    total: { $sum: ["$concluidos", "$cancelados", "$emProgresso"] } 
+                }
+            }
+        ]);
+
+        const dataParaGrafico = result.length > 0 ? result[0] : { concluidos: 0, cancelados: 0, emProgresso: 0, total: 0 };
+
+        return res.status(200).json({
+            errorStatus: false,
+            mensageStatus: 'Dados para o gráfico de agendamentos do mês obtidos com sucesso.',
+            data: dataParaGrafico,
+        });
+
+    } catch (error) {
+        console.error('Erro ao buscar dados para o gráfico de agendamentos:', error);
+        return res.status(500).json({
+            errorStatus: true,
+            mensageStatus: 'Houve um erro ao buscar dados para o gráfico de agendamentos.',
+            errorObject: error.message,
+        });
+    }
+});
+
 
 // Rota para obter todos os agendamentos (GET)
 router.get('/', async (req, res) => {
@@ -455,7 +514,7 @@ router.get('/funcionario/:funcionarioId', async (req, res) => {
     } catch (error) {
         console.error('  Erro ao buscar agendamentos por funcionário:', error);
         if (error.name === 'CastError') {
-             return res.status(400).json({
+            return res.status(400).json({
                 errorStatus: true,
                 mensageStatus: `ID do funcionário inválido para busca: ${funcionarioId}`,
                 errorObject: error.message,

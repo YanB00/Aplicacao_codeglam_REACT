@@ -165,7 +165,7 @@ const AddAppointmentForm = ({ onClose, selectedDate, salaoId, onAppointmentSucce
           showMessage(result.mensageStatus || 'Erro retornado pelo backend ao salvar agendamento', 'error');
           return;
         }
-        showMessage(result.mensageStatus || 'Agendamento salvo com sucesso!', 'success'); // Exibe o sucesso no alert customizado
+        showMessage(result.mensageStatus || 'Agendamento salvo com sucesso!', 'success'); 
         resultData = result.data;
       } else {
         const successText = await response.text();
