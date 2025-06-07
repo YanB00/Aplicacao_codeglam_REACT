@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react'; 
-import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
 import styles from './App.module.css';
 
 // Importe componentes Sidebar
@@ -25,17 +25,73 @@ import EditServicePage from './Pages/EditServicePage';
 import SettingsPage from './Pages/SettingsPage';
 import AllAppointmentsHistory from './Pages/AllAppointmentsHistoryPage';
 
-// Remova a função LoginPage que estava aqui
 
 function Dashboard() {
     const { userId } = useParams();
-    console.log('Dashboard - Fetched userId:', userId);
+    const [salonName, setSalonName] = useState('');
+    const [loadingSalonName, setLoadingSalonName] = useState(true);
+    const navigate = useNavigate(); 
+
+    useEffect(() => {
+        const fetchSalonData = async () => {
+            if (!userId) {
+                console.warn('Dashboard - userId não disponível para buscar dados do salão.');
+                setLoadingSalonName(false);
+                setSalonName('Meu Salão');
+                return;
+            }
+
+            setLoadingSalonName(true);
+            try {
+                const response = await fetch(`http://localhost:3000/register/${userId}`);
+                const data = await response.json();
+
+                if (response.ok && !data.errorStatus) {
+                    setSalonName(data.data.empresa);
+                    console.log(`[FRONTEND] Nome do salão capturado do backend: ${data.data.empresa}`);
+                } else {
+                    console.error('[FRONTEND] Erro ao buscar nome do salão:', data.mensageStatus || 'Erro desconhecido');
+                    setSalonName('Meu Salão');
+                }
+            } catch (error) {
+                console.error('[FRONTEND] Erro de rede ou servidor ao buscar nome do salão:', error);
+                setSalonName('Meu Salão');
+            } finally {
+                setLoadingSalonName(false);
+            }
+        };
+
+        fetchSalonData();
+    }, [userId]);
+
+
+    useEffect(() => {
+        if (!loadingSalonName && salonName) {
+            document.title = salonName;
+        } else {
+            document.title = 'Carregando Salão...';
+        }
+    }, [salonName, loadingSalonName]);
+
+    const handleLogout = () => {
+        // Here you would clear any user-related data (e.g., tokens from localStorage)
+        localStorage.removeItem('userToken'); // Example: remove a token
+        sessionStorage.removeItem('userId'); // Example: remove a user ID
+
+        // Redirect to the login page
+        navigate('/login'); // Assuming '/login' is your login route
+    };
 
     return (
         <div className={styles.appContainer}>
-            <Sidebar userId={userId} />
+            <Sidebar userId={userId} userName={salonName} loadingUserName={loadingSalonName} />
             <div className={styles.mainContent}>
-                <div className={styles.topBar}></div>
+                <div className={styles.topBar}>
+                    {/* Logout button */}
+                    <button onClick={handleLogout} className={styles.logoutButton}>
+                        Sair
+                    </button>
+                </div>
                 <TopCards salonId={userId} />
                 <div className={styles.gridArea}>
                     <ChartArea />
@@ -48,25 +104,41 @@ function Dashboard() {
 
 function ScheduleWrapper() {
     const { salonId } = useParams();
+    const navigate = useNavigate(); // Initialize useNavigate here too if you want logout in this wrapper
+
+    const handleLogout = () => {
+        localStorage.removeItem('userToken');
+        sessionStorage.removeItem('userId');
+        navigate('/login');
+    };
+
     return (
         <div className={styles.appContainer}>
             <Sidebar userId={salonId} />
             <div className={styles.mainContent}>
+                <div className={styles.topBar}>
+                     {/* Logout button for ScheduleWrapper */}
+                    <button onClick={handleLogout} className={styles.logoutButton}>
+                        Sair
+                    </button>
+                </div>
                 <SchedulePage salonId={salonId} />
             </div>
         </div>
     );
 }
 
+
 function App() {
-    const EXTERNAL_LOGIN_URL = "http://localhost:5173/login"; 
+    const EXTERNAL_LOGIN_URL = "http://localhost:5173/login";
 
     return (
         <BrowserRouter>
             <Routes>
                 <Route path="/usuario/:userId" element={<Dashboard />} />
+                <Route path="/" element={<Navigate to="/login" replace />} /> {/* Redirect root to login */}
+                <Route path="/login" element={<LoginRedirect />} /> {/* New route for external login */}
 
-                <Route path="/"  element={<Dashboard />} />
 
                 <Route path="/calendario/:salonId" element={<ScheduleWrapper />} />
                 <Route path="/cliente/:id" element={<ClientPage />} />
@@ -88,6 +160,13 @@ function App() {
             </Routes>
         </BrowserRouter>
     );
+}
+
+function LoginRedirect() {
+    useEffect(() => {
+        window.location.href = "http://localhost:5173/login";
+    }, []);
+    return null;
 }
 
 export default App;

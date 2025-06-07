@@ -1,23 +1,46 @@
 .appContainer {
   display: flex;
-  background: #f5f7fc;
-  min-height: 100vh;
+  height: 100vh;
 }
 
 .mainContent {
-  flex: 1;
-  padding: 24px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .topBar {
-  height: 32px;
-  background: #a855f7;
-  border-radius: 16px 16px 0 0;
-  margin-bottom: 16px;
+  background-color: #9b5de5; 
+  height: 60px; 
+  display: flex;
+  justify-content: flex-end; 
+  align-items: center; 
+  padding: 0 20px; 
+  width: 100%; 
+  box-sizing: border-box; 
 }
 
+.logoutButton {
+  background-color: #8e44ad; 
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.logoutButton:hover {
+  background-color: #c084fc;
+}
+
+
 .gridArea {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 24px;
+    display: grid;
+    grid-template-columns: 2fr 1fr; 
+    gap: 20px;
+    padding: 20px;
+    flex-grow: 1; 
+    overflow-y: auto; 
 }
