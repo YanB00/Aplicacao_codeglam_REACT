@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const Register = require('../models/registro'); 
 
-router.post('/login', async (req, res) => { 
+router.post('/', async (req, res) => { 
   const { email, senha } = req.body;
 
   try {

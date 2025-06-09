@@ -2,11 +2,12 @@ import React from 'react';
 import styles from './ServiceCard.module.css';
 import { useNavigate } from 'react-router-dom';
 
-export default function ServiceCard({ service }) {
+// Accept userId as a prop
+export default function ServiceCard({ service, userId }) { 
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/servico/${service._id}`);
+    navigate(`/servico/${service._id}?userId=${userId || ''}`); 
   };
 
   const formatPrice = (price) => {
@@ -24,7 +25,7 @@ export default function ServiceCard({ service }) {
     } else if (typeof duration === 'number') {
       totalMinutes = parseInt(duration);
     } else {
-      return duration; 
+      return duration || 'Não informada'; 
     }
 
     const hours = Math.floor(totalMinutes / 60);
@@ -42,7 +43,7 @@ export default function ServiceCard({ service }) {
     }
 
     if (durationString === '') {
-      return '0 minutos'; // 'Tempo não especificado'
+      return '0 minutos';
     }
 
     return durationString;
@@ -56,6 +57,8 @@ export default function ServiceCard({ service }) {
         return styles.statusCanceled;
       case 'Bloqueado':
         return styles.statusBlocked;
+      case 'Desativado': 
+        return styles.statusDeactivated; 
       default:
         return '';
     }

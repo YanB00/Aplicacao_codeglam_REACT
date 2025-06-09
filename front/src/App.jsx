@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation, useNavigate } from 'react-router-dom';
 import styles from './App.module.css';
 
-// Importe componentes Sidebar
+// Importe componentes Sidebar 
 import Sidebar from './components/Sidebar';
 import TopCards from './components/TopCards';
 import ChartArea from './components/ChartArea';
@@ -13,6 +13,7 @@ import ClientPage from './Pages/ClientPage';
 import ClientListPage from './Pages/ClientListPage';
 import EditClientPage from './Pages/EditClientPage';
 import AddClientPage from './Pages/AddClientPage';
+
 import SchedulePage from './Pages/SchedulePage';
 import EmployeePage from './Pages/EmployeePage';
 import EmployeeListPage from './Pages/EmployeeListPage';
@@ -25,25 +26,46 @@ import EditServicePage from './Pages/EditServicePage';
 import SettingsPage from './Pages/SettingsPage';
 import AllAppointmentsHistory from './Pages/AllAppointmentsHistoryPage';
 
-
-function Dashboard() {
-    const { userId } = useParams();
+function MainLayout({ children }) {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { userId: userIdFromParams, salonId: salonIdFromParams } = useParams(); 
+    const [currentUserId, setCurrentUserId] = useState(null);
     const [salonName, setSalonName] = useState('');
     const [loadingSalonName, setLoadingSalonName] = useState(true);
-    const navigate = useNavigate(); 
+    const [refreshTrigger, setRefreshTrigger] = useState(0); 
+
+
+    console.log('--- MainLayout Render ---');
+    console.log('location.pathname:', location.pathname);
+    console.log('location.search:', location.search);
+    console.log('userIdFromParams (from useParams):', userIdFromParams);
+    console.log('salonIdFromParams (from useParams):', salonIdFromParams);
+    console.log('currentUserId (state):', currentUserId);
 
     useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const userIdFromQuery = params.get('userId');
+        const salonIdFromQuery = params.get('salonId');
+
+        const idFromUrl = userIdFromParams || salonIdFromParams || userIdFromQuery || salonIdFromQuery;
+
+        if (idFromUrl && idFromUrl !== currentUserId) {
+            setCurrentUserId(idFromUrl);
+        } else if (!idFromUrl && currentUserId !== null) {
+            setCurrentUserId(null);
+        }
+
         const fetchSalonData = async () => {
-            if (!userId) {
-                console.warn('Dashboard - userId não disponível para buscar dados do salão.');
+            if (!idFromUrl) {
+                console.warn('MainLayout - userId não disponível para buscar dados do salão.');
                 setLoadingSalonName(false);
                 setSalonName('Meu Salão');
                 return;
             }
-
             setLoadingSalonName(true);
             try {
-                const response = await fetch(`http://localhost:3000/register/${userId}`);
+                const response = await fetch(`http://localhost:3000/register/${idFromUrl}`);
                 const data = await response.json();
 
                 if (response.ok && !data.errorStatus) {
@@ -62,8 +84,7 @@ function Dashboard() {
         };
 
         fetchSalonData();
-    }, [userId]);
-
+    }, [location.search, userIdFromParams, salonIdFromParams, currentUserId, refreshTrigger]); 
 
     useEffect(() => {
         if (!loadingSalonName && salonName) {
@@ -74,58 +95,52 @@ function Dashboard() {
     }, [salonName, loadingSalonName]);
 
     const handleLogout = () => {
-        // Here you would clear any user-related data (e.g., tokens from localStorage)
-        localStorage.removeItem('userToken'); // Example: remove a token
-        sessionStorage.removeItem('userId'); // Example: remove a user ID
-
-        // Redirect to the login page
-        navigate('/login'); // Assuming '/login' is your login route
-    };
-
-    return (
-        <div className={styles.appContainer}>
-            <Sidebar userId={userId} userName={salonName} loadingUserName={loadingSalonName} />
-            <div className={styles.mainContent}>
-                <div className={styles.topBar}>
-                    {/* Logout button */}
-                    <button onClick={handleLogout} className={styles.logoutButton}>
-                        Sair
-                    </button>
-                </div>
-                <TopCards salonId={userId} />
-                <div className={styles.gridArea}>
-                    <ChartArea />
-                    <BirthdayList userId={userId} />
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function ScheduleWrapper() {
-    const { salonId } = useParams();
-    const navigate = useNavigate(); // Initialize useNavigate here too if you want logout in this wrapper
-
-    const handleLogout = () => {
         localStorage.removeItem('userToken');
         sessionStorage.removeItem('userId');
         navigate('/login');
     };
 
+    const handleRefreshSalonData = () => {
+        console.log("MainLayout: Forçando recarga dos dados do salão...");
+        setRefreshTrigger(prev => prev + 1);
+    };
     return (
         <div className={styles.appContainer}>
-            <Sidebar userId={salonId} />
+            <Sidebar userId={currentUserId} userName={salonName} loadingUserName={loadingSalonName} />
             <div className={styles.mainContent}>
-                <div className={styles.topBar}>
-                     {/* Logout button for ScheduleWrapper */}
-                    <button onClick={handleLogout} className={styles.logoutButton}>
-                        Sair
-                    </button>
-                </div>
-                <SchedulePage salonId={salonId} />
+                {currentUserId ? (
+                    React.Children.map(children, child =>
+                        React.cloneElement(child, { userId: currentUserId, salonId: currentUserId, onSalonDataUpdate: handleRefreshSalonData, onLogout: handleLogout })
+                    )
+                ) : (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                        <p>Carregando dados do usuário...</p>
+                    </div>
+                )}
             </div>
         </div>
     );
+}
+
+function DashboardContent({ userId, onLogout }) { 
+    return (
+        <>
+            <div className={styles.dashboardTopBar}> 
+                <h1 className={styles.dashboardTitle}>DASHBOARD</h1> 
+                <button onClick={onLogout} className={styles.logoutButton}>SAIR
+                </button>
+            </div>
+            <TopCards salonId={userId} />
+            <div className={styles.gridArea}>
+                <ChartArea />
+                <BirthdayList userId={userId} />
+            </div>
+        </>
+    );
+}
+
+function SchedulePageContent({ salonId }) {
+    return <SchedulePage salonId={salonId} />;
 }
 
 
@@ -135,28 +150,27 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/usuario/:userId" element={<Dashboard />} />
-                <Route path="/" element={<Navigate to="/login" replace />} /> {/* Redirect root to login */}
-                <Route path="/login" element={<LoginRedirect />} /> {/* New route for external login */}
+                <Route path="/" element={<Navigate to="/login" replace />} />
+                <Route path="/login" element={<LoginRedirect />} />
 
-
-                <Route path="/calendario/:salonId" element={<ScheduleWrapper />} />
-                <Route path="/cliente/:id" element={<ClientPage />} />
-                <Route path="/clientes" element={<ClientListPage />} />
-                <Route path="/cliente/editar/:id" element={<EditClientPage />} />
-                <Route path="/add-cliente" element={<AddClientPage />} />
-                <Route path="/funcionarios" element={<EmployeeListPage />} />
+                <Route path="/usuario/:userId" element={<MainLayout><DashboardContent /></MainLayout>} />
+                <Route path="/calendario/:salonId" element={<MainLayout><SchedulePageContent /></MainLayout>} />
+                
+                <Route path="/cliente/:id" element={<MainLayout><ClientPage /></MainLayout>} />
+                <Route path="/clientes" element={<MainLayout><ClientListPage /></MainLayout>} />
+                <Route path="/cliente/editar/:id" element={<MainLayout><EditClientPage /></MainLayout>} />
+                <Route path="/add-cliente" element={<MainLayout><AddClientPage /></MainLayout>} />
+                <Route path="/funcionarios" element={<MainLayout><EmployeeListPage /></MainLayout>} />
                 <Route path="/funcionario" element={<Navigate to="/funcionarios" replace />} />
-                <Route path="/funcionario/:id" element={<EmployeePage />} />
-                <Route path="/funcionario/editar/:id" element={<EditEmployeePage />} />
-                <Route path="/add-funcionario" element={<AddEmployeePage />} />
-                <Route path="/configuracoes" element={<SettingsPage />} />
-                <Route path="/servicos" element={<ServiceListPage />} />
-                <Route path="/add-servico" element={<AddServicePage />} />
-                <Route path="/servico/:id" element={<ServiceDetailsPage />} />
-                <Route path="/servicos/editar/:id" element={<EditServicePage />} />
-                <Route path="/historico" element={<AllAppointmentsHistory />} />
-
+                <Route path="/funcionario/:id" element={<MainLayout><EmployeePage /></MainLayout>} />
+                <Route path="/funcionario/editar/:id" element={<MainLayout><EditEmployeePage /></MainLayout>} />
+                <Route path="/add-funcionario" element={<MainLayout><AddEmployeePage /></MainLayout>} />
+                <Route path="/configuracoes" element={<MainLayout><SettingsPage /></MainLayout>} />
+                <Route path="/servicos" element={<MainLayout><ServiceListPage /></MainLayout>} />
+                <Route path="/add-servico" element={<MainLayout><AddServicePage /></MainLayout>} />
+                <Route path="/servico/:id" element={<MainLayout><ServiceDetailsPage /></MainLayout>} />
+                <Route path="/servicos/editar/:id" element={<MainLayout><EditServicePage /></MainLayout>} />
+                <Route path="/historico" element={<MainLayout><AllAppointmentsHistory /></MainLayout>} />
             </Routes>
         </BrowserRouter>
     );

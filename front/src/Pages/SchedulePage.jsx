@@ -22,18 +22,17 @@ const SchedulePage = ({ salonId }) => {
 
   const BASE_URL = 'http://localhost:3000';
 
-  // --- MODIFICAÇÃO AQUI: Renomeando 'idDoSalao' para 'currentId' ---
   const fetchAllAppointmentsForSalao = useCallback(async (currentId) => {
-    if (!currentId) { // Use currentId aqui
+    if (!currentId) { 
       setRawAppointmentsFromApi([]);
       console.warn("SchedulePage: ID do Salão não fornecido para buscar agendamentos.");
       return;
     }
-    console.log(`SchedulePage: Buscando TODOS os agendamentos para salaoId: ${currentId}`); // Use currentId aqui
+    console.log(`SchedulePage: Buscando TODOS os agendamentos para salaoId: ${currentId}`); 
     setIsLoadingAppointments(true);
     setFetchAppointmentsError(null);
     try {
-      const response = await fetch(`${BASE_URL}/agendamentos/salao/${currentId}`); // Use currentId aqui
+      const response = await fetch(`${BASE_URL}/agendamentos/salao/${currentId}`); 
       if (!response.ok) {
         const errorData = await response.text();
         throw new Error(`Falha ao buscar agendamentos: ${response.statusText} - ${errorData}`);

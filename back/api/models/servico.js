@@ -29,7 +29,7 @@ const servicoSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ['Ativo', 'Bloqueado', 'Cancelado'], 
+    enum: ['Ativo', 'Bloqueado', 'Cancelado', 'Desativado'], 
     required: true,
     default: 'Ativo', 
   },

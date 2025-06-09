@@ -4,10 +4,9 @@ import { FaKey, FaBirthdayCake, FaIdCard, FaPhone, FaEnvelope, FaArrowLeft, FaUs
 import ClientHistory from '../components/ClientHistory';
 import styles from './EmployeePage.module.css';
 
-export default function ClientPage() {
+export default function ClientPage({ userId: propUserId }) {
     const { id } = useParams();
     const navigate = useNavigate();
-    const location = useLocation();
 
     const [client, setClient] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -17,82 +16,90 @@ export default function ClientPage() {
     const [imageError, setImageError] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
 
+useEffect(() => {
+        if (propUserId && propUserId !== currentUserId) {
+            setCurrentUserId(propUserId);
+        }
+        console.log('ClientPage received propUserId:', propUserId);
+        if (!propUserId) {
+            console.warn("ClientPage: userId prop is missing. Ensure it's passed from MainLayout.");
+        }
+    }, [propUserId]);
+
     useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        const fetchedUserId = params.get('userId');
-        setCurrentUserId(fetchedUserId);
-        console.log('ID do Usuário da URL na ClientPage:', fetchedUserId);
+        const fetchClientAndSalaoId = async () => {
+            setIsLoading(true);
+            setError(null);
+            setImageError(false);
 
-        const fetchClient = async () => {
-            try {
-                setIsLoading(true);
-                setError(null);
-                setImageError(false);
-
-                const response = await fetch(`http://localhost:3000/clientes/${id}`);
-                if (!response.ok) {
-                    if (response.status === 404) {
-                        throw new Error('Cliente não encontrado ou inativo.');
+            // Fetch client data
+            if (id) {
+                try {
+                    const response = await fetch(`http://localhost:3000/clientes/${id}`);
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({})); // Catch JSON parse error
+                        if (response.status === 404) {
+                            throw new Error('Cliente não encontrado ou inativo.');
+                        }
+                        throw new Error(`Erro ao buscar cliente: ${response.status}, ${errorData.mensageStatus || response.statusText}`);
                     }
-                    throw new Error(`Erro ao buscar cliente: ${response.statusText}`);
+                    const result = await response.json();
+
+                    if (result.errorStatus) {
+                        throw new Error(result.mensageStatus || 'Erro desconhecido ao buscar cliente.');
+                    }
+
+                    const data = result.data;
+                    setClient({
+                        ...data,
+                        dataNascimento: data.dataNascimento ? new Date(data.dataNascimento).toLocaleDateString('pt-BR') : 'N/A',
+                        cpf: data.cpf ? formatCpf(data.cpf) : 'N/A',
+                        // Ensure foto path is correctly formed for display
+                        foto: data.foto ? `http://localhost:3000/${data.foto.replace(/\\/g, '/')}` : 'https://via.placeholder.com/150',
+                        favoritos: Array.isArray(data.favoritos) ? data.favoritos.join(', ') : (data.favoritos || 'N/A'),
+                        problemasSaude: data.problemasSaude || 'Nenhum',
+                        informacoesAdicionais: data.informacoesAdicionais || 'Nenhum',
+                        clienteDesde: data.dataCadastro ? new Date(data.dataCadastro).toLocaleDateString('pt-BR') : 'N/A',
+                    });
+
+                } catch (err) {
+                    console.error('Erro ao buscar cliente:', err);
+                    setError(err.message);
+                    setIsLoading(false); // Set loading to false on error
+                    return; // Exit if client data fetch fails
                 }
-                const result = await response.json();
-
-                if (result.errorStatus) {
-                    throw new Error(result.mensageStatus || 'Erro desconhecido ao buscar cliente.');
-                }
-
-                const formattedClient = {
-                    ...result.data,
-                    dataNascimento: result.data.dataNascimento ? new Date(result.data.dataNascimento).toLocaleDateString('pt-BR') : 'N/A',
-                    cpf: result.data.cpf ? formatCpf(result.data.cpf) : 'N/A',
-                    foto: result.data.foto ? `http://localhost:3000/${result.data.foto.replace(/\\\\/g, '/')}` : 'https://via.placeholder.com/150',
-                    favoritos: Array.isArray(result.data.favoritos) ? result.data.favoritos.join(', ') : (result.data.favoritos || 'N/A'),
-                    problemasSaude: result.data.problemasSaude || 'Nenhum',
-                    informacoesAdicionais: result.data.informacoesAdicionais || 'Nenhum',
-                    clienteDesde: result.data.dataCadastro ? new Date(result.data.dataCadastro).toLocaleDateString('pt-BR') : 'N/A',
-                };
-
-                setClient(formattedClient);
-
-            } catch (err) {
-                console.error('Erro ao buscar cliente:', err);
-                setError(err.message);
-            } finally {
-                setIsLoading(false);
             }
+
+            // Fetch salaoId (only if userId is available and client data fetched successfully)
+            if (propUserId) { // Use the propUserId here
+                try {
+                    // Assuming your backend /funcionarios/user-salao/:userId is correct
+                    const responseSalao = await fetch(`http://localhost:3000/funcionarios/user-salao/${propUserId}`);
+                    if (!responseSalao.ok) {
+                        throw new Error(`Erro ao buscar salaoId: ${responseSalao.statusText}`);
+                    }
+                    const resultSalao = await responseSalao.json();
+                    setSalaoId(resultSalao.salaoId);
+                    console.log('SalaoId fetched:', resultSalao.salaoId);
+                } catch (errorSalao) {
+                    console.error('Erro ao buscar salaoId:', errorSalao);
+                    setError(errorSalao.message);
+                }
+            } else {
+                console.warn('propUserId não fornecido, não é possível buscar salaoId para ClientHistory.');
+            }
+
+            setIsLoading(false); // Set loading to false after all fetches attempt to complete
         };
 
-        const fetchSalaoId = async () => {
-            if (!fetchedUserId) {
-                console.warn('userId não fornecido, não é possível buscar salaoId.');
-                return;
-            }
-            try {
-                const response = await fetch(`http://localhost:3000/funcionarios/user-salao/${fetchedUserId}`);
-                if (!response.ok) {
-                    throw new Error(`Erro ao buscar salaoId: ${response.statusText}`);
-                }
-                const result = await response.json();
-                setSalaoId(result.salaoId);
-                console.log('SalaoId fetched:', result.salaoId);
-            } catch (error) {
-                console.error('Erro ao buscar salaoId:', error);
-                setError(error.message);
-            }
-        };
-
-        if (id) {
-            fetchClient();
+        if (id) { // Only fetch if client ID is available
+            fetchClientAndSalaoId();
         }
-        if (fetchedUserId) {
-            fetchSalaoId();
-        }
-    }, [id, location.search]);
+    }, [id, propUserId]);
 
     const handleGoBack = () => {
-        if (currentUserId) {
-            navigate(`/clientes?userId=${currentUserId}`);
+        if (propUserId) {
+            navigate(`/clientes?userId=${propUserId}`);
         } else {
             navigate('/clientes');
         }
@@ -100,8 +107,8 @@ export default function ClientPage() {
 
     const handleEditClick = () => {
         if (client && client.idCliente) {
-            if (currentUserId) {
-                navigate(`/cliente/editar/${client.idCliente}?userId=${currentUserId}`);
+            if (propUserId) {
+                navigate(`/cliente/editar/${client.idCliente}?userId=${propUserId}`);
             } else {
                 navigate(`/cliente/editar/${client.idCliente}`);
             }
@@ -250,8 +257,8 @@ export default function ClientPage() {
                 </div>
 
                     <div className={styles.historySection}>
-                    {salaoId ? (
-                        <ClientHistory clientId={client.idCliente} salaoId={salaoId} />
+                    {propUserId ? (
+                        <ClientHistory clientId={client.idCliente} salaoId={propUserId} />
                     ) : (
                         <p>Carregando histórico (aguardando ID do salão)...</p>
                     )}

@@ -34,7 +34,30 @@ const registroSchema = new Schema({
   dataRegistro: {
     type: Date,
     default: Date.now
-  }
-});
+  },
+  horariosFuncionamento: { 
+      type: Object, 
+      default: {
+          segunda: { abre: '09:00', fecha: '18:00', ativo: true },
+          terca:   { abre: '09:00', fecha: '18:00', ativo: true },
+          quarta:  { abre: '09:00', fecha: '18:00', ativo: true },
+          quinta:  { abre: '09:00', fecha: '18:00', ativo: true },
+          sexta:   { abre: '09:00', fecha: '18:00', ativo: true },
+          sabado:  { abre: '09:00', fecha: '13:00', ativo: true },
+          domingo: { abre: '00:00', fecha: '00:00', ativo: false } 
+      }
+  },
+  modulosAtivos: { 
+      type: Object, 
+      default: {
+          clientes: true,
+          funcionarios: true,
+          servicos: true,
+          agenda: true,
+          historico: true,
+      }
+  },
+}, { timestamps: true });
 
 module.exports = mongoose.model('Registro', registroSchema);
+

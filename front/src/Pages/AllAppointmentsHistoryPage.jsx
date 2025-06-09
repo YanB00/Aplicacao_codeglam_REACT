@@ -1,62 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import Sidebar from '../components/Sidebar';
-import styles from '../App.module.css';               
-import AllAppointmentsHistory from '../components/AllAppointmentsHistory';
-import { useLocation } from 'react-router-dom'; 
+import React, { useEffect } from 'react'; 
+import AllAppointmentsHistoryComponent from '../components/AllAppointmentsHistory';
+import { useLocation } from 'react-router-dom';
 
-export default function AllAppointmentsHistoryPage() {
-  const [currentUserId, setCurrentUserId] = useState(null);
-  const location = useLocation();
+export default function AllAppointmentsHistoryPage({ userId: propUserId }) { 
+    const location = useLocation(); 
 
-  useEffect(() => {
-    let idFound = false;
-
-    const urlParams = new URLSearchParams(location.search);
-    const userIdFromUrl = urlParams.get('userId');
-
-    if (userIdFromUrl) {
-      setCurrentUserId(userIdFromUrl);
-      idFound = true;
-    }
-
-    if (!idFound) {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        try {
-          const userData = JSON.parse(storedUser);
-          if (userData && userData._id) {
-            setCurrentUserId(userData._id);
-            idFound = true;
-          }
-        } catch (e) {
-          console.error("Erro ao fazer parse do usuário do localStorage:", e);
+    useEffect(() => {
+        console.log("AllAppointmentsHistoryPage: Received propUserId:", propUserId);
+        if (!propUserId) {
+            console.warn("AllAppointmentsHistoryPage: userId prop is missing. History might not load.");
         }
-      }
+    }, [propUserId]); 
+
+    if (!propUserId) { 
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
+                <p>Carregando informações do usuário para o histórico...</p>
+            </div>
+        );
     }
 
-    if (!idFound) {
-      console.warn("User ID (ID do salão) não encontrado na URL ou no localStorage.");
-    }
-
-  }, [location]); 
-
-  if (!currentUserId) {
     return (
-      <div className={styles.appContainer}>
-        <Sidebar userId={null} /> 
-        <div className={styles.mainContent}>
-          <p>Carregando informações do usuário...</p>
-        </div>
-      </div>
+        <>
+            <AllAppointmentsHistoryComponent userId={propUserId} />
+        </>
     );
-  }
-
-  return (
-    <div className={styles.appContainer}>
-      <Sidebar userId={currentUserId} /> 
-      <div className={styles.mainContent}>
-        <AllAppointmentsHistory userId={currentUserId} /> 
-      </div>
-    </div>
-  );
 }

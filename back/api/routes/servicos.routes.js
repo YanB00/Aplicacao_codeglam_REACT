@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose'); 
 const Servico = require('../models/servico');
 const Salao = require('../models/registro'); 
 
@@ -37,26 +38,50 @@ router.post('/', async (req, res) => {
 
 
 // Rota para obter todos os serviços de um salão específico (GET)
-router.get('/:salaoId', async (req, res) => {
-  const { salaoId } = req.params;
+router.get('/salao/:salaoId', async (req, res) => {
+const { salaoId } = req.params;
 
-  try {
-    const servicos = await Servico.find({ salaoId, status: { $ne: 'Desativado' } });
-
-    return res.status(200).json({
-      errorStatus: false,
-      mensageStatus: 'SERVIÇOS DO SALÃO ENCONTRADOS',
-      data: servicos, 
-    });
-  } catch (error) {
-    console.error('Erro ao buscar serviços do salão:', error);
-    return res.status(500).json({
-      errorStatus: true,
-      mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS SERVIÇOS DO SALÃO',
-      errorObject: error,
-    });
-  }
+  try {
+    if (!mongoose.Types.ObjectId.isValid(salaoId)) {
+        console.error('ERRO: ID do salão inválido:', salaoId);
+        return res.status(400).json({
+            errorStatus: true,
+            mensageStatus: `ID do salão inválido: ${salaoId}`,
+        });
+    }
+  const servicos = await Servico.find({ 
+    salaoId: new mongoose.Types.ObjectId(salaoId), 
+    status: { $in: ['Ativo', 'Bloqueado', 'Cancelado'] } 
 });
+
+    const servicosComIdString = servicos.map(servico => ({
+        ...servico.toObject(),
+        _id: servico._id.toString(),
+        idServico: servico._id.toString(),
+    }));
+
+    return res.status(200).json({
+      errorStatus: false,
+      mensageStatus: 'SERVIÇOS DO SALÃO ENCONTRADOS',
+      data: servicosComIdString, 
+    });
+  } catch (error) {
+    console.error('Erro ao buscar serviços do salão:', error);
+    if (error.name === 'CastError') {
+        return res.status(400).json({
+            errorStatus: true,
+            mensageStatus: `ID do salão inválido: ${salaoId}`,
+            errorObject: error.message,
+        });
+    }
+    return res.status(500).json({
+      errorStatus: true,
+      mensageStatus: 'HOUVE UM ERRO AO BUSCAR OS SERVIÇOS DO SALÃO',
+      errorObject: error,
+    });
+  }
+});
+
 
 
 // Rota para atualizar o status de um serviço (PUT)

@@ -53,6 +53,7 @@ const funcionarioSchema = new Schema({
     ref: 'Registro', 
     required: true, 
   },
+
 });
 
 module.exports = mongoose.model('Funcionario', funcionarioSchema);

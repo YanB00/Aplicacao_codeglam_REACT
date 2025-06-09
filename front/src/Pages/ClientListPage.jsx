@@ -1,15 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import ClientCard from '../components/ClientCard';
-import styles from './EmployeeListPage.module.css';
-import layoutStyles from './Layout.module.css';
+import styles from './EmployeeListPage.module.css'; 
 import { FaSearch, FaUserPlus, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { useNavigate, useLocation } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
+import { useNavigate, useLocation } from 'react-router-dom'; 
 
-export default function ClientListPage() {
+export default function ClientListPage({ userId }) { 
     const navigate = useNavigate();
-    const location = useLocation();
-    const [userId, setUserId] = useState(null);
+    const location = useLocation(); 
     const [clients, setClients] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -17,66 +14,64 @@ export default function ClientListPage() {
     const [error, setError] = useState(null);
     const clientsPerPage = 10;
 
-    useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        setUserId(params.get('userId'));
-    }, [location.search]);
-
     const fetchClients = useCallback(async () => {
         setLoading(true);
         setError(null);
+        setClients([]); 
         try {
-            const response = await fetch('http://localhost:3000/clientes/listClientes');
+        
+            const response = await fetch(`http://localhost:3000/clientes/salao/${userId}`); 
+
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.mensageStatus || 'Failed to fetch clients');
             }
             const result = await response.json();
-            if (result.data) { 
+            if (result.data) {
                 const sortedClients = result.data.sort((a, b) =>
                     a.nomeCompleto.localeCompare(b.nomeCompleto)
                 );
                 setClients(sortedClients);
             } else {
-                setClients([]); 
+                setClients([]);
             }
         } catch (err) {
             console.error('Error fetching clients:', err);
             setError(err.message || 'Erro ao carregar clientes.');
-            setClients([]); 
+            setClients([]);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [userId]); 
 
     useEffect(() => {
-        if (userId && userId !== 'null') {
+    if (userId && userId !== 'null') { 
             fetchClients();
         } else {
             setLoading(false);
             setClients([]);
-            setError('Usuário não autenticado ou inválido. Não é possível carregar clientes.');
+            setError('ID de usuário não fornecido. Não é possível carregar clientes.');
         }
     }, [userId, fetchClients]);
 
     const handleSearch = (event) => {
-    const term = event.target.value.toLowerCase();
+        const term = event.target.value.toLowerCase();
         setSearchTerm(term);
         setCurrentPage(1);
     };
 
     const handleAddClientClick = () => {
-        if (userId) {
-        navigate(`/add-cliente?userId=${userId}`);
+        if (userId) { 
+            navigate(`/add-cliente?userId=${userId}`);
         } else {
-        navigate('/add-cliente'); // Fallback caso userId não esteja disponível
+            navigate('/add-cliente'); 
         }
     };
 
     const filteredClients = clients.filter(
         (client) =>
-        client.nomeCompleto.toLowerCase().includes(searchTerm) ||
-        client._id.toLowerCase().includes(searchTerm)
+            client.nomeCompleto.toLowerCase().includes(searchTerm) ||
+            (client._id && client._id.toLowerCase().includes(searchTerm)) 
     );
 
     const indexOfLastClient = currentPage * clientsPerPage;
@@ -87,85 +82,84 @@ export default function ClientListPage() {
 
     const nextPage = () => {
         if (currentPage < totalPages) {
-        setCurrentPage(currentPage + 1);
+            setCurrentPage(currentPage + 1);
         }
     };
 
     const prevPage = () => {
         if (currentPage > 1) {
-        setCurrentPage(currentPage - 1);
+            setCurrentPage(currentPage - 1);
         }
     };
 
     const pageNumbers = [];
-        for (let i = 1; i <= totalPages; i++) {
+    for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
     }
 
     return (
-        <div className={layoutStyles.mainLayout}>
-        <Sidebar userId={userId} />
-        <div className={layoutStyles.contentArea}>
-        <div className={styles.topBar}>
-        <h2 className={styles.topBarTitle}>Clientes</h2>
-        <div className={styles.searchContainer}>
-        <input
-            type="text"
-            placeholder="Buscar por nome ou ID..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className={styles.searchInput}
-        />
-        </div>
-        </div>
+ 
+        <div className={styles.clientListPageContent}> 
+            <div className={styles.topBar}> 
+                <h2 className={styles.topBarTitle}>Clientes</h2>
+                <div className={styles.searchContainer}>
+                    <input
+                        type="text"
+                        placeholder="Buscar por nome ou ID..."
+                        value={searchTerm}
+                        onChange={handleSearch}
+                        className={styles.searchInput}
+                    />
+                </div>
+            </div>
 
             {loading && <p>Carregando clientes...</p>}
-                {!loading && !error && filteredClients.length === 0 && (
-                    <p>Nenhum cliente encontrado.</p>
-                )}
+            {!loading && error && <p>Erro: {error}</p>} 
+            {!loading && !error && filteredClients.length === 0 && (
+                <p>Nenhum cliente encontrado.</p>
+            )}
 
-                {!loading && !error && filteredClients.length > 0 && (
-                    <>
-        <div className={styles.grid}>
-        {currentClients.map((client) => (
-        <ClientCard
-            key={client._id}
-            client={{
-            id: client._id,
-            name: client.nomeCompleto,
-            img: client.foto ? `http://localhost:3000/${client.foto.replace(/\\/g, '/')}` : 'https://via.placeholder.com/150',
-            birthDate: client.dataNascimento ? new Date(client.dataNascimento).toLocaleDateString('pt-BR') : 'N/A',
-            since: client.dataCadastro ? new Date(client.dataCadastro).toLocaleDateString('pt-BR') : 'N/A',
-            favorites: client.favoritos || [],
-        }}
-        userId={userId}
-        />
-        ))}
-        </div>
-            <div className={styles.pagination}>
-                <button onClick={prevPage} disabled={currentPage === 1} className={styles.paginationButton}>
-                <FaChevronLeft />
-                </button>
-                {pageNumbers.map((number) => (
-                <button
-                key={number}
-                onClick={() => paginate(number)}
-                className={`${styles.paginationButton} ${currentPage === number ? styles.active : ''}`}
-                >
-                {number}
-                </button>
-                ))}
-                <button onClick={nextPage} disabled={currentPage === totalPages} className={styles.paginationButton}>
-                <FaChevronRight />
+            {!loading && !error && filteredClients.length > 0 && (
+                <>
+                    <div className={styles.grid}>
+                        {currentClients.map((client) => (
+                            <ClientCard
+                                key={client._id}
+                                client={{
+                                    id: client._id,
+                                    name: client.nomeCompleto,
+                                    img: client.foto ? `http://localhost:3000/${client.foto.replace(/\\/g, '/')}` : 'https://via.placeholder.com/150',
+                                    birthDate: client.dataNascimento ? new Date(client.dataNascimento).toLocaleDateString('pt-BR') : 'N/A',
+                                    since: client.dataCadastro ? new Date(client.dataCadastro).toLocaleDateString('pt-BR') : 'N/A',
+                                    favorites: client.favoritos || [],
+                                }}
+                                userId={userId} 
+                            />
+                        ))}
+                    </div>
+                    <div className={styles.pagination}>
+                        <button onClick={prevPage} disabled={currentPage === 1} className={styles.paginationButton}>
+                            <FaChevronLeft />
+                        </button>
+                        {pageNumbers.map((number) => (
+                            <button
+                                key={number}
+                                onClick={() => paginate(number)}
+                                className={`${styles.paginationButton} ${currentPage === number ? styles.active : ''}`}
+                            >
+                                {number}
+                            </button>
+                        ))}
+                        <button onClick={nextPage} disabled={currentPage === totalPages} className={styles.paginationButton}>
+                            <FaChevronRight />
+                        </button>
+                    </div>
+                </>
+            )}
+
+            <button className={styles.addButton} onClick={handleAddClientClick}>
+                <FaUserPlus /> Adicionar Cliente
             </button>
         </div>
-        </>
-        )}
-
-    <button className={styles.addButton} onClick={handleAddClientClick}>
-        <FaUserPlus /> Adicionar Cliente
-    </button>
-    </div>
-    </div>
     );
 }

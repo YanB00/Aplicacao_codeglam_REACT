@@ -68,7 +68,7 @@ router.post('/add-funcionario', upload.single('foto'), getSalaoIdFromUser, async
   const { nomeCompleto, dataNascimento, cpf, dataAdmissao, servicosRealizados, beneficios, informacoesAdicionais, telefone, email } = req.body; // Remove salaoId daqui, pois virá do middleware
 
   const foto = req.file ? req.file.filename : null;
-  const salaoId = req.salaoId; // <--- CAPTURAR salaoId ANEXADO PELO MIDDLEWARE
+  const salaoId = req.salaoId; 
 
   console.log('### ROTA ADD-FUNCIONARIO: Iniciando rota.');
   console.log('### ROTA ADD-FUNCIONARIO: salaoId recebido do middleware (req.salaoId):', salaoId ? salaoId.toString() : 'null'); // LOG G

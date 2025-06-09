@@ -1,39 +1,26 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import EmployeeCard from '../components/EmployeeCard';
-import styles from './EmployeeListPage.module.css';
+import styles from './EmployeeListPage.module.css'; 
 import { FaSearch, FaUserPlus, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { useNavigate, useLocation } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
+import { useNavigate, useLocation } from 'react-router-dom'; 
 
-export default function EmployeeListPage() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [currentUserId, setCurrentUserId] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [employees, setEmployees] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const employeesPerPage = 6;
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+export default function EmployeeListPage({ userId }) { 
+    const navigate = useNavigate();
+    const location = useLocation(); 
+    const [searchTerm, setSearchTerm] = useState('');
+    const [employees, setEmployees] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const employeesPerPage = 6;
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-  useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        setCurrentUserId(params.get('userId'));
-    }, [location.search]);
-
-  const getUserIdFromUrl = () => {
-    const params = new URLSearchParams(location.search);
-    return params.get('userId');
-  };
-
-  const userId = getUserIdFromUrl(); 
-
-   const fetchEmployeesAPI = useCallback(async () => {
+    const fetchEmployeesAPI = useCallback(async () => {
         setLoading(true);
         setError(null);
-        setEmployees([]); 
+        setEmployees([]);
         try {
-            const response = await fetch('http://localhost:3000/funcionarios');
+            const response = await fetch(`http://localhost:3000/funcionarios/salao/${userId}`); 
+
             if (!response.ok) {
                 let errorMessage = `HTTP error! status: ${response.status}`;
                 try {
@@ -47,73 +34,73 @@ export default function EmployeeListPage() {
             }
             const data = await response.json();
             if (data && data.data && Array.isArray(data.data)) {
-                const sortedEmployees = data.data.sort((a, b) =>
+                    const sortedEmployees = data.data.sort((a, b) =>
                     a.nomeCompleto.localeCompare(b.nomeCompleto)
                 );
                 setEmployees(sortedEmployees);
             } else {
-                setEmployees([]); 
+                setEmployees([]);
             }
         } catch (e) {
-            setError(e); 
-            setEmployees([]); 
+            setError(e);
+            setEmployees([]);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [userId]); 
 
-      useEffect(() => {
-        if (currentUserId && currentUserId !== 'null') {
+    useEffect(() => {
+        if (userId && userId !== 'null') {
             fetchEmployeesAPI();
         } else {
             setLoading(false);
-            setEmployees([]); 
+            setEmployees([]);
             setError(new Error('Usuário não autenticado ou inválido. Não é possível carregar funcionários.'));
         }
-    }, [currentUserId, fetchEmployeesAPI]);
+    }, [userId, fetchEmployeesAPI]); 
 
-  const handleSearch = (event) => {
-    const term = event.target.value.toLowerCase();
-    setSearchTerm(term);
-    setCurrentPage(1);
-  };
-
-  const handleAddEmployeeClick = () => {
-    navigate(`/add-funcionario?userId=${currentUserId || ''}`);
+    const handleSearch = (event) => {
+        const term = event.target.value.toLowerCase();
+        setSearchTerm(term);
+        setCurrentPage(1);
     };
 
-  const filteredEmployees = employees.filter(
-    (employee) =>
-      employee.nomeCompleto.toLowerCase().includes(searchTerm) ||
-      (employee.idFuncionario && employee.idFuncionario.toLowerCase().includes(searchTerm))
+    const handleAddEmployeeClick = () => {
+        navigate(`/add-funcionario?userId=${userId || ''}`);
+    };
+
+    const filteredEmployees = employees.filter(
+        (employee) =>
+            employee.nomeCompleto.toLowerCase().includes(searchTerm) ||
+            (employee.idFuncionario && employee.idFuncionario.toLowerCase().includes(searchTerm))
     );
 
-  const indexOfLastEmployee = currentPage * employeesPerPage;
-  const indexOfFirstEmployee = indexOfLastEmployee - employeesPerPage;
-  const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
+    const indexOfLastEmployee = currentPage * employeesPerPage;
+    const indexOfFirstEmployee = indexOfLastEmployee - employeesPerPage;
+    const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
 
-  const totalPages = Math.ceil(filteredEmployees.length / employeesPerPage);
+    const totalPages = Math.ceil(filteredEmployees.length / employeesPerPage);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  const nextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
+    const nextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const prevPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
     }
-  };
 
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  const pageNumbers = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pageNumbers.push(i);
-  }
-
-   let contentToRender;
+    let contentToRender;
     if (loading) {
         contentToRender = <div>Carregando funcionários...</div>;
     } else if (error) {
@@ -125,7 +112,7 @@ export default function EmployeeListPage() {
             <>
                 <div className={styles.grid}>
                     {currentEmployees.map((employee) => (
-                        <EmployeeCard key={employee.idFuncionario} employee={employee} userId={currentUserId} />
+                        <EmployeeCard key={employee.idFuncionario} employee={employee} userId={userId} />
                     ))}
                 </div>
                 <div className={styles.pagination}>
@@ -150,26 +137,23 @@ export default function EmployeeListPage() {
     }
 
     return (
-        <div className={styles.pageContainer}>
-            <Sidebar userId={currentUserId} />
-            <div className={styles.content}>
-                <div className={styles.topBar}>
-                    <h2 className={styles.topBarTitle}>Funcionários</h2>
-                    <div className={styles.searchContainer}>
-                        <input
-                            type="text"
-                            placeholder="Buscar por nome ou ID..."
-                            value={searchTerm}
-                            onChange={handleSearch}
-                            className={styles.searchInput}
-                        />
-                    </div>
+        <div className={styles.employeeListPageContent}> 
+            <div className={styles.topBar}> 
+                <h2 className={styles.topBarTitle}>Funcionários</h2>
+                <div className={styles.searchContainer}>
+                    <input
+                        type="text"
+                        placeholder="Buscar..."
+                        value={searchTerm}
+                        onChange={handleSearch}
+                        className={styles.searchInput}
+                    />
                 </div>
-                {contentToRender} 
-                <button className={styles.addButton} onClick={handleAddEmployeeClick}>
-                    <FaUserPlus /> Adicionar Funcionário
-                </button>
             </div>
+            {contentToRender}
+            <button className={styles.addButton} onClick={handleAddEmployeeClick}>
+                <FaUserPlus /> Adicionar Funcionário
+            </button>
         </div>
     );
 }

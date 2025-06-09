@@ -41,6 +41,48 @@ router.use((req, res, next) => {
   next();
 });
 
+//Salão pelo ID (GET)
+router.get('/salao/:salaoId', async (req, res) => {
+    const { salaoId } = req.params;
+    console.log('--- BACKEND CLIENTES (GET por SalaoId) ---');
+    console.log('    SalaoId recebido (req.params.salaoId):', salaoId);
+
+    try {
+        if (!mongoose.Types.ObjectId.isValid(salaoId)) {
+            console.error('    ERRO: ID do salão inválido:', salaoId);
+            return res.status(400).json({
+                errorStatus: true,
+                mensageStatus: `ID do salão inválido: ${salaoId}`,
+            });
+        }
+
+        const clientes = await Cliente.find({ salaoId: new mongoose.Types.ObjectId(salaoId), active: true });
+
+        const clientesComIdString = clientes.map(cliente => ({
+            ...cliente.toObject(),
+            _id: cliente._id.toString(),
+        }));
+
+        console.log('    Clientes encontrados para o salão:', clientesComIdString.length);
+
+        return res.status(200).json({
+            errorStatus: false,
+            mensageStatus: 'CLIENTES DO SALÃO ENCONTRADOS',
+            data: clientesComIdString,
+        });
+
+    } catch (error) {
+        console.error('    ERRO (CATCH) ao buscar clientes por salão:', error.message);
+        console.error('    Stack Trace:', error.stack);
+        return res.status(500).json({
+            errorStatus: true,
+            mensageStatus: 'Houve um erro interno ao buscar os clientes do salão.',
+            errorObject: error.message,
+        });
+    }
+});
+
+
 // Rota para obter todos os clientes ATIVOS (GET)
 router.get('/listClientes', async (req, res) => {
   console.log('CLIENTES ROUTES - GET / - Listando todos os clientes ATIVOS');
@@ -159,73 +201,92 @@ router.post('/', upload.single('foto'), async (req, res) => {
 
 // Rota para atualizar um cliente existente (PUT)
 router.put('/:idCliente', upload.single('foto'), async (req, res) => {
-  if (req.fileValidationError) {
-    return res.status(400).json({
-      errorStatus: true,
-      mensageStatus: req.fileValidationError,
-    });
-  }
+  if (req.fileValidationError) {
+    return res.status(400).json({
+      errorStatus: true,
+      mensageStatus: req.fileValidationError,
+    });
+  }
+  console.log('--- CLIENTES ROUTES - PUT /:idCliente - START ---');
+  const { idCliente } = req.params; 
+  console.log('ID Cliente (param):', idCliente);
+  console.log('Request Body:', req.body);
+  console.log('Uploaded File (req.file):', req.file);
 
-  const { idCliente } = req.params;
-  console.log('CLIENTES ROUTES - PUT /:idCliente - ID:', idCliente, 'Body:', req.body);
-  
-  const { nomeCompleto, dataNascimento, cpf, telefone, email, favoritos, problemasSaude, informacoesAdicionais, salaoId } = req.body;
-  const fotoPath = req.file ? req.file.path : null; 
+  if (req.fileValidationError) {
+    console.error('File Validation Error:', req.fileValidationError);
+    return res.status(400).json({ errorStatus: true, mensageStatus: req.fileValidationError });
+  }
 
-  const updateData = { 
-    nomeCompleto, 
-    dataNascimento, 
-    // Limpar CPF antes de salvar
-    cpf: cpf ? cpf.replace(/\D/g, '') : undefined, 
-    telefone: telefone ? telefone.replace(/\D/g, '') : undefined, 
-    email, 
-    favoritos: favoritos ? favoritos.split(',').map(s => s.trim()).filter(s => s !== '') : [], 
-    problemasSaude, 
-    informacoesAdicionais 
-  };
+  const { nomeCompleto, dataNascimento, cpf, telefone, email, favoritos, problemasSaude, informacoesAdicionais, salaoId, fotoExistente } = req.body; // <-- fotoExistente is read from req.body
+  let fotoPath = req.file ? req.file.path : null; 
 
-  if (fotoPath) {
-    updateData.foto = fotoPath;
-  }
+  const updateData = {
+    nomeCompleto,
+    dataNascimento,
+    cpf: cpf ? cpf.replace(/\D/g, '') : undefined,
+    telefone: telefone ? telefone.replace(/\D/g, '') : undefined,
+    email,
+    favoritos: favoritos ? (Array.isArray(favoritos) ? favoritos : favoritos.split(',').map(s => s.trim()).filter(s => s !== '')) : [],
+    problemasSaude,
+    informacoesAdicionais,
+  };
 
+  if (fotoPath) {
+    updateData.foto = fotoPath.replace(/\\/g, '/'); 
+  } else if (fotoExistente) {
+    updateData.foto = fotoExistente.replace('http://localhost:3000/', '').replace(/\\/g, '/'); 
+  } else {
+  }
+  console.log('Update Data object:', updateData);
 
-  try {
-    const clienteAtualizado = await Cliente.findByIdAndUpdate( 
-      idCliente,
-      updateData, 
-      { new: true }
-    );
+  try {
+    if (!mongoose.Types.ObjectId.isValid(idCliente)) {
+        console.error('Invalid idCliente for update:', idCliente);
+        return res.status(400).json({
+            errorStatus: true,
+            mensageStatus: `ID do cliente inválido: ${idCliente}`,
+        });
+    }
 
-    if (!clienteAtualizado) {
-      console.log('CLIENTES ROUTES - PUT /:idCliente - Cliente não encontrado para atualização:', idCliente);
-      return res.status(404).json({
-        errorStatus: true,
-        mensageStatus: 'CLIENTE NÃO ENCONTRADO PARA ATUALIZAÇÃO',
-      });
-    }
+    const clienteAtualizado = await Cliente.findByIdAndUpdate(
+        idCliente,
+        updateData,
+        { new: true, runValidators: true }
+    );
 
-    console.log('CLIENTES ROUTES - PUT /:idCliente - Cliente atualizado com sucesso:', clienteAtualizado);
-    return res.status(200).json({
-      errorStatus: false,
-      mensageStatus: 'CLIENTE ATUALIZADO COM SUCESSO',
-      data: { ...clienteAtualizado.toObject(), idCliente: clienteAtualizado._id.toString() }, 
-    });
-  } catch (error) {
-    console.error('CLIENTES ROUTES - PUT /:idCliente - Erro ao atualizar cliente:', error);
-    if (error.name === 'ValidationError') {
-      const errors = Object.keys(error.errors).map(key => error.errors[key].message);
-      return res.status(400).json({
-        errorStatus: true,
-        mensageStatus: 'ERRO DE VALIDAÇÃO: ' + errors.join(', '),
-        errorObject: error,
-      });
-    }
-    return res.status(500).json({
-      errorStatus: true,
-      mensageStatus: 'HOUVE UM ERRO AO ATUALIZAR O CLIENTE',
-      errorObject: error,
-    });
-  }
+    if (!clienteAtualizado) {
+      console.log('CLIENTES ROUTES - PUT /:idCliente - Cliente não encontrado para atualização:', idCliente);
+      return res.status(404).json({
+        errorStatus: true,
+        mensageStatus: 'CLIENTE NÃO ENCONTRADO PARA ATUALIZAÇÃO',
+      });
+    }
+
+    console.log('CLIENTES ROUTES - PUT /:idCliente - Cliente atualizado com sucesso:', clienteAtualizado);
+    return res.status(200).json({ 
+      errorStatus: false,
+      mensageStatus: 'CLIENTE ATUALIZADO COM SUCESSO',
+      data: { ...clienteAtualizado.toObject(), idCliente: clienteAtualizado._id.toString() },
+    });
+
+  } catch (error) {
+    console.error('CLIENTES ROUTES - PUT /:idCliente - Erro (CATCH) ao atualizar cliente:', error);
+    if (error.name === 'ValidationError') {
+      const errors = Object.keys(error.errors).map(key => error.errors[key].message);
+      return res.status(400).json({
+        errorStatus: true,
+        mensageStatus: 'ERRO DE VALIDAÇÃO: ' + errors.join(', '),
+        validationErrors: error.errors,
+        errorObject: error,
+      });
+    }
+    return res.status(500).json({
+      errorStatus: true,
+      mensageStatus: 'HOUVE UM ERRO AO ATUALIZAR O CLIENTE',
+      errorObject: error,
+    });
+  }
 });
 
 // Rota para DESATIVAR (soft delete) um cliente (PUT)

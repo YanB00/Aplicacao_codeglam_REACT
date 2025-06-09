@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import styles from './EditEmployeePage.module.css'; 
 import { FaCamera } from 'react-icons/fa';
 
-export default function EditClientPage() {
+export default function EditClientPage({userId:propUserId}) {
   const { id } = useParams(); 
   const navigate = useNavigate(); 
 
@@ -61,7 +61,6 @@ export default function EditClientPage() {
     return true;
   };
 
-  // Utility function to format CPF
   const formatCpf = (value) => {
     value = value.replace(/\D/g, '');
     value = value.replace(/(\d{3})(\d)/, '$1.$2');
@@ -70,7 +69,6 @@ export default function EditClientPage() {
     return value;
   };
 
-  // Utility function to format phone
   const formatPhone = (value) => {
     value = value.replace(/\D/g, '');
     if (value.length > 10) {
@@ -85,6 +83,7 @@ export default function EditClientPage() {
 
   useEffect(() => {
     console.log("EditClientPage - ID do cliente da URL:", id); // Log para depuração
+    console.log("EditClientPage received propUserId:", propUserId);
     const fetchClientData = async () => {
       try {
         const response = await fetch(`http://localhost:3000/clientes/${id}`);
@@ -106,7 +105,7 @@ export default function EditClientPage() {
           nomeCompleto: data.nomeCompleto || '',
           dataNascimento: data.dataNascimento ? new Date(data.dataNascimento).toISOString().split('T')[0] : '',
           cpf: data.cpf ? formatCpf(data.cpf) : '', 
-          idCliente: data.idCliente || '',
+          idCliente: data._id || '',
           favoritos: Array.isArray(data.favoritos) ? data.favoritos.join(', ') : (data.favoritos || ''),
           problemasSaude: data.problemasSaude || '',
           informacoesAdicionais: data.informacoesAdicionais || '',
@@ -197,11 +196,11 @@ export default function EditClientPage() {
       return;
     }
 
-    const formData = new FormData();
+const formData = new FormData();
     formData.append('nomeCompleto', clientData.nomeCompleto);
     formData.append('dataNascimento', clientData.dataNascimento);
-    formData.append('cpf', clientData.cpf.replace(/\D/g, '')); 
-    
+    formData.append('cpf', clientData.cpf.replace(/\D/g, ''));
+
     const favoritosArray = clientData.favoritos.split(',').map(item => item.trim()).filter(item => item !== '');
     favoritosArray.forEach(fav => formData.append('favoritos', fav));
 
@@ -211,7 +210,13 @@ export default function EditClientPage() {
     formData.append('email', clientData.email);
 
     if (clientData.newFotoFile) {
-      formData.append('foto', clientData.newFotoFile);
+        formData.append('foto', clientData.newFotoFile); // New file uploaded
+    } else {
+
+        if (clientData.foto && clientData.foto.startsWith('http://localhost:3000/')) {
+            const relativePath = clientData.foto.replace('http://localhost:3000/', '');
+            formData.append('fotoExistente', relativePath); // Use a new field name for existing photo
+        }
     }
 
     try {
@@ -221,7 +226,7 @@ export default function EditClientPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json(); 
+        const errorData = await response.json().catch(() => ({})); 
         throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.mensageStatus || 'Erro desconhecido'}`);
       }
 
@@ -230,11 +235,11 @@ export default function EditClientPage() {
       setMessageStatus('Cliente atualizado com sucesso!');
       setIsError(false);
       
-      const navigatePath = `/cliente/${id}`; 
-      console.log('Tentando navegar para:', navigatePath); 
+      const navigatePath = `/cliente/${id}?userId=${propUserId || ''}`; // <--- ADD userId to the URL
+      console.log('Tentando navegar para:', navigatePath);
       setTimeout(() => {
-        navigate(navigatePath); 
-      }, 1500);
+      navigate(navigatePath);
+    }, 1000);
 
     } catch (e) {
       setError("Não foi possível atualizar os dados do cliente: " + e.message);

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Bar } from 'react-chartjs-2'; 
+import React, { useState, useEffect, useRef } from 'react'; 
+import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,6 +9,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 import styles from './ChartArea.module.css';
 
@@ -18,22 +19,33 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ChartDataLabels
 );
 
 export default function ChartArea() {
+  const chartRef = useRef(null); // <--- Crie uma ref para o gráfico
+  const [originalChartData, setOriginalChartData] = useState(null);
   const [chartData, setChartData] = useState({
-    labels: [],
-    datasets: [],
+    labels: ['Concluídos', 'Cancelados', 'Em Progresso'],
+    datasets: [ {
+        label: 'Quantidade de Agendamentos',
+        data: [0, 0, 0], 
+        backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)', 'rgba(255, 206, 86, 0.6)'],
+        borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)'],
+        borderWidth: 1,
+      },],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [totalAppointments, setTotalAppointments] = useState(0);
+  const [activeFilter, setActiveFilter] = useState('all');
 
   useEffect(() => {
     const fetchChartData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:3000/agendamentos/grafico/agendamentos-mensal'); 
+        const response = await fetch('http://localhost:3000/agendamentos/grafico/agendamentos-mensal');
         const data = await response.json();
 
         if (!response.ok) {
@@ -44,88 +56,187 @@ export default function ChartArea() {
           throw new Error(data.mensageStatus || 'Erro no servidor ao carregar dados do gráfico');
         }
 
-        const { concluidos, cancelados, emProgresso } = data.data;
+        const concluidos = data.data.concluidos || 0;
+        const cancelados = data.data.cancelados || 0;
+        const emProgresso = data.data.emProgresso || 0;
+        const total = data.data.total || 0;
 
-        setChartData({
-          labels: ['Concluídos', 'Cancelados', 'Em Progresso'],
-          datasets: [
-            {
-              label: 'Quantidade de Agendamentos',
-              data: [concluidos, cancelados, emProgresso],
-              backgroundColor: [
-                'rgba(75, 192, 192, 0.6)', 
-                'rgba(255, 99, 132, 0.6)', 
-                'rgba(255, 206, 86, 0.6)', 
-              ],
-              borderColor: [
-                'rgba(75, 192, 192, 1)',
-                'rgba(255, 99, 132, 1)',
-                'rgba(255, 206, 86, 1)',
-              ],
-              borderWidth: 1,
-            },
-          ],
-        });
-        setError(null); 
+        const fetchedData = { concluidos, cancelados, emProgresso, total };
+        setOriginalChartData(fetchedData);
+        setTotalAppointments(total);
+
+        updateChartData(fetchedData, 'all');
+
+        setError(null);
       } catch (err) {
         console.error('Erro ao buscar dados para o gráfico:', err);
         setError('Não foi possível carregar os dados do gráfico. Tente novamente mais tarde.');
-        setChartData({ labels: [], datasets: [] }); 
+        setOriginalChartData(null);
+        setChartData({ labels: [], datasets: [] });
+        setTotalAppointments(0);
       } finally {
         setLoading(false);
       }
     };
 
     fetchChartData();
-  }, []); 
+  }, []);
+
+  const updateChartData = (data, filter) => {
+    let labels = ['Concluídos', 'Cancelados', 'Em Progresso'];
+    let chartValues = [data.concluidos, data.cancelados, data.emProgresso];
+    let backgroundColors = [
+      'rgba(75, 192, 192, 0.6)',
+      'rgba(255, 99, 132, 0.6)',
+      'rgba(255, 206, 86, 0.6)',
+    ];
+    let borderColors = [
+      'rgba(75, 192, 192, 1)',
+      'rgba(255, 99, 132, 1)',
+      'rgba(255, 206, 86, 1)',
+    ];
+    let currentTotal = data.total;
+
+    if (filter === 'concluidos') {
+      labels = ['Concluídos'];
+      chartValues = [data.concluidos];
+      backgroundColors = ['rgba(75, 192, 192, 0.6)'];
+      borderColors = ['rgba(75, 192, 192, 1)'];
+      currentTotal = data.concluidos;
+    } else if (filter === 'cancelados') {
+      labels = ['Cancelados'];
+      chartValues = [data.cancelados];
+      backgroundColors = ['rgba(255, 99, 132, 0.6)'];
+      borderColors = ['rgba(255, 99, 132, 1)'];
+      currentTotal = data.cancelados;
+    } else if (filter === 'emprogresso') {
+      labels = ['Em Progresso'];
+      chartValues = [data.emProgresso];
+      backgroundColors = ['rgba(255, 206, 86, 0.6)'];
+      borderColors = ['rgba(255, 206, 86, 1)'];
+      currentTotal = data.emProgresso;
+    }
+
+    setChartData({
+      labels: labels,
+      datasets: [
+        {
+          label: 'Quantidade de Agendamentos',
+          data: chartValues,
+          backgroundColor: backgroundColors,
+          borderColor: borderColors,
+          borderWidth: 1,
+        },
+      ],
+    });
+    setTotalAppointments(currentTotal);
+    setActiveFilter(filter);
+  };
+
+  const handleBarClick = (event) => {
+    const chart = chartRef.current;
+    if (!chart || !originalChartData) { 
+      return;
+    }
+    const elements = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, false);
+    console.log('Clicked elements:', elements); 
+
+
+    if (elements.length > 0) {
+      const clickedElementIndex = elements[0].index;
+      const clickedLabel = chartData.labels[clickedElementIndex];       
+      let filterToApply = '';
+      if (clickedLabel === 'Concluídos') filterToApply = 'concluidos';
+      else if (clickedLabel === 'Cancelados') filterToApply = 'cancelados';
+      else if (clickedLabel === 'Em Progresso') filterToApply = 'emProgresso';
+
+      if (activeFilter === filterToApply) {
+        updateChartData(originalChartData, 'all');
+      } else {
+        updateChartData(originalChartData, filterToApply);
+      }
+    } else { 
+      if (activeFilter !== 'all' && originalChartData) { 
+        updateChartData(originalChartData, 'all');
+      }
+    }
+  };
+
 
   const options = {
     responsive: true,
-    maintainAspectRatio: false, 
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top',
         labels: {
-            font: {
-                size: 14 
+          font: {
+            size: 12
+          }
+        },
+        onClick: (e, legendItem, legend) => {
+          if (originalChartData) {
+            const labelText = legendItem.text;
+
+            console.log("Clique na legenda:", legendItem.text); 
+            if (activeFilter !== 'all' && legendItem.text === 'Quantidade de Agendamentos') {
+                updateChartData(originalChartData, 'all');
             }
-        }
+          }
+        },
       },
       title: {
         display: true,
-        text: 'Status dos Agendamentos do Mês',
+        text: `Status dos Agendamentos do Mês (Total: ${totalAppointments})`,
         font: {
-            size: 18 
+          size: 16
         }
       },
       tooltip: {
         callbacks: {
           label: function(context) {
-            let label = context.dataset.label || '';
-            if (label) {
-                label += ': ';
+            const label = context.label || '';
+            const value = context.parsed.y;
+            const total = totalAppointments;
+
+            let percentage = 0;
+            if (total > 0) {
+                percentage = ((value / total) * 100).toFixed(1);
             }
-            if (context.parsed.y !== null) {
-                label += new Intl.NumberFormat('pt-BR').format(context.parsed.y);
-            }
-            return label;
+
+            return `${label}: ${value} (${percentage}%)`;
           }
         }
+      },
+      datalabels: {
+        display: true,
+        color: '#fff',
+        font: {
+          weight: 'bold',
+          size: 14,
+        },
+        formatter: (value) => {
+          return value > 0 ? value : '';
+        },
+        anchor: 'end',
+        align: 'top',
+        offset: -4,
       }
     },
     scales: {
       x: {
         grid: {
-          display: false 
+          display: false
         }
       },
       y: {
         beginAtZero: true,
         ticks: {
-          precision: 0 
+          precision: 0
         }
       }
-    }
+    },
+
   };
 
   if (loading) {
@@ -144,14 +255,13 @@ export default function ChartArea() {
     );
   }
 
-  // Verifica se há dados para exibir o gráfico
-  const hasData = chartData.datasets.length > 0 && chartData.datasets[0].data.some(val => val > 0);
+  const hasData = totalAppointments > 0;
 
   return (
     <div className={styles.chartBox}>
       {hasData ? (
-        <div className={styles.chartContainer}> 
-            <Bar data={chartData} options={options} />
+        <div className={styles.chartContainer}>
+          <Bar ref={chartRef} data={chartData} options={options} onClick={handleBarClick} /> 
         </div>
       ) : (
         <div className={styles.placeholder}>Nenhum agendamento encontrado para o mês atual.</div>

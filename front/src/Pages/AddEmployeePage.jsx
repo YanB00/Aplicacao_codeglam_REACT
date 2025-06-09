@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate} from 'react-router-dom';
 import styles from './AddClientPage.module.css'; 
 import { FaCamera } from 'react-icons/fa';
 
 
-export default function AddEmployeePage() {
+export default function AddEmployeePage({ userId: propUserId }) {
 
   const navigate = useNavigate();
-  const location = useLocation();
   const generateId = () => {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
   };
@@ -25,12 +24,18 @@ export default function AddEmployeePage() {
   const [mensagemStatus, setMensagemStatus] = useState('');
   const [erroStatus, setErroStatus] = useState(false);
   const [cpfError, setCpfError] = useState('');
-  const [currentUserId, setCurrentUserId] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(propUserId);
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    setCurrentUserId(params.get('userId'));
-  }, [location.search]);
+    useEffect(() => {
+        if (propUserId && propUserId !== currentUserId) {
+            setCurrentUserId(propUserId);
+        }
+        if (!propUserId) {
+            console.warn("AddEmployeePage: userId prop is missing. Consider redirecting or handling this case.");
+        }
+    }, [propUserId]);
+
+
 
 
   const newEmployeeId = generateId();
@@ -208,8 +213,7 @@ export default function AddEmployeePage() {
         setFoto(null);
 
         setTimeout(() => {
-      navigate(`/funcionario/<span class="math-inline">\{data\.data\.idFuncionario\}?userId\=</span>{currentUserId || ''}`);
-        }, 1000); 
+          navigate(`/funcionario/${data.data.idFuncionario}?userId=${currentUserId || ''}`);        }, 1000); 
       } else {
         setMensagemStatus(data.mensageStatus);
         setErroStatus(true);
@@ -222,156 +226,101 @@ export default function AddEmployeePage() {
     }
   };
 
-  return (
-    <div className={styles.page}>
-      <div className={styles.content}>
-        <div className={styles.topBar}></div>
+return (
+        <div className={styles.page}>
+            <div className={styles.content}>
+                <div className={styles.topBar}></div> 
 
-        <div className={styles.formContainer}>
-          <div className={styles.avatarSection}>
-            <img
-              src={foto ? URL.createObjectURL(foto) : "https://media.lordicon.com/icons/wired/gradient/21-avatar.gif"}
-              alt="Avatar do Funcionário"
-              className={styles.avatar}
-            />
-            <label htmlFor="avatar-upload" className={styles.cameraIcon}>
-              <FaCamera />
-              <input
-                id="avatar-upload"
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={handleInputChange}
-              />
-            </label>
-          </div>
+                <div className={styles.formContainer}>
+                    <div className={styles.avatarSection}>
+                        <img
+                            src={foto ? URL.createObjectURL(foto) : "https://media.lordicon.com/icons/wired/gradient/21-avatar.gif"}
+                            alt="Avatar do Funcionário"
+                            className={styles.avatar}
+                        />
+                        <label htmlFor="avatar-upload" className={styles.cameraIcon}>
+                            <FaCamera />
+                            <input
+                                id="avatar-upload"
+                                type="file"
+                                hidden
+                                accept="image/*"
+                                onChange={handleInputChange}
+                            />
+                        </label>
+                    </div>
 
-          <form className={styles.form} onSubmit={handleSubmit}>
+                    <form className={styles.form} onSubmit={handleSubmit}>
+                        <div className={styles.row}>
+                            <div>
+                                <label htmlFor="fullName">Nome completo</label>
+                                <input id="fullName" type="text" placeholder="Nome completo" value={nomeCompleto} onChange={handleInputChange} />
+                            </div>
+                            <div>
+                                <label htmlFor="birthdate">Data de nascimento</label>
+                                <input id="birthdate" type="date" value={dataNascimento} onChange={handleInputChange} />
+                            </div>
+                            <div>
+                                <label htmlFor="cpf">CPF</label>
+                                <input id="cpf" type="text" placeholder="000.000.000-00" value={cpf} onChange={handleInputChange} maxLength="14" />
+                                {cpfError && <p className={styles.errorMessage}>{cpfError}</p>}
+                            </div>
+                        </div>
 
-            <div className={styles.row}>
-              <div>
-                <label htmlFor="fullName">Nome completo</label>
-                <input
-                  id="fullName"
-                  type="text"
-                  placeholder="Nome completo"
-                  value={nomeCompleto}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="birthdate">Data de nascimento</label>
-                <input
-                  id="birthdate"
-                  type="date"
-                  value={dataNascimento}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="cpf">CPF</label>
-                <input
-                  id="cpf"
-                  type="text"
-                  placeholder="000.000.000-00"
-                  value={cpf}
-                  onChange={handleInputChange}
-                  maxLength="14"
-                />
-                {cpfError && <p className={styles.errorMessage}>{cpfError}</p>}
-              </div>
-            </div>
+                        <div className={styles.row}>
+                            <div>
+                                <label htmlFor="employeeId">ID do Funcionário</label>
+                                <input id="employeeId" type="text" value={newEmployeeId} readOnly />
+                            </div>
+                            <div>
+                                <label htmlFor="startDate">Funcionário desde</label>
+                                <input id="startDate" type="date" value={dataAdmissao} onChange={handleInputChange} />
+                            </div>
+                            <div>
+                                <label htmlFor="services">Serviços realizados</label>
+                                <input id="services" type="text" placeholder="Ex: Corte, Manicure" value={servicosRealizados} onChange={handleInputChange} />
+                            </div>
+                        </div>
 
-            <div className={styles.row}>
-              <div>
-                <label htmlFor="employeeId">ID do Funcionário</label>
-                <input id="employeeId" type="text" value={newEmployeeId} readOnly />
-              </div>
-              <div>
-                <label htmlFor="startDate">Funcionário desde</label>
-                <input
-                  id="startDate"
-                  type="date"
-                  value={dataAdmissao}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="services">Serviços realizados</label>
-                <input
-                  id="services"
-                  type="text"
-                  placeholder="Ex: Corte, Manicure"
-                  value={servicosRealizados}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </div>
+                        <div className={styles.row}>
+                            <div>
+                                <label htmlFor="benefits">Benefícios</label>
+                                <input id="benefits" type="text" placeholder="Ex: Vale transporte, Comissão" value={beneficios} onChange={handleInputChange} />
+                            </div>
+                        </div>
 
-            <div className={styles.row}>
-              <div>
-                <label htmlFor="benefits">Benefícios</label>
-                <input
-                  id="benefits"
-                  type="text"
-                  placeholder="Ex: Vale transporte, Comissão"
-                  value={beneficios}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </div>
+                        <div className={styles.row}>
+                            <div>
+                                <label htmlFor="additionalInfo">Informações adicionais</label>
+                                <input id="additionalInfo" type="text" placeholder="Ex: Disponibilidade aos sábados" value={informacoesAdicionais} onChange={handleInputChange} />
+                            </div>
+                            <div>
+                                <label htmlFor="tel">Telefone</label>
+                                <input id="tel" type="text" placeholder="(XX) XXXXX-XXXX" value={telefone} onChange={handleInputChange} maxLength="15" />
+                            </div>
+                            <div>
+                                <label htmlFor="email">Email</label>
+                                <input id="email" type="text" placeholder="funcionario@email.com" value={email} onChange={handleInputChange} />
+                            </div>
+                        </div>
 
-            <div className={styles.row}>
-              <div>
-                <label htmlFor="additionalInfo">Informações adicionais</label>
-                <input
-                  id="additionalInfo"
-                  type="text"
-                  placeholder="Ex: Disponibilidade aos sábados"
-                  value={informacoesAdicionais}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="tel">Telefone</label>
-                <input
-                  id="tel"
-                  type="text"
-                  placeholder="(XX) XXXXX-XXXX"
-                  value={telefone}
-                  onChange={handleInputChange}
-                  maxLength="15"
-                />
-              </div>
-              <div>
-                <label htmlFor="email">Email</label>
-                <input
-                  id="email"
-                  type="text"
-                  placeholder="funcionario@email.com"
-                  value={email}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </div>
+                        {mensagemStatus && (
+                            <p className={erroStatus ? styles.errorMessage : styles.successMessage}>
+                                {mensagemStatus}
+                            </p>
+                        )}
 
-            {mensagemStatus && (
-              <p className={erroStatus ? styles.errorMessage : styles.successMessage}>
-                {mensagemStatus}
-              </p>
-            )}
-
-            <div className={styles.buttonGroup}>
-              <button type="button" className={styles.cancelBtn} onClick={handleCancel}>
-                Cancelar
-              </button>
-              <button type="submit" className={styles.saveBtn}>
-                Salvar
-              </button>
-            </div>
-          </form>
-        </div>
-       </div>
-    </div>
-  );
+                        <div className={styles.buttonGroup}>
+                            <button type="button" className={styles.cancelBtn} onClick={handleCancel}>
+                                Cancelar
+                            </button>
+                            <button type="submit" className={styles.saveBtn}>
+                                Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
 }
