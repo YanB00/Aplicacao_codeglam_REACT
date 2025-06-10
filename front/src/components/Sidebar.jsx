@@ -25,7 +25,7 @@ const baseMenuItems = [
 
 const BASE_URL = 'http://localhost:3000'; 
 
-export default function Sidebar({ userId, userName, loadingUserName }) { 
+export default function Sidebar({ userId, userName, loadingUserName, sidebarRefreshKey }) { 
     const [expanded, setExpanded] = useState(true);
     const [salonName, setSalonName] = useState(''); 
     const [modulesActiveStatus, setModulesActiveStatus] = useState({}); 
@@ -41,6 +41,7 @@ export default function Sidebar({ userId, userName, loadingUserName }) {
 
         setIsLoadingSidebarData(true);
         try {
+            const timestamp = new Date().getTime();
             const response = await fetch(`${BASE_URL}/register/${userId}`, { 
                 headers: {
                     'Cache-Control': 'no-cache',
@@ -71,7 +72,7 @@ export default function Sidebar({ userId, userName, loadingUserName }) {
 
     useEffect(() => {
         fetchSidebarData(); 
-    }, [userId]); 
+    }, [userId, sidebarRefreshKey]); 
 
     const getInitials = (name) => {
         const words = name.trim().split(" ");
@@ -83,7 +84,7 @@ export default function Sidebar({ userId, userName, loadingUserName }) {
     const filteredMenuItems = baseMenuItems.filter(item => {
    
         return item.moduleKey === 'home' || item.moduleKey === 'configuracoes' || 
-            modulesActiveStatus[item.moduleKey] !== false; 
+            (modulesActiveStatus[item.moduleKey] !== false && Object.keys(modulesActiveStatus).length > 0);
     });
 
 

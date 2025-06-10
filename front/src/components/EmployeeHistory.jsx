@@ -87,8 +87,8 @@ const EmployeeHistory = ({ employeeId, salaoId }) => {
       setFilterError(null);
       try {
         // --- SERVIÇOS ---
-        console.log('Fetching services from:', `http://localhost:3000/servicos/${salaoId}`); 
-        const servicesResponse = await fetch(`http://localhost:3000/servicos/${salaoId}`); 
+        console.log('Fetching services from:', `http://localhost:3000/servicos/salao/${salaoId}`); 
+        const servicesResponse = await fetch(`http://localhost:3000/servicos/salao/${salaoId}`); 
         
         if (!servicesResponse.ok) {
           throw new Error(`HTTP error! status: ${servicesResponse.status} for services`);

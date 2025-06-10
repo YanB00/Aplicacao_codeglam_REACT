@@ -105,7 +105,7 @@ export default function ClientListPage({ userId }) {
                 <div className={styles.searchContainer}>
                     <input
                         type="text"
-                        placeholder="Buscar por nome ou ID..."
+                        placeholder="Buscar..."
                         value={searchTerm}
                         onChange={handleSearch}
                         className={styles.searchInput}

@@ -14,7 +14,7 @@ export default function EditEmployeePage() {
     dataNascimento: '',
     cpf: '',
     dataAdmissao: '',
-    cargo: '',
+    servicosRealizados: '',
     beneficios: '',
     informacoesAdicionais: '',
     telefone: '',
@@ -94,7 +94,7 @@ export default function EditEmployeePage() {
           dataNascimento: data.data.dataNascimento ? data.data.dataNascimento.slice(0, 10) : '',
           cpf: data.data.cpf ? formatCpf(data.data.cpf) : '',
           dataAdmissao: data.data.dataAdmissao ? data.data.dataAdmissao.slice(0, 10) : '',
-          cargo: data.data.cargo || '',
+          servicosRealizados: (data.data.servicosRealizados || []).join(', ') || '',
           beneficios: data.data.beneficios || '',
           informacoesAdicionais: data.data.informacoesAdicionais || '',
           telefone: data.data.telefone ? formatPhone(data.data.telefone) : '',
@@ -163,21 +163,19 @@ const handleSubmit = async (event) => {
 
   const formDataToSend = new FormData();
 
-  // Anexar campos de texto e formatados explicitamente
-  // Isso evita o problema de 'CastError' ao garantir que cada campo é adicionado uma vez
-  // e no formato esperado (string, após formatação se necessário).
 
   formDataToSend.append('nomeCompleto', formData.nomeCompleto);
   formDataToSend.append('dataNascimento', formData.dataNascimento);
-  formDataToSend.append('cpf', formData.cpf.replace(/[^\d]+/g, '')); // Já formatado
+  formDataToSend.append('cpf', formData.cpf.replace(/[^\d]+/g, '')); 
   formDataToSend.append('dataAdmissao', formData.dataAdmissao);
-  formDataToSend.append('cargo', formData.cargo);
-  formDataToSend.append('beneficios', formData.beneficios);
+ const servicesArray = formData.servicosRealizados.split(',').map(s => s.trim()).filter(s => s !== '');
+    servicesArray.forEach((service, index) => {
+        formDataToSend.append(`servicosRealizados[${index}]`, service);
+    });  formDataToSend.append('beneficios', formData.beneficios);
   formDataToSend.append('informacoesAdicionais', formData.informacoesAdicionais);
-  formDataToSend.append('telefone', formData.telefone.replace(/\D/g, '')); // Já formatado
+  formDataToSend.append('telefone', formData.telefone.replace(/\D/g, '')); 
   formDataToSend.append('email', formData.email);
 
-  // TRATAMENTO EXPLÍCITO DA FOTO (conforme a última correção)
   if (formData.foto instanceof File) {
     formDataToSend.append('foto', formData.foto);
   } else if (typeof formData.foto === 'string' && formData.foto) {
@@ -338,13 +336,13 @@ const handleSubmit = async (event) => {
                 />
               </div>
               <div>
-                <label htmlFor="cargo">Cargo</label>
+                <label htmlFor="servicosRealizados">Cargo</label>
                 <input
-                  id="cargo"
+                  id="servicosRealizados"
                   type="text"
-                  name="cargo"
+                  name="servicosRealizados"
                   placeholder="Ex: Designer de Unhas"
-                  value={formData.cargo}
+                  value={formData.servicosRealizados}
                   onChange={handleInputChange}
                 />
               </div>

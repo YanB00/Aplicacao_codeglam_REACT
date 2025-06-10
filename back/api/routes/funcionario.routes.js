@@ -188,7 +188,7 @@ router.get('/:idFuncionario', async (req, res) => {
 // Rota para atualizar um funcionário existente (PUT)
 router.put('/:idFuncionario', upload.any(), async (req, res) => { 
   const { idFuncionario } = req.params;
-  const { nomeCompleto, dataNascimento, cpf, dataAdmissao, cargo, beneficios, informacoesAdicionais, telefone, email, fotoExistente } = req.body; // <-- Adicione fotoExistente aqui para fácil acesso
+  const { nomeCompleto, dataNascimento, cpf, dataAdmissao, servicosRealizados, beneficios, informacoesAdicionais, telefone, email, fotoExistente } = req.body; // <-- Adicione fotoExistente aqui para fácil acesso
 
   let foto = null;
 
@@ -205,7 +205,7 @@ router.put('/:idFuncionario', upload.any(), async (req, res) => {
   try {
     const funcionarioAtualizado = await Funcionario.findByIdAndUpdate(
       idFuncionario,
-      { nomeCompleto, dataNascimento, cpf, dataAdmissao, cargo, beneficios, informacoesAdicionais, telefone, email, foto },
+      { nomeCompleto, dataNascimento, cpf, dataAdmissao, servicosRealizados, beneficios, informacoesAdicionais, telefone, email, foto },
       { new: true, runValidators: true } 
     );
 

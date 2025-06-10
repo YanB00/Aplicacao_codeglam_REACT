@@ -106,11 +106,19 @@ function MainLayout({ children }) {
     };
     return (
         <div className={styles.appContainer}>
-            <Sidebar userId={currentUserId} userName={salonName} loadingUserName={loadingSalonName} />
+            <Sidebar 
+            userId={currentUserId} 
+            userName={salonName} 
+            loadingUserName={loadingSalonName} 
+            sidebarRefreshKey={refreshTrigger}/>
             <div className={styles.mainContent}>
                 {currentUserId ? (
                     React.Children.map(children, child =>
-                        React.cloneElement(child, { userId: currentUserId, salonId: currentUserId, onSalonDataUpdate: handleRefreshSalonData, onLogout: handleLogout })
+                        React.cloneElement(child, { 
+                            userId: currentUserId, 
+                            salonId: currentUserId, 
+                            onSalonDataUpdate: handleRefreshSalonData, 
+                            onLogout: handleLogout })
                     )
                 ) : (
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
