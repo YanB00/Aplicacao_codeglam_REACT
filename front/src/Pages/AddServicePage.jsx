@@ -10,7 +10,7 @@ export default function AddServicePage() {
   const [titulo, setTitulo] = useState('');
   const [preco, setPreco] = useState('');
   const [comissao, setComissao] = useState('');
-  const [duracaoHoras, setDuracaoHoras] = useState(''); 
+  const [duracaoHoras, setDuracaoHoras] = useState('0'); 
   const [duracaoMinutos, setDuracaoMinutos] = useState(''); 
   const [descricao, setDescricao] = useState('');
   const [status, setStatus] = useState('Ativo');

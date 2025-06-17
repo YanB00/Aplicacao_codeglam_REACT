@@ -20,7 +20,7 @@ const baseMenuItems = [
     { icon: <FaUsers />, label: 'Clientes', to: '/clientes', isSalonSpecific: false, moduleKey: 'clientes' },
     { icon: <FaUserTie />, label: 'Funcionários', to: '/funcionarios', isSalonSpecific: false, moduleKey: 'funcionarios' },
     { icon: <FaHistory />, label: 'Histórico', to: '/historico', isSalonSpecific: false, moduleKey: 'historico' },
-    { icon: <FaCog />, label: 'Configurações', to: '/configuracoes', isSalonSpecific: false, moduleKey: 'configuracoes' }, // Adicionado moduleKey
+    { icon: <FaCog />, label: 'Configurações', to: '/configuracoes', isSalonSpecific: false, moduleKey: 'configuracoes' }, 
 ];
 
 const BASE_URL = 'http://localhost:3000'; 

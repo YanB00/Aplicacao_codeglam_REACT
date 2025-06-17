@@ -213,7 +213,7 @@ export default function AddEmployeePage({ userId: propUserId }) {
         setFoto(null);
 
         setTimeout(() => {
-          navigate(`/funcionario/${data.data.idFuncionario}?userId=${currentUserId || ''}`);        }, 1000); 
+        navigate(`/funcionario/${data.data.idFuncionario}?userId=${currentUserId || ''}`);        }, 1000); 
       } else {
         setMensagemStatus(data.mensageStatus);
         setErroStatus(true);

@@ -13,107 +13,149 @@ function getBrasiliaStartOfDayUTC(dateString) {
 
 // Rota para criar um novo agendamento (POST)
 router.post('/', async (req, res) => {
-    const {
-        salaoId,
-        horaInicio,
-        horaFim,
-        servicoId,
-        clienteId,
-        funcionarioId,
-        valor,
-        observacoes,
-        dataAgendamento,
-        concluido,
-        cancelado,
-    } = req.body;
+    const {
+        salaoId,
+        horaInicio,    
+        horaFim,       
+        servicoId,
+        clienteId,
+        funcionarioId,
+        valor,
+        observacoes,
+        dataAgendamento, 
+        concluido,
+        cancelado,
+    } = req.body;
 
-    try {
-        let dataAgendamentoUTC;
-        if (dataAgendamento) {
-            dataAgendamentoUTC = getBrasiliaStartOfDayUTC(dataAgendamento);
-        } else {
-            return res.status(400).json({
-                errorStatus: true,
-                mensageStatus: 'O campo dataAgendamento é obrigatório.',
-            });
-        }
+    try {
+        if (!dataAgendamento) {
+            return res.status(400).json({
+                errorStatus: true,
+                mensageStatus: 'O campo dataAgendamento é obrigatório.',
+            });
+        }
 
-        const servico = await Servico.findById(servicoId);
+        const hojeBrasiliaStartOfDay = moment.tz('America/Sao_Paulo').startOf('day');
+        const dataAgendamentoMoment = moment.tz(dataAgendamento, 'YYYY-MM-DD', 'America/Sao_Paulo');
 
-        if (!servico) {
-            return res.status(404).json({
-                errorStatus: true,
-                mensageStatus: 'Serviço não encontrado.',
-            });
-        }
+        if (dataAgendamentoMoment.isBefore(hojeBrasiliaStartOfDay, 'day')) {
+            return res.status(400).json({
+                errorStatus: true,
+                mensageStatus: 'Não é permitido agendar em datas anteriores ao dia atual.',
+            });
+        }
+        let dataAgendamentoUTC = getBrasiliaStartOfDayUTC(dataAgendamento);
 
-        if (servico.status !== 'Ativo') {
-            return res.status(400).json({
-                errorStatus: true,
-                mensageStatus: `O serviço '${servico.titulo}' está com status '${servico.status}' e não pode ser agendado. Apenas serviços 'Ativo' são permitidos.`,
-            });
-        }
-        
+        // --- Validação 2: Serviço e Status do Serviço ---
+        const servico = await Servico.findById(servicoId);
+        if (!servico) {
+            return res.status(404).json({ errorStatus: true, mensageStatus: 'Serviço não encontrado.' });
+        }
+        if (servico.status !== 'Ativo') {
+            return res.status(400).json({ errorStatus: true, mensageStatus: `O serviço '<span class="math-inline">\{servico\.titulo\}' está com status '</span>{servico.status}' e não pode ser agendado. Apenas serviços 'Ativo' são permitidos.` });
+        }
 
-        const novoAgendamento = new Agendamento({
-            salaoId,
-            horaInicio,
-            horaFim,
-            servicoId,
-            clienteId,
-            funcionarioId,
-            valor,
-            observacoes,
-            dataAgendamento: dataAgendamentoUTC,
-            concluido: concluido || false,
-            cancelado: cancelado || false,
+        // --- Validação 3: Conflito de Horário (Início vs Fim) ---
+        const newAppointmentStart = moment.tz(`${dataAgendamento} ${horaInicio}`, 'YYYY-MM-DD HH:mm', 'America/Sao_Paulo');
+        const newAppointmentEnd = moment.tz(`${dataAgendamento} ${horaFim}`, 'YYYY-MM-DD HH:mm', 'America/Sao_Paulo');
+
+        if (newAppointmentEnd.isSameOrBefore(newAppointmentStart)) {
+            return res.status(400).json({ mensageStatus: 'A hora de fim deve ser posterior à hora de início do agendamento.', errorStatus: true });
+        }
+
+        // --- Validação 4: Conflito de Horário para o FUNCIONÁRIO ---
+        const existingAppointmentsFuncionario = await Agendamento.find({
+            funcionarioId: funcionarioId,
+            dataAgendamento: dataAgendamentoUTC,
+            cancelado: false, 
+        });
+
+        for (const existingApp of existingAppointmentsFuncionario) {
+            const existingAppStart = moment.tz(`${moment(existingApp.dataAgendamento).format('YYYY-MM-DD')} ${existingApp.horaInicio}`, 'YYYY-MM-DD HH:mm', 'America/Sao_Paulo');
+            const existingAppEnd = moment.tz(`${moment(existingApp.dataAgendamento).format('YYYY-MM-DD')} ${existingApp.horaFim}`, 'YYYY-MM-DD HH:mm', 'America/Sao_Paulo');
+
+            if (newAppointmentStart.isBefore(existingAppEnd) && newAppointmentEnd.isAfter(existingAppStart)) {
+                return res.status(400).json({ errorStatus: true, mensageStatus: `O funcionário já possui um agendamento conflitante das ${existingApp.horaInicio} às ${existingApp.horaFim} neste dia.` });
+            }
+        }
+
+        // Validação 5: Conflito de Horário para o CLIENTE
+        const existingAppointmentsCliente = await Agendamento.find({
+            clienteId: clienteId,
+            dataAgendamento: dataAgendamentoUTC, 
+            cancelado: false, 
         });
+        for (const existingApp of existingAppointmentsCliente) {
+            const existingAppStart = moment.tz(`${moment(existingApp.dataAgendamento).format('YYYY-MM-DD')} ${existingApp.horaInicio}`, 'YYYY-MM-DD HH:mm', 'America/Sao_Paulo');
+            const existingAppEnd = moment.tz(`${moment(existingApp.dataAgendamento).format('YYYY-MM-DD')} ${existingApp.horaFim}`, 'YYYY-MM-DD HH:mm', 'America/Sao_Paulo');
 
-        const agendamentoSalvo = await novoAgendamento.save();
-
-        const agendamentoPopulado = await Agendamento.findById(agendamentoSalvo._id)
-            .populate('salaoId', 'nome')
-            .populate('servicoId', 'titulo')
-            .populate('clienteId', 'nomeCompleto')
-            .populate('funcionarioId', 'nomeCompleto');
-
-        return res.status(201).json({
-            errorStatus: false,
-            mensageStatus: 'AGENDAMENTO CRIADO COM SUCESSO',
-            data: agendamentoPopulado,
-        });
-    } catch (error) {
-        console.error('Erro detalhado ao criar agendamento (backend):', JSON.stringify(error, null, 2));
-
-        if (error.name === 'ValidationError') {
-            const errors = Object.values(error.errors).map(err => ({
-                field: err.path,
-                message: err.message,
-                value: err.value,
-            }));
-            console.error('Erros de validação do Mongoose:', errors);
-            return res.status(400).json({
-                errorStatus: true,
-                mensageStatus: 'Erro de validação ao criar o agendamento. Verifique os campos.',
-                validationErrors: errors,
-                errorObject: error.message,
-            });
-        }
-        if (error.name === 'CastError' && error.path === '_id') { 
-            return res.status(400).json({
-                errorStatus: true,
-                mensageStatus: `ID de serviço inválido: ${servicoId}.`,
-                errorObject: error.message,
-            });
+            if (newAppointmentStart.isBefore(existingAppEnd) && newAppointmentEnd.isAfter(existingAppStart)) {
+                return res.status(400).json({
+                    errorStatus: true,
+                    mensageStatus: `O cliente já possui um agendamento conflitante das ${existingApp.horaInicio} às ${existingApp.horaFim} neste dia.`,
+                });
+            }
         }
 
+        const novoAgendamento = new Agendamento({
+            salaoId,
+            horaInicio,
+            horaFim,
+            servicoId,
+            clienteId,
+            funcionarioId,
+            valor,
+            observacoes,
+            dataAgendamento: dataAgendamentoUTC,
+            concluido: concluido || false,
+            cancelado: cancelado || false,
+        });
 
-        return res.status(400).json({
-            errorStatus: true,
-            mensageStatus: 'HOUVE UM ERRO AO CRIAR O AGENDAMENTO',
-            errorObject: error.message,
-        });
-    }
+        const agendamentoSalvo = await novoAgendamento.save();
+
+        const agendamentoPopulado = await Agendamento.findById(agendamentoSalvo._id)
+            .populate('salaoId', 'nome')
+            .populate('servicoId', 'titulo')
+            .populate('clienteId', 'nomeCompleto')
+            .populate('funcionarioId', 'nomeCompleto');
+
+        return res.status(201).json({
+            errorStatus: false,
+            mensageStatus: 'AGENDAMENTO CRIADO COM SUCESSO',
+            data: agendamentoPopulado,
+        });
+    } catch (error) {
+        console.error('Erro detalhado ao criar agendamento (backend):', JSON.stringify(error, null, 2));
+
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map(err => ({
+                field: err.path,
+                message: err.message,
+                value: err.value,
+            }));
+            console.error('Erros de validação do Mongoose:', errors);
+            return res.status(400).json({
+                errorStatus: true,
+                mensageStatus: 'Erro de validação ao criar o agendamento. Verifique os campos.',
+                validationErrors: errors,
+                errorObject: error.message,
+            });
+        }
+        if (error.name === 'CastError' && error.path === '_id') { 
+            return res.status(400).json({
+                errorStatus: true,
+                mensageStatus: `ID de serviço inválido: ${servicoId}.`,
+                errorObject: error.message,
+            });
+        }
+
+
+        return res.status(400).json({
+            errorStatus: true,
+            mensageStatus: 'HOUVE UM ERRO AO CRIAR O AGENDAMENTO',
+            errorObject: error.message,
+        });
+    }
 });
 
 // Rota para capturar agendamentos cancelados (GET)
