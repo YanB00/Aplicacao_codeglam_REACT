@@ -2,8 +2,9 @@
   display: grid;
   grid-template-columns: 70px 1fr;
   border: 1px solid #ccc;
-  min-height: 500px;
+  min-height: 500px; 
   font-family: 'Arial', sans-serif;
+  position: relative; 
 }
 
 .timeColumn {
@@ -19,7 +20,7 @@
   text-align: right;
   font-size: 0.8em;
   color: #555;
-  height: 40px;
+  height: 40px; 
   line-height: 40px;
   box-sizing: border-box;
 }
@@ -30,16 +31,29 @@
 .gridContent {
   grid-column: 2 / 3;
   display: grid;
-  grid-template-rows: 1fr; 
-  overflow: hidden;
-  position: relative;
+  grid-template-rows: repeat(auto-fit, minmax(20px, 1fr)); 
+  overflow-y: auto; 
+  position: relative; 
 }
 
 .eventArea {
-  grid-row: 1 / 2; 
+  min-height: calc(var(--grid-total-half-hours) * 20px); 
   position: relative;
-  min-height: calc((19 - 8) * 2 * 20px); 
-  overflow: auto;
+  width: 100%;
+}
+
+
+.gridLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px; 
+  background-color: #f0f0f0; 
+  z-index: 1; 
+}
+
+.gridLine:last-of-type {
+    border-bottom: 1px solid #eee;
 }
 
 .eventCell {
@@ -49,26 +63,26 @@
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  z-index: 1;
+  z-index: 2; 
   padding: 5px 8px;
   font-size: 13px;
   line-height: 1.3;
-  color: black; 
+  color: black;
   border: 1px solid rgba(0,0,0,0.05);
 
   top: calc(var(--event-start-half-hour) * 20px);
   left: calc((100% / var(--employee-count, 1)) * var(--employee-index));
-  width: calc((100% / var(--employee-count, 1)) - 2px);
-  height: calc(var(--event-duration-half-hours) * 20px - 2px);
-  margin-left: 1px;
+  width: calc((100% / var(--employee-count, 1)) - 2px); 
+  height: calc(var(--event-duration-half-hours) * 20px - 2px); 
+  margin-left: 1px; 
   margin-right: 1px;
-  margin-top: 1px;
+  margin-top: 1px; 
 
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease; 
+  transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
 }
 
 .eventCell:hover {
@@ -102,26 +116,24 @@
 }
 
 .concluidoEvent {
-  background-color: #28a745 !important; 
-  color: white !important; 
-  border-color: #1e7e34 !important; 
+  background-color: #28a745 !important;
+  color: white !important;
+  border-color: #1e7e34 !important;
 }
-.concluidoEvent .eventTime { 
+.concluidoEvent .eventTime {
     color: rgba(255, 255, 255, 0.85) !important;
 }
 
-
 .canceladoEvent {
-  background-color: #dc3545 !important; 
-  color: white !important; 
-  border-color: #b02a37 !important; 
-  text-decoration: line-through; 
-  opacity: 0.85; 
+  background-color: #dc3545 !important;
+  color: white !important;
+  border-color: #b02a37 !important;
+  text-decoration: line-through;
+  opacity: 0.85;
 }
 .canceladoEvent .eventTime {
     color: rgba(255, 255, 255, 0.85) !important;
 }
-
 
 .statusIndicatorConcluido,
 .statusIndicatorCancelado {
@@ -129,10 +141,8 @@
   padding: 1px 4px;
   border-radius: 3px;
   margin-top: 2px;
-  display: none; 
+  display: none;
 }
-
-
 
 .loadingContainer {
   display: flex;
@@ -141,4 +151,61 @@
   height: 200px;
   font-size: 1.2em;
   color: #555;
+}
+
+.closedMessage {
+  position: absolute; 
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); 
+  text-align: center;
+  padding: 30px 40px; 
+  background-color: #f0f8ff; 
+  border: 2px solid #aaddff; 
+  border-radius: 10px; 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
+  color: #336699; 
+  font-size: 1.2em; 
+  font-weight: 500;
+  max-width: 90%; 
+  width: 400px; 
+  z-index: 10;
+}
+
+.closedMessage p {
+  margin: 10px 0;
+  line-height: 1.5;
+}
+
+.closedMessage p:first-child {
+  font-size: 1.4em; 
+  font-weight: bold;
+  color: #225588;
+}
+
+.closedMessage p:last-child {
+  font-size: 1em;
+  color: #5588bb;
+}
+
+@media (max-width: 768px) {
+  .container {
+    grid-template-columns: 1fr; 
+    min-height: 400px;
+  }
+  .timeColumn {
+    display: none; 
+  }
+  .gridContent {
+    grid-column: 1 / 2; 
+    grid-template-rows: repeat(auto-fit, minmax(20px, 1fr));
+  }
+  .closedMessage {
+    width: 95%; 
+    padding: 20px;
+    font-size: 1em;
+  }
+  .closedMessage p:first-child {
+    font-size: 1.2em;
+  }
 }

@@ -140,3 +140,34 @@
   background-color: rgba(255, 255, 255, 0.2);
 }
 
+/* ... existing styles for .addFormContainer, .topBar, .inputGroup, .actions etc. ... */
+
+.closedDayMessage {
+    text-align: center;
+    padding: 30px 20px;
+    background-color: #ffe0b2; /* Light orange/peach for warning */
+    border: 1px solid #ff9800; /* Darker orange border */
+    border-radius: 8px;
+    margin: 20px 0;
+    color: #e65100; /* Darker orange text */
+    font-size: 1.1em;
+    line-height: 1.5;
+}
+
+.closedDayMessage p {
+    margin: 10px 0;
+}
+
+.closedDayMessage p:first-child {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+/* Optional: You might want to style the buttons in .actions if the form is disabled */
+/* For example, if you decide to only disable inputs and not hide the form. */
+/*
+.addFormContainer button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+*/

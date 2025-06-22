@@ -12,27 +12,62 @@ const SchedulePage = ({ salonId }) => {
   const [isLoadingAppointments, setIsLoadingAppointments] = useState(false);
   const [fetchAppointmentsError, setFetchAppointmentsError] = useState(null);
 
+  const [salonOperatingHours, setSalonOperatingHours] = useState(null);
+  const [isLoadingOperatingHours, setIsLoadingOperatingHours] = useState(true);
+  const [fetchOperatingHoursError, setFetchOperatingHoursError] = useState(null);
+
+
   const [selectedDateForNewAppointment, setSelectedDateForNewAppointment] = useState(null);
 
   const [activeFilters, setActiveFilters] = useState({
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toISOString().split('T')[0], 
     serviceId: '',
     employeeId: '',
   });
 
-  const BASE_URL = 'http://localhost:3000';
+  const BASE_URL = 'http://localhost:3000'; 
+
+  const fetchSalonOperatingHours = useCallback(async (currentSalonId) => {
+    if (!currentSalonId) {
+      setSalonOperatingHours(null);
+      console.warn("SchedulePage: ID do Salão não fornecido para buscar horários de funcionamento.");
+      return;
+    }
+    setIsLoadingOperatingHours(true);
+    setFetchOperatingHoursError(null);
+    try {
+      const response = await fetch(`${BASE_URL}/register/${currentSalonId}`);
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`Falha ao buscar horários do salão: ${response.statusText} - ${errorData}`);
+      }
+      const data = await response.json();
+      if (data.errorStatus) {
+        throw new Error(data.mensageStatus || 'Erro ao buscar horários de funcionamento do salão');
+      }
+      console.log("SchedulePage: Horários de funcionamento do salão recebidos:", data.data.horariosFuncionamento);
+      setSalonOperatingHours(data.data.horariosFuncionamento);
+    } catch (error) {
+      console.error("Erro ao buscar horários de funcionamento do salão:", error);
+      setFetchOperatingHoursError(error.message);
+      setSalonOperatingHours(null);
+    } finally {
+      setIsLoadingOperatingHours(false);
+    }
+  }, [BASE_URL]);
+
 
   const fetchAllAppointmentsForSalao = useCallback(async (currentId) => {
-    if (!currentId) { 
+    if (!currentId) {
       setRawAppointmentsFromApi([]);
       console.warn("SchedulePage: ID do Salão não fornecido para buscar agendamentos.");
       return;
     }
-    console.log(`SchedulePage: Buscando TODOS os agendamentos para salaoId: ${currentId}`); 
+    console.log(`SchedulePage: Buscando TODOS os agendamentos para salaoId: ${currentId}`);
     setIsLoadingAppointments(true);
     setFetchAppointmentsError(null);
     try {
-      const response = await fetch(`${BASE_URL}/agendamentos/salao/${currentId}`); 
+      const response = await fetch(`${BASE_URL}/agendamentos/salao/${currentId}`);
       if (!response.ok) {
         const errorData = await response.text();
         throw new Error(`Falha ao buscar agendamentos: ${response.statusText} - ${errorData}`);
@@ -51,17 +86,17 @@ const SchedulePage = ({ salonId }) => {
       setIsLoadingAppointments(false);
     }
   }, [BASE_URL]);
-  // --- FIM DA MODIFICAÇÃO ---
-
 
   useEffect(() => {
     if (salonId) {
       fetchAllAppointmentsForSalao(salonId);
+      fetchSalonOperatingHours(salonId); 
     } else {
-      console.warn("SchedulePage: salonId não recebido via props. Não é possível buscar agendamentos.");
+      console.warn("SchedulePage: salonId não recebido via props. Não é possível buscar agendamentos ou horários.");
       setRawAppointmentsFromApi([]);
+      setSalonOperatingHours(null);
     }
-  }, [salonId, fetchAllAppointmentsForSalao]);
+  }, [salonId, fetchAllAppointmentsForSalao, fetchSalonOperatingHours]); 
 
   useEffect(() => {
     console.log("SchedulePage: Aplicando filtros...", activeFilters, "sobre", rawAppointmentsFromApi.length, "agendamentos brutos.");
@@ -124,6 +159,17 @@ const SchedulePage = ({ salonId }) => {
     setIsAddFormVisible(false);
   };
 
+  const today = new Date();
+  const currentDayOfWeek = today.toLocaleString('pt-BR', { weekday: 'long' }).toLowerCase(); // e.g., "domingo", "segunda-feira"
+
+  if (isLoadingAppointments || isLoadingOperatingHours) {
+    return <p>Carregando agenda e horários do salão...</p>;
+  }
+
+  if (fetchAppointmentsError || fetchOperatingHoursError) {
+    return <p style={{ color: 'red' }}>Erro ao carregar dados: {fetchAppointmentsError || fetchOperatingHoursError}</p>;
+  }
+
   return (
     <div className={styles.page}>
       <ScheduleHeader
@@ -134,11 +180,12 @@ const SchedulePage = ({ salonId }) => {
         currentEmployeeId={activeFilters.employeeId}
         onFilterChange={handleFilterChange}
       />
-      {isLoadingAppointments && <p>Carregando agendamentos...</p>}
-      {fetchAppointmentsError && <p style={{ color: 'red' }}>Erro ao carregar agendamentos: {fetchAppointmentsError}</p>}
-      {!isLoadingAppointments && !fetchAppointmentsError && (
-        <ScheduleGrid appointments={filteredAppointmentsToShowInGrid} salaoId={salonId} />
-      )}
+      <ScheduleGrid
+        appointments={filteredAppointmentsToShowInGrid}
+        salaoId={salonId}
+        salonOperatingHours={salonOperatingHours}
+        selectedDate={activeFilters.date} 
+      />
 
       {isAddFormVisible && salonId && selectedDateForNewAppointment && (
         <AddAppointmentForm

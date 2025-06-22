@@ -3,6 +3,7 @@ import styles from "./SettingsPage.module.css";
 import SalonInfo from "../components/settings/SalonInfo";
 import AdminProfile from "../components/settings/AdminProfile";
 import ModuleActivations from "../components/settings/ModuleActivations"; 
+import ScheduleSettings from "../components/settings/ScheduleSettings";
 
 export default function SettingsPage({ userId: propUserId,  onSalonDataUpdate }) { 
 
@@ -13,6 +14,7 @@ export default function SettingsPage({ userId: propUserId,  onSalonDataUpdate })
         <h2 className={styles.topBarTitle}>Configurações</h2>
       </div>
       <SalonInfo userId={propUserId} onSalonDataUpdate={onSalonDataUpdate} />
+      <ScheduleSettings userId={propUserId} />
       <AdminProfile userId={propUserId} onSalonDataUpdate={onSalonDataUpdate} />
       <ModuleActivations userId={propUserId} onSalonDataUpdate={onSalonDataUpdate} />
     </div>
