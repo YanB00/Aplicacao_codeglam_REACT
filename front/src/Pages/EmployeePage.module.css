@@ -87,48 +87,10 @@
   margin-top: 20px;
 }
 
-.button {
-
-  background-color: #c084fc;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  text-decoration: none;
-}
-
-.button:hover {
-  background-color: #a855f7;
-}
-
 .historySection {
   padding: 20px 30px 40px;
 }
 
-.backButton {
-  background-color: #8e44ad; 
-  color: white;
-  border: none;
-  padding: 8px 16px; 
-  border-radius: 8px; 
-  cursor: pointer;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 8px; 
-  transition: background-color 0.3s ease;
-  margin-top: 0; 
-  height: auto; 
-  width: auto; 
-  padding-left: 12px; 
-  padding-right: 12px; 
-}
-
-.backButton:hover {
-  background-color: #9b59b6; 
-}
 
 .buttonContainer {
   display: flex;
@@ -159,7 +121,7 @@ padding: 20px 30px 40px;
 }
 
 .backButton {
-background-color: #8e44ad;
+background-color: #aa79e6;
 color: white;
 border: none;
 padding: 8px 16px;
@@ -178,7 +140,7 @@ padding-right: 12px;
 }
 
 .backButton:hover {
-background-color: #9b59b6;
+background-color: #7a58a3;
 }
 
 .buttonContainer {

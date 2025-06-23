@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation, useNavigate } from 'react-router-dom';
 import styles from './App.module.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 // Importe componentes Sidebar 
 import Sidebar from './components/Sidebar';
@@ -135,8 +136,9 @@ function DashboardContent({ userId, onLogout }) {
         <>
             <div className={styles.dashboardTopBar}> 
                 <h1 className={styles.dashboardTitle}>DASHBOARD</h1> 
-                <button onClick={onLogout} className={styles.logoutButton}>SAIR
-                </button>
+                <button onClick={onLogout} className={styles.logoutButton} aria-label="Desligar">
+
+  </button>
             </div>
             <TopCards salonId={userId} />
             <div className={styles.gridArea}>

@@ -143,29 +143,10 @@ input:focus {
   color: white;
 }
 
-.saveBtn :hover {
+.saveBtn:hover {
+  background-color: #9b72c4;
+}
+.cancelBtn:hover {
   background-color: gray;
 }
 
-.backButton {
-  background-color: #8e44ad; 
-  color: white;
-  border: none;
-  padding: 8px 16px; 
-  border-radius: 8px; 
-  cursor: pointer;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 8px; 
-  transition: background-color 0.3s ease;
-  margin-top: 0; 
-  height: auto; 
-  width: auto; 
-  padding-left: 12px;
-  padding-right: 12px;
-}
-
-.backButton:hover {
-  background-color: #9b59b6;
-}

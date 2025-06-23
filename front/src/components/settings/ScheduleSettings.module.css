@@ -52,10 +52,11 @@
 .timeInput {
   padding: 8px 10px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 1rem;
   width: 90px;
 }
+
 
 .timeInput:disabled {
   background-color: #f0f0f0;
@@ -66,36 +67,60 @@
   color: #777;
 }
 
-.activeToggle { /* Renamed from .closedToggle */
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.activeToggle label {
-  cursor: pointer;
-  color: #555;
-}
-
 .activeToggle input[type="checkbox"] {
-  transform: scale(1.2);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+
+  position: relative;
+  cursor: pointer;
+
+  margin: 0 8px 0 0; /* Exemplo de margem direita para separar do label/texto */
+  vertical-align: middle;
+}
+
+.activeToggle input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px #35047a;
+}
+.activeToggle input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #6200ee; /* cor do “ponto” interno quando marcado */
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.1s ease-in-out;
+}
+
+.activeToggle input[type="checkbox"]:checked::after {
+  transform: translate(-50%, -50%) scale(1);
 }
 
 .saveButton {
-  background-color: #7b4397;
+  
+  align-self: flex-start;
+  padding: 8px 12px;
+  background-color: #9b5de5;
   color: white;
-  padding: 10px 20px;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 1rem;
-  margin-top: 20px;
-  width: 100%;
-  box-sizing: border-box;
+  font-size: 0.9em;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
 }
 
 .saveButton:hover {
-  background-color: #6a3a85;
+  background-color:#7a3fcf;;
 }
 
 .errorMessage {

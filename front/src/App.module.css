@@ -1,3 +1,4 @@
+
 .appContainer {
   display: flex;
   height: 100vh;
@@ -10,15 +11,18 @@
 }
 
 .dashboardTopBar {
-  background-color:  #8e44ad; 
-  height: 60px; 
+ 
+  height: 60px;
+  background-color: #9b5de5;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
   display: flex;
-  justify-content: space-between;
-  align-items: center; 
-  padding: 0 20px; 
-  width: 100%; 
-  box-sizing: border-box; 
+  justify-content: space-between; 
+  align-items: center;
+  padding: 0 20px;
+  margin-bottom: 20px; 
 }
+
 .dashboardTitle {
     font-size: 1.5em;
     margin: 0; 
@@ -29,19 +33,26 @@
 }
 
 .logoutButton {
-  background-color:#9b5de5 ; 
-  color: white;
-  padding: 8px 15px;
+  background: none;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
+  font-family: "Font Awesome 6 Free"; /* ajuste conforme sua versão */
+  font-weight: 900; /* solid */
+  font-size: 24px; /* tamanho do ícone */
+  color: #ffffff; /* cor do ícone */
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.logoutButton:hover {
-  background-color: #c084fc;
+/* Coloca o ícone como conteúdo do botão */
+.logoutButton::before {
+  content: "\f011"; /* unicode do ícone power-off */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
 }
+
 
 
 .gridArea {

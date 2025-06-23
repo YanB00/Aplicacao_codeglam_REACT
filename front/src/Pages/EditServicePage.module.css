@@ -102,38 +102,42 @@
   margin-top: 25px;
 }
 
-.buttons button { 
-  padding: 10px 20px; 
-  border-radius: 6px; 
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.cancelBtn,
+.saveBtn {
+  background-color: #c084fc;
+  color: white;
   border: none;
+  padding: 8px 16px;
+  border-radius: 12px;
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-  font-size: 0.95em;
-}
-.buttons button:active {
-    transform: translateY(1px); 
+  transition: background-color 0.3s ease;
+  text-decoration: none;
 }
 
-.buttons .cancelBtn {
-  background-color: #f0f0f0; 
-  color: #555;
-  border: 1px solid #ddd; 
+.cancelBtn {
+  background-color: #ddd;
+  color: #333;
 }
 
-.buttons .cancelBtn:hover {
-  background-color: #e7e7e7;
-  border-color: #ccc;
-}
-
-.buttons .saveBtn {
-  background-color: #9b5de5; 
+.saveBtn {
+  background-color: #c084fc;
   color: white;
 }
 
-.buttons .saveBtn:hover {
-  background-color: #824bc4; 
+.saveBtn:hover {
+  background-color: #9b72c4;
 }
+.cancelBtn:hover {
+  background-color: gray;
+}
+
 
 /* --- ERRO E LOADING --- */
 .error {

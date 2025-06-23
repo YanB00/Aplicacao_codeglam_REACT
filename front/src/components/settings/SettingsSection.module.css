@@ -51,6 +51,7 @@
 label {
   font-weight: bold;
   color: #555;
+  
 }
 
 input,
@@ -59,6 +60,7 @@ select {
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 1em;
+  margin-left: 10px;
 }
 
 input:focus,
@@ -118,4 +120,52 @@ select:focus {
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 1em;
+}
+/* Exemplo genérico, adapte o seletor conforme seu projeto */
+.moduleList input[type="checkbox"] {
+  /* Remove aparência padrão */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  /* Tamanho do “círculo” */
+  width: 20px;
+  height: 20px;
+
+  /* Borda */
+  border: 2px solid #ccc;
+  border-radius: 50%;
+
+  /* Cursor e posição para pseudo-elementos */
+  position: relative;
+  cursor: pointer;
+
+  /* Espaçamento/padding conforme sua necessidade */
+  margin: 0 8px 0 0; /* Exemplo de margem direita para separar do label/texto */
+  /* Opcional: alinhe verticalmente se for dentro de flex/parent */
+  vertical-align: middle;
+}
+
+/* Estado de foco (opcional, para acessibilidade) */
+.moduleList input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px #35047a;
+}
+.moduleList input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* Tamanho interno: ajuste conforme a espessura da borda e do tamanho total */
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #6200ee; /* cor do “ponto” interno quando marcado */
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.1s ease-in-out;
+  /* Opcional: escolha outra cor de fundo ou use um ícone de check em SVG/Font Awesome via ::before, mas círculo é simples */
+}
+
+.moduleList input[type="checkbox"]:checked::after {
+  transform: translate(-50%, -50%) scale(1);
 }

@@ -58,49 +58,8 @@
   margin-right: 5px;
 }
 
-.concluido {
-  display: flex;
-  flex-direction: row;
-  gap: 40px;
-  margin: 20px;
-  font-size: 0.9em;
-  color: #777;
-}
 
-.concluido div {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
 
-.concluido label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-  cursor: pointer;
-}
-
-.concluido input[type="checkbox"] {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  border: 1.5px solid #aaa;
-  background-color: #fff;
-  cursor: pointer;
-  vertical-align: middle;
-  transition: background-color 0.2s ease;
-  display: inline-block;
-  position: relative;
-}
-
-.concluido input[type="checkbox"]:checked {
-  background-color: #6c5ce7;
-  border-color: #c4c3ca;
-  border: 2px
-}
 
 .actions {
   margin-top: 20px;
@@ -138,3 +97,58 @@
 .actions button:nth-child(2):hover {
   filter: brightness(0.9);
 }
+
+.statusSection {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin: 20px;
+  font-size: 0.9em;
+  color: #777;
+}
+
+.statusSection div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.statusSection label {
+  font-weight: bold;
+  margin-bottom: 4px;
+  color: #555;
+}
+
+.statusSection input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #aaa;
+  background-color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.statusSection input[type="checkbox"]::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  background-color: #6c5ce7;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.statusSection input[type="checkbox"]:checked::before {
+  opacity: 1;
+}
+

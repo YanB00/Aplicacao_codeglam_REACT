@@ -223,9 +223,7 @@ const handleSubmit = async (event) => {
       <div className={styles.page}>
         <div className={styles.content}>
           <div className={styles.topBar}>
-            <button onClick={() => navigate(-1)} className={styles.backButton}>
-              <FaArrowLeft /> Voltar
-            </button>
+           
           </div>
           <div className={styles.mainContent}>Erro ao carregar dados do funcionário: {error.message}</div>
         </div>
@@ -238,9 +236,7 @@ const handleSubmit = async (event) => {
       <div className={styles.page}>
         <div className={styles.content}>
           <div className={styles.topBar}>
-            <button onClick={() => navigate(-1)} className={styles.backButton}>
-              <FaArrowLeft /> Voltar
-            </button>
+           
           </div>
           <div className={styles.mainContent}>Funcionário não encontrado.</div>
         </div>
@@ -257,9 +253,7 @@ const handleSubmit = async (event) => {
     <div className={styles.page}>
       <div className={styles.content}>
         <div className={styles.topBar}>
-          <button onClick={() => navigate(-1)} className={styles.backButton}>
-            <FaArrowLeft /> Voltar
-          </button>
+         
         </div>
 
         <div className={styles.formContainer}>
