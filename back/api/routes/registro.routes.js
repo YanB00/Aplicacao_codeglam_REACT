@@ -13,14 +13,14 @@ const execPromise = util.promisify(exec);
 const isValidTime = (time) => /^([01]\d|2[0-3]):([0-5]\d)$/.test(time);
 
 
-router.post('/register', async (req, res) => {
+router.post('/', async (req, res) => {
     const { nome, empresa, telefone, email, senha } = req.body;
     console.log('[BACKEND - POST /register] Recebendo dados:', { nome, empresa, telefone, email, senha });
 
     try {
         // Verificar se o email já existe
         const salaoExistente = await Register.findOne({ email });
-        if (salaaoExistente) {
+        if (salaoExistente) {
             console.log('[BACKEND - POST /register] E-mail já cadastrado:', email);
             return res.status(409).json({
                 errorStatus: true,

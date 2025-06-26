@@ -1,8 +1,9 @@
-// index.js (TEMPORARY DEBUGGING CODE)
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors')
 const app = express();
 const morgan = require('morgan');
+const mongoose = require('mongoose');
 require('./database');
 
 // Import routes
@@ -12,6 +13,8 @@ const servicosRoutes = require('./routes/servicos.routes');
 const agendamentosRoutes = require('./routes/agendamento.routes');
 const registroRoutes = require('./routes/registro.routes');
 const loginRoutes = require('./routes/login.routes');
+const forgotPasswordRoutes = require('./routes/forgotPassword.routes');
+const resetPasswordRoutes = require('./routes/resetPassword.routes');
 
 app.use(cors());
 app.use(express.json()); 
@@ -27,6 +30,8 @@ app.set ('port', 3000);
 app.use('/funcionarios', funcionarioRoutes);
 app.use('/register', registroRoutes);
 app.use('/login', loginRoutes);
+app.use('/forgot-password', forgotPasswordRoutes); 
+app.use('/reset-password', resetPasswordRoutes);
 app.use('/clientes', clienteRoutes);
 app.use('/servicos', servicosRoutes);
 app.use('/agendamentos', agendamentosRoutes);
