@@ -11,12 +11,15 @@
 .topBar {
   background-color: #9b5de5; 
   color: var(--white);
-    padding: 12px 20px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    box-sizing: border-box;
-    text-align: center
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  text-align: center;
+  display: flex; /* Torna a topBar um container flexível */
+  justify-content: space-between; /* Empurra o título para um lado e o botão para o outro */
+  align-items: center;
 }
 
 .topBarTitle {
@@ -24,3 +27,34 @@
   margin: 0; 
   color: white;
 }
+.logoutButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 24px; 
+  color: #ffffff; 
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px; 
+  height: 40px; 
+  border-radius: 50%; 
+  transition: background-color 0.3s ease; 
+  margin-left: 20px; 
+}
+
+
+
+.logoutButton:hover {
+  background-color: rgba(255, 255, 255, 0.2); 
+}
+.section {
+  background: white;
+  border-radius: 8px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 2px solid red; 
+}
+

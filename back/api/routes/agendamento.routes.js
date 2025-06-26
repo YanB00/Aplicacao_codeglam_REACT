@@ -226,20 +226,35 @@ router.get('/data/:dataAgendamento', async (req, res) => {
   }
 });
 
+
 router.get('/grafico/agendamentos-mensal', async (req, res) => {
     try {
         const now = moment.tz('America/Sao_Paulo');
         const startOfMonth = now.startOf('month').utc().toDate(); 
         const endOfMonth = now.endOf('month').utc().toDate();  
 
+        const { salaoId } = req.query; 
+
+        let matchQuery = {
+            dataAgendamento: {
+                $gte: startOfMonth,
+                $lte: endOfMonth
+            }
+        };
+
+        if (salaoId) {
+            if (!mongoose.Types.ObjectId.isValid(salaoId)) {
+                return res.status(400).json({
+                    errorStatus: true,
+                    mensageStatus: 'ID do salão inválido.',
+                });
+            }
+            matchQuery.salaoId = new mongoose.Types.ObjectId(salaoId);
+        }
+
         const result = await Agendamento.aggregate([
             {
-                $match: {
-                    dataAgendamento: {
-                        $gte: startOfMonth,
-                        $lte: endOfMonth
-                    }
-                }
+                $match: matchQuery 
             },
             {
                 $group: {
@@ -283,6 +298,7 @@ router.get('/grafico/agendamentos-mensal', async (req, res) => {
         });
     }
 });
+
 
 
 // Rota para obter todos os agendamentos (GET)

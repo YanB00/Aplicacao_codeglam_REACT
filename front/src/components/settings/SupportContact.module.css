@@ -1,0 +1,48 @@
+.supportContactModule {
+    background: white;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
+    margin-top: 20px;
+}
+
+.supportContactTitle {
+    font-size: 1.5em;
+    color: #6200ee;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee; /* Mais fina */
+    padding-bottom: 8px;
+    font-weight: bold;
+    text-align: left; 
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.supportContactText {
+    color: #000000;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    text-align: left; /* ALTERADO: Alinha o texto à esquerda */
+}
+
+.supportEmail {
+    font-weight: bold;
+    color: #333;
+    font-size: 1.1em;
+    margin-bottom: 0;
+    text-align: left; /
+}
+
+.supportEmail a {
+    color: #6200ee; 
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.supportEmail a:hover {
+    color: #37254e;
+    text-decoration: underline;
+}

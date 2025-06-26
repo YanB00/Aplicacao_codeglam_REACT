@@ -1,0 +1,134 @@
+.dropAccountTitle {
+    font-size: 1.5em; 
+    color: #dc3545; 
+    margin-top: 0;
+    margin-bottom: 15px; /* Espaçamento abaixo */
+    border-bottom: 2px solid #eee; /* Linha de separação */
+    padding-bottom: 8px;
+    text-align: center; /* Centraliza o texto do título */
+    width: 100%; /* Garante que a linha inferior se estenda */
+    box-sizing: border-box; /* Inclui padding e border na largura */
+}
+
+.dropAccountText {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.warning {
+    color: #f7c83c;
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.confirmInput {
+    width: calc(100% - 40px); /* Ajuste para ter margem nas laterais */
+    max-width: 300px;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    text-align: center;
+    text-transform: uppercase;
+    display: block; /* Essencial para margin: auto */
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box; /* Inclui padding e border na largura */
+}
+
+.confirmInput:focus {
+    border-color: #dc3545;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.errorMessage {
+    color: #dc3545;
+    margin-top: -10px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.dropButton {
+    background-color: #dc3545;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: auto;
+    display: block; /* Essencial para margin: auto */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.dropButton:hover:not(:disabled) {
+    background-color: #c82333;
+}
+
+.dropButton:disabled {
+    background-color: #e0e0e0;
+    color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+.customPopup {
+    border-radius: 12px !important;
+    background-color: #f8f8f8 !important; /* Um fundo mais suave */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+    padding: 30px !important;
+}
+
+.customTitle {
+    color: #333 !important;
+    font-size: 1.8em !important;
+    font-weight: bold !important;
+    margin-bottom: 15px !important;
+}
+
+.customHtmlContainer {
+    font-size: 1.1em !important;
+    color: #555 !important;
+    line-height: 1.5 !important;
+    text-align: center !important;
+}
+
+.customHtmlContainer p {
+    margin-bottom: 10px !important; 
+}
+
+
+.swal2-confirm.customConfirmButton { 
+    background-color: #dc3545 !important; 
+    color: white !important;
+    font-weight: bold !important;
+    border-radius: 8px !important;
+    padding: 10px 20px !important;
+    font-size: 1em !important;
+    transition: background-color 0.3s ease !important;
+}
+
+.swal2-confirm.customConfirmButton:hover {
+    background-color: #c82333 !important;
+}
+
+.swal2-cancel.customCancelButton { 
+    background-color: #6c757d !important; /* Cor cinza */
+    color: white !important;
+    font-weight: bold !important;
+    border-radius: 8px !important;
+    padding: 10px 20px !important;
+    font-size: 1em !important;
+    transition: background-color 0.3s ease !important;
+}
+
+.swal2-cancel.customCancelButton:hover {
+    background-color: #5a6268 !important;
+}

@@ -35,6 +35,10 @@ const registroSchema = new Schema({
     type: Date,
     default: Date.now
   },
+  isDeleted: {
+      type: Boolean,
+      default: false 
+  },
   horariosFuncionamento: { 
       type: Object, 
       default: {

@@ -63,21 +63,22 @@ router.post('/', async (req, res) => {
     }
 });
 
+
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     console.log(`[BACKEND - GET /register/:id] Recebendo requisição para ID: ${id}`);
 
     try {
-        const salao = await Register.findById(id);
+        const salao = await Register.findOne({ _id: id, isDeleted: false });
 
         if (!salao) {
-            console.log(`[BACKEND - GET /register/:id] Salão não encontrado para ID: ${id}`);
-            return res.status(404).json({ errorStatus: true, mensageStatus: 'Salão não encontrado' });
+            console.log(`[BACKEND - GET /register/:id] Salão não encontrado ou está deletado para ID: ${id}`);
+            return res.status(404).json({ errorStatus: true, mensageStatus: 'Salão não encontrado ou desativado' });
         }
 
         const defaultHorarios = Register.schema.paths.horariosFuncionamento.defaultValue;
         const finalHorarios = { ...defaultHorarios, ...salao.horariosFuncionamento };
-        salao.horariosFuncionamento = finalHorarios; 
+        salao.horariosFuncionamento = finalHorarios;
 
         console.log(`[BACKEND - GET /register/:id] Salão encontrado para ID ${id}:`, { _id: salao._id, nome: salao.nome, empresa: salao.empresa, email: salao.email });
         return res.status(200).json({ errorStatus: false, data: salao });
@@ -89,6 +90,19 @@ router.get('/:id', async (req, res) => {
         return res.status(500).json({ errorStatus: true, mensageStatus: 'Erro interno no servidor', errorObject: error });
     }
 });
+
+
+/*
+router.get('/', async (req, res) => {
+    try {
+        const saloes = await Register.find({ isDeleted: false }); // Filtra apenas salões não deletados
+        return res.status(200).json({ errorStatus: false, data: saloes });
+    } catch (error) {
+        console.error('Erro ao buscar salões:', error);
+        return res.status(500).json({ errorStatus: true, mensageStatus: 'Erro interno no servidor' });
+    }
+});
+*/
 
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
@@ -229,6 +243,108 @@ router.put('/:id', async (req, res) => {
     }
 });
 
+
+router.put('/soft-delete/:id', async (req, res) => {
+    const { id } = req.params;
+    console.log(`[BACKEND - PUT /register/soft-delete/:id] Recebendo requisição para soft delete do ID: ${id}`);
+
+    try {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            console.warn(`[BACKEND - PUT /register/soft-delete/:id] ID inválido: ${id}`);
+            return res.status(400).json({
+                errorStatus: true,
+                mensageStatus: `ID de salão inválido: ${id}`,
+            });
+        }
+
+        const salao = await Register.findById(id);
+
+        if (!salao) {
+            console.log(`[BACKEND - PUT /register/soft-delete/:id] Salão não encontrado para ID: ${id}`);
+            return res.status(404).json({
+                errorStatus: true,
+                mensageStatus: 'Salão não encontrado para exclusão.',
+            });
+        }
+
+        if (salao.isDeleted) {
+            console.log(`[BACKEND - PUT /register/soft-delete/:id] Salão com ID ${id} já está marcado como deletado.`);
+            return res.status(409).json({
+                errorStatus: true,
+                mensageStatus: 'Este salão já está desativado.',
+            });
+        }
+
+        salao.isDeleted = true; // Marca o salão como deletado
+        await salao.save();
+
+        console.log(`[BACKEND - PUT /register/soft-delete/:id] Salão com ID ${id} marcado como deletado com sucesso.`);
+        return res.status(200).json({
+            errorStatus: false,
+            mensageStatus: 'Cadastro do salão desativado com sucesso.',
+            data: { _id: salao._id, empresa: salao.empresa, isDeleted: salao.isDeleted }
+        });
+
+    } catch (error) {
+        console.error('[BACKEND - PUT /register/soft-delete/:id] Erro ao desativar salão:', error);
+        return res.status(500).json({
+            errorStatus: true,
+            mensageStatus: 'Houve um erro interno ao desativar o cadastro do salão.',
+            errorObject: error.message,
+        });
+    }
+});
+
+router.put('/restore/:id', async (req, res) => {
+    const { id } = req.params;
+    console.log(`[BACKEND - PUT /register/restore/:id] Recebendo requisição para restaurar o ID: ${id}`);
+
+    try {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                errorStatus: true,
+                mensageStatus: `ID de salão inválido: ${id}`,
+            });
+        }
+
+        const salao = await Register.findById(id);
+
+        if (!salao) {
+            return res.status(404).json({
+                errorStatus: true,
+                mensageStatus: 'Salão não encontrado para restauração.',
+            });
+        }
+
+        if (!salao.isDeleted) {
+            return res.status(409).json({
+                errorStatus: true,
+                mensageStatus: 'Este salão não está desativado.',
+            });
+        }
+
+        salao.isDeleted = false; 
+        await salao.save();
+
+        console.log(`[BACKEND - PUT /register/restore/:id] Salão com ID ${id} restaurado com sucesso.`);
+        return res.status(200).json({
+            errorStatus: false,
+            mensageStatus: 'Cadastro do salão restaurado com sucesso.',
+            data: { _id: salao._id, empresa: salao.empresa, isDeleted: salao.isDeleted }
+        });
+
+    } catch (error) {
+        console.error('[BACKEND - PUT /register/restore/:id] Erro ao restaurar salão:', error);
+        return res.status(500).json({
+            errorStatus: true,
+            mensageStatus: 'Houve um erro interno ao restaurar o cadastro do salão.',
+            errorObject: error.message,
+        });
+    }
+});
+
+
+module.exports = router;
 
 
 module.exports = router;

@@ -36,23 +36,27 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-family: "Font Awesome 6 Free"; /* ajuste conforme sua versão */
-  font-weight: 900; /* solid */
   font-size: 24px; /* tamanho do ícone */
   color: #ffffff; /* cor do ícone */
   padding: 0;
-  display: inline-flex;
+  display: flex; /* Use flex para centralizar o ícone dentro do botão */
   align-items: center;
   justify-content: center;
+  width: 40px; /* Largura para o botão */
+  height: 40px; /* Altura para o botão */
+  border-radius: 50%; /* Para deixá-lo redondo */
+  transition: background-color 0.3s ease; /* Adiciona uma transição suave ao hover */
+  margin-left: 20px;
 }
 
-/* Coloca o ícone como conteúdo do botão */
 .logoutButton::before {
-  content: "\f011"; /* unicode do ícone power-off */
+  content: "\f011";
   font-family: "Font Awesome 6 Free";
   font-weight: 900;
 }
-
+.logoutButton:hover {
+  background-color: rgba(255, 255, 255, 0.2); 
+}
 
 
 .gridArea {

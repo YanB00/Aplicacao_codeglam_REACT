@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'; 
+import { useParams } from 'react-router-dom';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -24,17 +25,18 @@ ChartJS.register(
 );
 
 export default function ChartArea() {
-  const chartRef = useRef(null); // <--- Crie uma ref para o gráfico
+  const { userId } = useParams();
+  const chartRef = useRef(null);
   const [originalChartData, setOriginalChartData] = useState(null);
   const [chartData, setChartData] = useState({
     labels: ['Concluídos', 'Cancelados', 'Em Progresso'],
     datasets: [ {
-        label: 'Quantidade de Agendamentos',
-        data: [0, 0, 0], 
-        backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)', 'rgba(255, 206, 86, 0.6)'],
-        borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)'],
-        borderWidth: 1,
-      },],
+        label: 'Quantidade de Agendamentos',
+        data: [0, 0, 0], 
+        backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)', 'rgba(255, 206, 86, 0.6)'],
+        borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)'],
+        borderWidth: 1,
+      },],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -45,7 +47,23 @@ export default function ChartArea() {
     const fetchChartData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:3000/agendamentos/grafico/agendamentos-mensal');
+      const salaoId = userId;
+      if (!salaoId) {
+        console.warn('Salao ID não encontrado na URL. O gráfico pode não exibir dados filtrados.');
+        setLoading(false);
+        setError('ID do salão não disponível na URL para carregar o gráfico.');
+        return;
+      }
+        let apiUrl = 'http://localhost:3000/agendamentos/grafico/agendamentos-mensal';
+        if (salaoId) {
+            apiUrl += `?salaoId=${salaoId}`; // Adiciona o salaoId como query parameter
+        } else {
+            // Opcional: Lidar com o caso onde o salaoId não está disponível (ex: usuário não logado ou salão não definido)
+            console.warn('Salao ID não encontrado. O gráfico pode não exibir dados filtrados.');
+            // Você pode optar por lançar um erro ou mostrar uma mensagem específica
+        }
+
+        const response = await fetch(apiUrl);
         const data = await response.json();
 
         if (!response.ok) {
@@ -57,9 +75,9 @@ export default function ChartArea() {
         }
 
         const concluidos = data.data.concluidos || 0;
-        const cancelados = data.data.cancelados || 0;
-        const emProgresso = data.data.emProgresso || 0;
-        const total = data.data.total || 0;
+        const cancelados = data.data.cancelados || 0;
+        const emProgresso = data.data.emProgresso || 0;
+        const total = data.data.total || 0;
 
         const fetchedData = { concluidos, cancelados, emProgresso, total };
         setOriginalChartData(fetchedData);
@@ -80,7 +98,7 @@ export default function ChartArea() {
     };
 
     fetchChartData();
-  }, []);
+  }, []); // O array de dependências está vazio porque você quer que isso rode uma vez ao montar o componente
 
   const updateChartData = (data, filter) => {
     let labels = ['Concluídos', 'Cancelados', 'Em Progresso'];
@@ -134,33 +152,32 @@ export default function ChartArea() {
   };
 
   const handleBarClick = (event) => {
-    const chart = chartRef.current;
-    if (!chart || !originalChartData) { 
-      return;
-    }
+    const chart = chartRef.current;
+    if (!chart || !originalChartData) { 
+      return;
+    }
     const elements = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, false);
     console.log('Clicked elements:', elements); 
 
-
     if (elements.length > 0) {
-      const clickedElementIndex = elements[0].index;
-      const clickedLabel = chartData.labels[clickedElementIndex];       
+      const clickedElementIndex = elements[0].index;
+      const clickedLabel = chartData.labels[clickedElementIndex];        
       let filterToApply = '';
       if (clickedLabel === 'Concluídos') filterToApply = 'concluidos';
       else if (clickedLabel === 'Cancelados') filterToApply = 'cancelados';
       else if (clickedLabel === 'Em Progresso') filterToApply = 'emProgresso';
 
-      if (activeFilter === filterToApply) {
-        updateChartData(originalChartData, 'all');
-      } else {
-        updateChartData(originalChartData, filterToApply);
-      }
-    } else { 
-      if (activeFilter !== 'all' && originalChartData) { 
-        updateChartData(originalChartData, 'all');
-      }
-    }
-  };
+      if (activeFilter === filterToApply) {
+        updateChartData(originalChartData, 'all');
+      } else {
+        updateChartData(originalChartData, filterToApply);
+      }
+    } else { 
+      if (activeFilter !== 'all' && originalChartData) { 
+        updateChartData(originalChartData, 'all');
+      }
+    }
+  };
 
 
   const options = {
